@@ -70,23 +70,9 @@ const MenuProps = {
 
 const schema = yup
   .object({
-    // eventItemFrame: yup.string().required(),
-    // eventItemType: yup.string().required(),
     initiativeName: yup.string().required(),
-    // whatMovesThisInitiative: yup.string().required(),
-    // whichAreasAreCoveredByThisInitiative: yup.string().required(),
-    servicesNeeded: yup.string().required(),
-    // startDate: yup.string().required(),
-    // endDate: yup.string().required(),
-    // endTime: yup.string().required(),
-    // startTime: yup.string().required(),
+    servicesNeeded: yup.array().required(),
     description: yup.string().required(),
-    // postalCode: yup.string().required(),
-    // website: yup.string().required(),
-    // location: yup.object({
-    //   city: yup.string().required(),
-    //   country: yup.string().required()
-    // })
   })
   .required();
 
@@ -161,17 +147,6 @@ export default function CreateOpportunity() {
   });
 
   const onSubmit = async (data: IForm) => {
-    // if (selectedGoals?.length <= 0) {
-    //   setGoalsError(true);
-    //   return;
-    // }
-
-    // if (files?.length <= 0) {
-    //   setImageError(true);
-    //   alert("Image field is required.");
-    //   return;
-    // }
-
     const formData = new FormData();
     formData.append("file", fileList ? fileList[0] : "");
     formData.append("id", userProfile?._id!);
@@ -179,7 +154,7 @@ export default function CreateOpportunity() {
     formData.append("eventType", data?.eventItemType);
     formData.append("initiativeName", data?.initiativeName);
     formData.append(
-      "whatMovesThisInitiative`",
+      "whatMovesThisInitiative",
       JSON.stringify(data?.whatMovesThisInitiative)
     );
     formData.append(
@@ -200,9 +175,8 @@ export default function CreateOpportunity() {
     createOpportunityMutation(formData);
     reset();
     setSelectedGoals([]);
+    setFileList(null);
   };
-
-  console.log({ goals });
 
   return (
     <Box
@@ -538,7 +512,6 @@ export default function CreateOpportunity() {
                 fullWidth
                 multiline
                 rows={2}
-                maxRows={4}
                 label="Description"
                 helperText={errors.description?.message}
                 error={!!errors.description?.message}
