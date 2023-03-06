@@ -4,6 +4,19 @@ export const formatEntryDate = (data: string) => {
   let currMonth = d.getMonth() + 1;
   let currYear = d.getFullYear();
   return (
-    currYear + '-' + (currMonth < 10 ? '0' + currMonth : currMonth) + '-' + (currDate < 10 ? '0' + currDate : currDate)
+    currYear +
+    "-" +
+    (currMonth < 10 ? "0" + currMonth : currMonth) +
+    "-" +
+    (currDate < 10 ? "0" + currDate : currDate)
   );
+};
+
+export const isValidUrl = (string: string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (err) {
+    return false;
+  }
 };
