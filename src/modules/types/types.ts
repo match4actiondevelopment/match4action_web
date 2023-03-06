@@ -86,15 +86,15 @@ export interface Location {
   country: string;
 }
 
-export interface CreateInitiativeInterface {
+export interface InitiativeInterface {
   userId: string;
   eventTimeFrame?: string;
   eventType?: string;
-  initiativeName?: string;
-  whatMovesThisInitiative?: string;
-  whichAreasAreCoveredByThisInitiative?: string;
-  servicesNeeded?: string;
-  description?: string;
+  initiativeName: string;
+  whatMovesThisInitiative?: string[];
+  whichAreasAreCoveredByThisInitiative?: string[];
+  servicesNeeded: string[];
+  description: string;
   startDate?: string;
   endDate?: string;
   startTime?: string;
@@ -105,4 +105,7 @@ export interface CreateInitiativeInterface {
   goals?: string[];
   image?: string[];
   applicant?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  _id?: string;
 }
