@@ -1,8 +1,8 @@
 import axios from "axios";
 import { http } from "../config/http";
 import {
-  CreateInitiativeInterface,
   GoalsInterface,
+  InitiativeInterface,
   RequestInterface,
   TokensInterface,
   UpdatedProfileInterface,
@@ -134,12 +134,14 @@ export const fetchGoals = async (): Promise<string | GoalsInterface[]> => {
 
 export const createOpportunity = async (formData: FormData) => {
   try {
-    const { data } = await http.post<
-      RequestInterface<CreateInitiativeInterface>
-    >(`/initiatives`, formData, {
-      headers: { "Content-Type": undefined },
-      withCredentials: true,
-    });
+    const { data } = await http.post<RequestInterface<InitiativeInterface>>(
+      `/initiatives`,
+      formData,
+      {
+        headers: { "Content-Type": undefined },
+        withCredentials: true,
+      }
+    );
     if (data?.success) {
       return data?.data;
     } else {
@@ -147,5 +149,22 @@ export const createOpportunity = async (formData: FormData) => {
     }
   } catch (error: any) {
     throw new Error(JSON.stringify(error?.response?.data));
+  }
+};
+
+export const fetchOpportunities = async (): Promise<
+  string | InitiativeInterface[]
+> => {
+  try {
+    const { data } = await http.get<RequestInterface<InitiativeInterface[]>>(
+      `/initiatives`
+    );
+    if (data?.success) {
+      return data?.data;
+    } else {
+      throw new Error("Error!");
+    }
+  } catch (error) {
+    return (error as Error).message;
   }
 };
