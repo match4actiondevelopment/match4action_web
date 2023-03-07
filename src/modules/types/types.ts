@@ -102,10 +102,16 @@ export interface InitiativeInterface {
   postalCode?: string;
   website?: string;
   location: Location;
-  goals?: string[];
+  goals?: string[] | Goal[];
   image?: string[];
   applicant?: string;
   createdAt?: string;
   updatedAt?: string;
   _id?: string;
+}
+
+export interface Goal {
+  image?: string;
+  name: string;
+  _id: string;
 }

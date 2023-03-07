@@ -1,4 +1,7 @@
-export const formatEntryDate = (data: string) => {
+export const formatEntryDate = (data?: string) => {
+  if (!data) {
+    return "";
+  }
   let d = new Date(data);
   let currDate = d.getDate() + 1;
   let currMonth = d.getMonth() + 1;
