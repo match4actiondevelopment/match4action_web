@@ -1,30 +1,29 @@
-'use client';
+"use client";
 
-import { yupResolver } from '@hookform/resolvers/yup';
-import { Grid } from '@mui/material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import NextImage from 'next/image';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useContext, useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import { UserContext } from '../context/user-context';
-import { useAuthGuard } from '../hooks/useAuthGuard';
-import { login } from '../services';
-import { lato, sourceSerifPro } from '../styles/fonts';
-import { TokensInterface, UserI } from '../types/types';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Grid } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import NextImage from "next/image";
+import NextLink from "next/link";
+import { useRouter } from "next/navigation";
+import { useContext, useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { UserContext } from "../context/user-context";
+import { useAuthGuard } from "../hooks/useAuthGuard";
+import { login } from "../services";
+import { lato, sourceSerifPro } from "../styles/fonts";
+import { TokensInterface, UserI } from "../types/types";
 
 const schema = yup
   .object({
     email: yup.string().required(),
-    password: yup.string().required()
+    password: yup.string().required(),
   })
   .required();
-
 
 interface IFormInputs {
   email: string;
@@ -32,16 +31,16 @@ interface IFormInputs {
 }
 
 export default function Login() {
-  const router = useRouter()
-  const { isLogged } = useAuthGuard()
+  const router = useRouter();
+  const { isLogged } = useAuthGuard();
 
   useEffect(() => {
     if (isLogged) {
-      router.push("/")
+      router.push("/");
     }
-  }, [isLogged, router])
+  }, [isLogged, router]);
 
-  const { setUser } = useContext(UserContext) ?? {}
+  const { setUser } = useContext(UserContext) ?? {};
 
   const {
     handleSubmit,
@@ -51,25 +50,28 @@ export default function Login() {
   } = useForm<IFormInputs>({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
   const onSubmit = async (data: IFormInputs) => {
     try {
-      const res = await login(data)
+      const res = await login(data);
 
       if (res !== typeof String) {
-        const response = res as { user: UserI } & TokensInterface
-        const access_token = response.access_token
+        const response = res as { user: UserI } & TokensInterface;
+        const access_token = response.access_token;
         const refresh_token = response.refresh_token;
         const user = response.user;
-        localStorage.setItem('match4action@tokens', JSON.stringify({ access_token, refresh_token }));
-        setUser && setUser(user)
-        router.push('/');
+        localStorage.setItem(
+          "match4action@tokens",
+          JSON.stringify({ access_token, refresh_token })
+        );
+        setUser && setUser(user);
+        router.push("/");
       } else {
-        throw new Error(res)
+        throw new Error(res);
       }
     } catch (error: any) {
       alert(error?.response?.data?.message);
@@ -87,13 +89,13 @@ export default function Login() {
       padding="0 1rem"
       height="100%"
       sx={(theme) => ({
-        [theme.breakpoints.down('sm')]: {
-          width: '100%',
+        [theme.breakpoints.down("sm")]: {
+          width: "100%",
         },
-        [theme.breakpoints.up('sm')]: {
-          width: '100%',
-          maxWidth: '600px',
-          margin: '2.75rem auto',
+        [theme.breakpoints.up("sm")]: {
+          width: "100%",
+          maxWidth: "600px",
+          margin: "2.75rem auto",
         },
       })}
     >
@@ -103,15 +105,15 @@ export default function Login() {
         fontWeight={700}
         marginBottom="2rem"
         sx={(theme) => ({
-          [theme.breakpoints.down('sm')]: {
-            fontSize: '1.5rem',
-            lineHeight: '1.75rem',
+          [theme.breakpoints.down("sm")]: {
+            fontSize: "1.5rem",
+            lineHeight: "1.75rem",
             color: theme.palette.text.primary,
-            textAlign: 'center',
+            textAlign: "center",
           },
-          [theme.breakpoints.up('sm')]: {
-            fontSize: '2.5rem',
-            lineHeight: '2.5rem',
+          [theme.breakpoints.up("sm")]: {
+            fontSize: "2.5rem",
+            lineHeight: "2.5rem",
             color: theme.palette.text.primary,
           },
         })}
@@ -119,7 +121,12 @@ export default function Login() {
         Welcome,
         <br /> Log In To Continue!
       </Typography>
-      <Grid component="form" container spacing={2} onSubmit={handleSubmit(onSubmit)}>
+      <Grid
+        component="form"
+        container
+        spacing={2}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Grid item xs={12} sm={12}>
           <Controller
             name="email"
@@ -133,9 +140,9 @@ export default function Login() {
                 helperText={errors.email?.message}
                 error={!!errors.email?.message}
                 inputProps={{
-                  autoComplete: 'new-password',
+                  autoComplete: "new-password",
                   form: {
-                    autoComplete: 'off',
+                    autoComplete: "off",
                   },
                 }}
                 {...field}
@@ -158,9 +165,9 @@ export default function Login() {
                 helperText={errors.password?.message}
                 error={!!errors.password?.message}
                 inputProps={{
-                  autoComplete: 'new-password',
+                  autoComplete: "new-password",
                   form: {
-                    autoComplete: 'off',
+                    autoComplete: "off",
                   },
                 }}
               />
@@ -176,15 +183,18 @@ export default function Login() {
             marginTop="0.5rem"
             marginBottom="2rem"
             sx={(theme) => ({
-              [theme.breakpoints.down('sm')]: {
-                fontSize: '0.75rem',
-                lineHeight: '0.875rem',
+              [theme.breakpoints.down("sm")]: {
+                fontSize: "0.75rem",
+                lineHeight: "0.875rem",
                 color: theme.palette.text.primary,
-                textAlign: 'right',
+                textAlign: "right",
               },
             })}
           >
-            <NextLink href={'/forgot-password'} style={{ textDecoration: 'none' }}>
+            <NextLink
+              href={"/forgot-password"}
+              style={{ textDecoration: "none" }}
+            >
               Forgot Password?
             </NextLink>
           </Typography>
@@ -192,65 +202,65 @@ export default function Login() {
         <Grid item xs={12} sm={12}>
           <Button
             type="submit"
-            disabled={!watch('email') || !watch('password')}
+            disabled={!watch("email") || !watch("password")}
             className={lato.className}
             sx={(theme) => ({
-              [theme.breakpoints.down('sm')]: {
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '39px',
-                background: '#FFD15C',
+              [theme.breakpoints.down("sm")]: {
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "39px",
+                background: "#FFD15C",
                 color: theme.palette.text.primary,
                 fontWeight: 600,
-                fontSize: '1rem',
-                ':focus': {
-                  background: '#FFD15C',
+                fontSize: "1rem",
+                ":focus": {
+                  background: "#FFD15C",
                 },
-                ':active': {
-                  background: '#FFD15C',
+                ":active": {
+                  background: "#FFD15C",
                 },
-                ':hover': {
-                  background: '#FFD15C',
+                ":hover": {
+                  background: "#FFD15C",
                 },
-                ':disabled': {
-                  background: '#D3D3D3',
-                  boxShadow: 'none',
+                ":disabled": {
+                  background: "#D3D3D3",
+                  boxShadow: "none",
                 },
-                textTransform: 'capitalize',
-                textDecoration: 'none',
-                minWidth: '100%',
-                borderRadius: '5px',
-                marginBottom: '1rem',
-                cursor: 'pointer',
+                textTransform: "capitalize",
+                textDecoration: "none",
+                minWidth: "100%",
+                borderRadius: "5px",
+                marginBottom: "1rem",
+                cursor: "pointer",
               },
-              [theme.breakpoints.up('sm')]: {
-                display: 'inline-block',
-                padding: '14px 28px',
-                background: '#FFD15C',
+              [theme.breakpoints.up("sm")]: {
+                display: "inline-block",
+                padding: "14px 28px",
+                background: "#FFD15C",
                 color: theme.palette.text.primary,
                 fontWeight: 600,
-                boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.15)',
-                fontSize: '1rem',
-                ':focus': {
-                  background: '#FFD15C',
+                boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
+                fontSize: "1rem",
+                ":focus": {
+                  background: "#FFD15C",
                 },
-                ':active': {
-                  background: '#FFD15C',
+                ":active": {
+                  background: "#FFD15C",
                 },
-                ':hover': {
-                  background: '#FFD15C',
+                ":hover": {
+                  background: "#FFD15C",
                 },
-                ':disabled': {
-                  background: '#D3D3D3',
-                  boxShadow: 'none',
+                ":disabled": {
+                  background: "#D3D3D3",
+                  boxShadow: "none",
                 },
-                textTransform: 'capitalize',
-                textDecoration: 'none',
-                borderRadius: '5px',
-                marginBottom: '1rem',
-                cursor: 'pointer',
-                width: '100%',
+                textTransform: "capitalize",
+                textDecoration: "none",
+                borderRadius: "5px",
+                marginBottom: "1rem",
+                cursor: "pointer",
+                width: "100%",
               },
             })}
           >
@@ -260,70 +270,75 @@ export default function Login() {
       </Grid>
       <NextLink
         href={`${process.env.NEXT_PUBLIC_API_PATH}/auth/google`}
-        style={{ width: '100%', textDecoration: 'none' }}
+        style={{ width: "100%", textDecoration: "none" }}
       >
         <Button
           className={lato.className}
           sx={(theme) => ({
-            [theme.breakpoints.down('sm')]: {
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '40px',
-              background: '#ffffff',
+            [theme.breakpoints.down("sm")]: {
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "40px",
+              background: "#ffffff",
               color: theme.palette.text.primary,
               fontWeight: 600,
-              fontSize: '1rem',
-              border: '3px solid #FFD15C',
-              ':focus': {
-                background: '#ffffff',
-                border: '3px solid #FFD15C',
+              fontSize: "1rem",
+              border: "3px solid #FFD15C",
+              ":focus": {
+                background: "#ffffff",
+                border: "3px solid #FFD15C",
               },
-              ':active': {
-                background: '#ffffff',
-                border: '3px solid #FFD15C',
+              ":active": {
+                background: "#ffffff",
+                border: "3px solid #FFD15C",
               },
-              textTransform: 'capitalize',
-              textDecoration: 'none',
-              minWidth: '100%',
-              borderRadius: '5px',
-              marginBottom: '1.5rem',
-              cursor: 'pointer',
+              textTransform: "capitalize",
+              textDecoration: "none",
+              minWidth: "100%",
+              borderRadius: "5px",
+              marginBottom: "1.5rem",
+              cursor: "pointer",
             },
-            [theme.breakpoints.up('sm')]: {
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+            [theme.breakpoints.up("sm")]: {
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
               gap: 1,
-              padding: '12px 28px',
-              background: '#ffffff',
+              padding: "12px 28px",
+              background: "#ffffff",
               color: theme.palette.text.primary,
               fontWeight: 600,
-              boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.15)',
-              fontSize: '1rem',
-              border: '3px solid #FFD15C',
-              ':focus': {
-                background: '#ffffff',
-                border: '3px solid #FFD15C',
+              boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
+              fontSize: "1rem",
+              border: "3px solid #FFD15C",
+              ":focus": {
+                background: "#ffffff",
+                border: "3px solid #FFD15C",
               },
-              ':active': {
-                background: '#ffffff',
-                border: '3px solid #FFD15C',
+              ":active": {
+                background: "#ffffff",
+                border: "3px solid #FFD15C",
               },
-              ':hover': {
-                background: '#ffffff',
+              ":hover": {
+                background: "#ffffff",
               },
-              textTransform: 'capitalize',
-              textDecoration: 'none',
-              borderRadius: '5px',
-              marginBottom: '1rem',
-              cursor: 'pointer',
-              width: '100%',
-              marginRight: '0',
+              textTransform: "capitalize",
+              textDecoration: "none",
+              borderRadius: "5px",
+              marginBottom: "1rem",
+              cursor: "pointer",
+              width: "100%",
+              marginRight: "0",
             },
           })}
         >
-          <NextImage src="/google-logo.png" alt="Google Logo" width={24} height={24} />
+          <NextImage
+            src="/google-logo.png"
+            alt="Google Logo"
+            width={24}
+            height={24}
+          />
           Continue With Google
         </Button>
       </NextLink>
@@ -332,16 +347,16 @@ export default function Login() {
         width="100%"
         fontWeight={700}
         sx={(theme) => ({
-          [theme.breakpoints.down('sm')]: {
-            fontSize: '0.75rem',
-            lineHeight: '0.875rem',
+          [theme.breakpoints.down("sm")]: {
+            fontSize: "0.75rem",
+            lineHeight: "0.875rem",
             color: theme.palette.text.primary,
-            textAlign: 'center',
+            textAlign: "center",
           },
         })}
       >
-        I&apos;m a new user,{' '}
-        <NextLink href={'register'} style={{ textDecoration: 'none' }}>
+        I&apos;m a new user,{" "}
+        <NextLink href={"register"} style={{ textDecoration: "none" }}>
           Sign Up
         </NextLink>
       </Typography>

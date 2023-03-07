@@ -1,5 +1,5 @@
-'use client';
+"use client";
 
-import Login from '@/modules/pages/Login';
+import Login from "@/modules/pages/Login";
 
 export default Login;
