@@ -168,3 +168,21 @@ export const fetchOpportunities = async (): Promise<
     return (error as Error).message;
   }
 };
+
+export const fetchOpportunity = async (
+  id?: string
+): Promise<InitiativeInterface> => {
+  try {
+    const { data } = await http.get<RequestInterface<InitiativeInterface>>(
+      `/initiatives/${id}`
+    );
+    if (data?.success) {
+      return data?.data;
+    } else {
+      throw new Error("Error!");
+    }
+  } catch (error: any) {
+    return error;
+    // return (error as Error).message;
+  }
+};
