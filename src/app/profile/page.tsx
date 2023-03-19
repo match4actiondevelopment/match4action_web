@@ -1,5 +1,9 @@
-'use client';
+import Profile from "@/modules/pages/Profile";
+import { cookies } from "next/headers";
 
-import Profile from '@/modules/pages/Profile';
+export default async function Page() {
+  const cookieStore = cookies();
+  const userId = cookieStore.get("userId")?.value;
 
-export default Profile;
+  return <Profile userId={userId} />;
+}
