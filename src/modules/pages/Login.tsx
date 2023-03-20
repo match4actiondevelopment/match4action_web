@@ -9,14 +9,10 @@ import Typography from "@mui/material/Typography";
 import NextImage from "next/image";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
-import { UserContext } from "../context/user-context";
-import { useAuthGuard } from "../hooks/useAuthGuard";
 import { login } from "../services";
 import { lato, sourceSerifPro } from "../styles/fonts";
-import { TokensInterface, UserI } from "../types/types";
 
 const schema = yup
   .object({
@@ -32,15 +28,6 @@ interface IFormInputs {
 
 export default function Login() {
   const router = useRouter();
-  const { isLogged } = useAuthGuard();
-
-  useEffect(() => {
-    if (isLogged) {
-      router.push("/");
-    }
-  }, [isLogged, router]);
-
-  const { setUser } = useContext(UserContext) ?? {};
 
   const {
     handleSubmit,
@@ -60,15 +47,6 @@ export default function Login() {
       const res = await login(data);
 
       if (res !== typeof String) {
-        const response = res as { user: UserI } & TokensInterface;
-        const access_token = response.access_token;
-        const refresh_token = response.refresh_token;
-        const user = response.user;
-        localStorage.setItem(
-          "match4action@tokens",
-          JSON.stringify({ access_token, refresh_token })
-        );
-        setUser && setUser(user);
         router.push("/");
       } else {
         throw new Error(res);
