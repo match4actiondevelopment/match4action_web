@@ -1,7 +1,6 @@
 "use client";
 
-import { UserContext } from "@/modules/context/user-context";
-import { useFetchProfile } from "@/modules/hooks/useGetProfile";
+import { useGetProfile } from "@/modules/hooks/useGetProfile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FormHelperText } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -23,7 +22,7 @@ import Typography from "@mui/material/Typography";
 import { useMutation } from "@tanstack/react-query";
 import NextImage from "next/image";
 import NextLink from "next/link";
-import { ChangeEvent, useContext, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useGetGoals } from "../hooks/useGetGoals";
@@ -76,9 +75,14 @@ const schema = yup
   })
   .required();
 
-export default function CreateOpportunity() {
-  const { user } = useContext(UserContext) ?? {};
-  const { data: userProfile } = useFetchProfile(user?._id);
+type CreateOpportunityInterface = {
+  userId?: string;
+};
+
+export default function CreateOpportunity({
+  userId,
+}: CreateOpportunityInterface) {
+  const { data: userProfile } = useGetProfile(userId);
   const { data: goals } = useGetGoals();
 
   const inputRef = useRef<HTMLInputElement | null>(null);

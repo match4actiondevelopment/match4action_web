@@ -1,15 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchProfile } from '../services';
-import { UserI } from '../types/types';
+import { useQuery } from "@tanstack/react-query";
+import { fetchProfile } from "../services";
+import { UserI } from "../types/types";
 
-export const useFetchProfile = (id?: string | null) => {
-  const { data, isFetched, isLoading } = useQuery<string | UserI, unknown, UserI>(
-    ['profile', id],
-    () => fetchProfile(id),
-    {
-      enabled: !!id,
-    }
-  );
-
-  return { data, isFetched, isLoading };
+export const useGetProfile = (id?: string) => {
+  return useQuery<string | UserI, unknown, UserI, (string | undefined)[]>({
+    queryKey: ["profile", id],
+    queryFn: () => fetchProfile(id),
+    enabled: !!id,
+  });
 };

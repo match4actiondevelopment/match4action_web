@@ -1,6 +1,7 @@
 "use client";
 
 import { queryClient } from "@/modules/context/layout-context";
+import { useGetProfile } from "@/modules/hooks/useGetProfile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import EditIcon from "@mui/icons-material/Edit";
 import RoomIcon from "@mui/icons-material/Room";
@@ -13,20 +14,16 @@ import Grid from "@mui/material/Grid";
 import Skeleton from "@mui/material/Skeleton";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import NextImage from "next/image";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "react-quill/dist/quill.snow.css";
 import * as yup from "yup";
-import { fetchProfile, updateImage, updateUserProfile } from "../services";
+import { updateImage, updateUserProfile } from "../services";
 import { lato, sourceSerifPro } from "../styles/fonts";
-import {
-  ProfileFormInterface,
-  UpdateProfilePayload,
-  UserI,
-} from "../types/types";
+import { ProfileFormInterface, UpdateProfilePayload } from "../types/types";
 import { formatEntryDate } from "../utils";
 
 const schema = yup
@@ -46,16 +43,7 @@ export default function Profile({ userId }: ProfileInterface) {
   const [fileList, setFileList] = useState<FileList | null>(null);
   const [bio, setBio] = useState("");
 
-  const { data: userProfile, isLoading } = useQuery<
-    string | UserI,
-    unknown,
-    UserI,
-    (string | undefined)[]
-  >({
-    queryKey: ["profile", userId],
-    queryFn: () => fetchProfile(userId),
-    enabled: !!userId,
-  });
+  const { data: userProfile, isLoading } = useGetProfile(userId);
 
   const { handleSubmit, control, reset } = useForm<ProfileFormInterface>({
     resolver: yupResolver(schema),
