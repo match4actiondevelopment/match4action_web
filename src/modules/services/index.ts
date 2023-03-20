@@ -170,3 +170,17 @@ export const fetchOpportunity = async (
     // return (error as Error).message;
   }
 };
+
+export const logout = async () => {
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/auth/logout`, {
+      credentials: "include",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    return error;
+  }
+};

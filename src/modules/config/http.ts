@@ -1,4 +1,3 @@
-// http.ts
 import { logout } from "@/modules/services";
 import axios from "axios";
 
@@ -16,7 +15,7 @@ http.interceptors.response.use(
   async (error) => {
     if (error?.response?.status === 403) {
       await logout();
-      return (window.location.href = window.location.origin);
+      window.location.href = window.location.origin;
     } else {
       return Promise.reject(error);
     }

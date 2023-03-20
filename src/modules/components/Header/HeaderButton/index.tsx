@@ -2,14 +2,13 @@ import { logout } from "@/modules/services";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import NextLink from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export interface HeaderButtonInterface {
   accessToken?: string;
 }
 
 export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
-  const router = useRouter();
   const pathname = usePathname();
   const doNotShowLoginButton = [
     "forgot-password",
@@ -19,7 +18,7 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
 
   const handleLogout = async () => {
     await logout();
-    router.push("/");
+    window.location.href = window.location.origin;
   };
 
   return (
@@ -71,7 +70,7 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
           sx={(theme) => ({
             [theme.breakpoints.down(1130)]: {
               background: "#FFD15C",
-              color: theme.palette.text.primary,
+              color: "#000000",
               fontWeight: 400,
               fontSize: "0.75rem",
               ":focus": {
@@ -80,11 +79,14 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
               ":active": {
                 background: "#FFD15C",
               },
+              ":hover": {
+                background: "#FFD15C",
+              },
               textTransform: "capitalize",
             },
             [theme.breakpoints.up(1130)]: {
               background: "#FFD15C",
-              color: theme.palette.text.primary,
+              color: "#000000",
               fontWeight: 400,
               fontSize: "1rem",
               ":focus": {
@@ -97,7 +99,6 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
                 background: "#FFD15C",
               },
               textTransform: "capitalize",
-              padding: "0.4rem 1.25rem",
             },
           })}
         >
