@@ -28,22 +28,6 @@ export const fetchProfile = async (id?: string | null) => {
   }
 };
 
-export const logout = async () => {
-  try {
-    const { data } = await http.post<RequestInterface<undefined>>(
-      `/auth/logout`,
-      { withCredentials: true }
-    );
-    if (data?.success) {
-      return data?.success;
-    } else {
-      throw new Error("Error!");
-    }
-  } catch (error) {
-    return (error as Error).message;
-  }
-};
-
 export const updateUserProfile = async ({ body, id }: UpdateProfilePayload) => {
   try {
     const { data } = await http.patch<
