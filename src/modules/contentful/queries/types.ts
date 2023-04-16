@@ -17,14 +17,16 @@ export interface PurpleItem {
 }
 
 export interface PurpleFields {
-  name: string;
-  fullWidth: string;
-  variant: string;
-  columns: string;
-  background: string;
-  marginBottom: string;
+  name?: string;
+  fullWidth?: string;
+  variant?: string;
+  columns?: string;
+  background?: string;
+  marginBottom?: string;
   reorderItems?: boolean;
-  items: FluffyItem[];
+  items?: FluffyItem[];
+  pageTitle?: string;
+  slug?: string;
 }
 
 export interface FluffyItem {
@@ -68,15 +70,15 @@ export interface FluffyContent {
 export interface TextData {}
 
 export enum PurpleNodeType {
-  Text = 'text',
+  Text = "text",
 }
 
 export enum FluffyNodeType {
-  EmbeddedEntryBlock = 'embedded-entry-block',
-  Heading1 = 'heading-1',
-  Heading2 = 'heading-2',
-  Heading3 = 'heading-3',
-  Paragraph = 'paragraph',
+  EmbeddedEntryBlock = "embedded-entry-block",
+  Heading1 = "heading-1",
+  Heading2 = "heading-2",
+  Heading3 = "heading-3",
+  Paragraph = "paragraph",
 }
 
 export interface PurpleImage {
@@ -149,30 +151,30 @@ export interface ContentTypeSys {
 }
 
 export enum ID {
-  Card = 'card',
-  Container = 'container',
-  Dev = 'dev',
-  Image = 'Image',
-  Link = 'Link',
-  Page = 'Page',
-  Row = 'row',
-  Text = 'Text',
-  Zpqcdf62Yp9Z = 'zpqcdf62yp9z',
+  Card = "card",
+  Container = "container",
+  Dev = "dev",
+  Image = "Image",
+  Link = "Link",
+  Page = "Page",
+  Row = "row",
+  Text = "Text",
+  Zpqcdf62Yp9Z = "zpqcdf62yp9z",
 }
 
 export enum LinkType {
-  ContentType = 'ContentType',
-  Environment = 'Environment',
-  Space = 'Space',
+  ContentType = "ContentType",
+  Environment = "Environment",
+  Space = "Space",
 }
 
 export enum Locale {
-  EnUS = 'en-US',
+  EnUS = "en-US",
 }
 
 export enum Type {
-  Asset = 'Asset',
-  Entry = 'Entry',
+  Asset = "Asset",
+  Entry = "Entry",
 }
 
 export interface TentacledItem {

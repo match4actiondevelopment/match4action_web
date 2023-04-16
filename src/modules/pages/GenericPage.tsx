@@ -11,7 +11,8 @@ interface HomePageInterface {
 
 export default function GenericPage({ data }: HomePageInterface) {
   const heroImage =
-    data?.fields?.items[0]?.fields?.items![0]?.fields?.image?.fields?.file?.url;
+    data?.fields?.items![0]?.fields?.items![0]?.fields?.image?.fields?.file
+      ?.url;
 
   return (
     <Box component="main">
