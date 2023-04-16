@@ -71,6 +71,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           sx={(theme) => ({
             display: "flex",
             padding: 0,
+            height: "40px",
             [theme.breakpoints.up(1130)]: {
               gap: "1.5rem",
             },
@@ -129,7 +130,12 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
             </NextLink>
           </ListItem>
           <ListItem
-            sx={{ padding: 0, minInlineSize: "fit-content", color: "#fff" }}
+            sx={{
+              padding: 0,
+              minInlineSize: "fit-content",
+              color: "#fff",
+              minWidth: "64px",
+            }}
           >
             <HeaderButton accessToken={accessToken} />
           </ListItem>

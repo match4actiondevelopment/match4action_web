@@ -1,7 +1,7 @@
 "use client";
 
+import { ImageBackground } from "@/modules/components/ImageBackground";
 import Box from "@mui/material/Box";
-import dynamic from "next/dynamic";
 import { ContentfulResolver } from "../contentful/components/ContentfulResolver";
 import { PurpleItem } from "../contentful/queries/types";
 
@@ -9,20 +9,14 @@ interface HomePageInterface {
   data: PurpleItem;
 }
 
-const ImageBackground = dynamic(
-  () =>
-    import("../components/ImageBackground").then((doc) => doc.ImageBackground),
-  {
-    ssr: false,
-  }
-);
-
 export default function GenericPage({ data }: HomePageInterface) {
+  const heroImage =
+    data?.fields?.items[0]?.fields?.items![0]?.fields?.image?.fields?.file?.url;
+
   return (
-    <>
-      <ImageBackground />
+    <Box component="main">
+      {heroImage && <ImageBackground />}
       <Box
-        component="main"
         marginTop="2.75rem"
         display="flex"
         flexDirection="column"
@@ -33,6 +27,6 @@ export default function GenericPage({ data }: HomePageInterface) {
           return <ContentfulResolver key={item?.sys?.id} data={item} />;
         })}
       </Box>
-    </>
+    </Box>
   );
 }
