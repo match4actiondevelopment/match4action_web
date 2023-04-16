@@ -99,7 +99,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink
-              href="#"
+              href="/opportunities"
               style={{ textDecoration: "none", color: "#fff" }}
             >
               <ListItemText primary="Volunteer Now" sx={{ padding: 0 }} />
@@ -107,7 +107,8 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink
-              href="#"
+              target="_blank"
+              href="https://medium.com/@info_66495"
               style={{ textDecoration: "none", color: "#fff" }}
             >
               <ListItemText primary="Blog" sx={{ padding: 0 }} />
@@ -115,7 +116,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink
-              href="#"
+              href="/about-us"
               style={{ textDecoration: "none", color: "#fff" }}
             >
               <ListItemText primary="About us" sx={{ padding: 0 }} />
@@ -123,7 +124,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink
-              href="#"
+              href="/contact-us"
               style={{ textDecoration: "none", color: "#fff" }}
             >
               <ListItemText primary="Get in Touch" sx={{ padding: 0 }} />
