@@ -1,5 +1,10 @@
-'use client';
+import { Metadata } from "next";
 
-import SignUp from '@/modules/pages/SignUp';
+export const metadata: Metadata = {
+  title: "Match4purpose - Sign Up",
+  description: "...",
+};
 
-export default SignUp;
+import Register from "@/modules/pages/Register";
+
+export default Register;
