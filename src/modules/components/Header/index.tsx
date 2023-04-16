@@ -1,7 +1,20 @@
-import { HeaderDesktop } from "@/modules/components/Header/HeaderDesktop";
-import { HeaderMobile } from "@/modules/components/Header/HeaderMobile";
 import theme from "@/modules/styles/theme";
 import { useMediaQuery } from "@mui/material";
+import dynamic from "next/dynamic";
+
+const HeaderMobile = dynamic(
+  () => import("../Header/HeaderMobile").then((doc) => doc.HeaderMobile),
+  {
+    ssr: false,
+  }
+);
+
+const HeaderDesktop = dynamic(
+  () => import("../Header/HeaderDesktop").then((doc) => doc.HeaderDesktop),
+  {
+    ssr: false,
+  }
+);
 
 export interface HeaderInterface {
   accessToken?: string;

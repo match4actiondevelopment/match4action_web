@@ -1,11 +1,11 @@
 "use client";
 
-import { Header } from "@/modules/components/Header";
 import { CacheProvider } from "@emotion/react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import React, { useState } from "react";
 import { lato, sourceSerifPro } from "../styles/fonts";
 import theme from "../styles/theme";
@@ -16,6 +16,13 @@ export interface LayoutContextProps {
   children: React.ReactNode;
   accessToken?: string;
 }
+
+const Header = dynamic(
+  () => import("../../modules/components/Header").then((doc) => doc.Header),
+  {
+    ssr: false,
+  }
+);
 
 export const queryClient = new QueryClient();
 
