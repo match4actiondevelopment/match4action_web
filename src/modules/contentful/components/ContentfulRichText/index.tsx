@@ -1,20 +1,23 @@
-import { lato, sourceSerifPro } from '@/modules/styles/fonts';
-import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
-import { BLOCKS, INLINES, MARKS } from '@contentful/rich-text-types';
-import Box from '@mui/material/Box';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import Typography from '@mui/material/Typography';
-import NextImage from 'next/image';
-import NextLink from 'next/link';
-import React, { ReactFragment, ReactNode, ReactPortal } from 'react';
+import { lato, sourceSerifPro } from "@/modules/styles/fonts";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { BLOCKS, INLINES, MARKS } from "@contentful/rich-text-types";
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Typography from "@mui/material/Typography";
+import NextImage from "next/image";
+import NextLink from "next/link";
+import React, { ReactFragment, ReactNode, ReactPortal } from "react";
 
 type ContentfulRichTextPRos = {
   data: any;
   textAlignment?: string;
 };
 
-export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPRos) => {
+export const ContentfulRichText = ({
+  data,
+  textAlignment,
+}: ContentfulRichTextPRos) => {
   const renderOptions = {
     renderNode: {
       [BLOCKS.HEADING_1]: (node: any, children: any) => {
@@ -23,18 +26,18 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
             className={sourceSerifPro.className}
             variant="h1"
             sx={(theme) => ({
-              [theme.breakpoints.down('sm')]: {
-                fontSize: '2rem',
-                lineHeight: '2.25rem',
+              [theme.breakpoints.down("sm")]: {
+                fontSize: "2rem",
+                lineHeight: "2.25rem",
                 color: theme.palette.text.primary,
-                textAlign: 'center',
-                marginBottom: '1rem',
+                textAlign: "center",
+                marginBottom: "1rem",
               },
-              [theme.breakpoints.up('sm')]: {
-                fontSize: '3.75rem',
-                lineHeight: '3.875rem',
+              [theme.breakpoints.up("sm")]: {
+                fontSize: "3.75rem",
+                lineHeight: "3.875rem",
                 color: theme.palette.text.primary,
-                marginBottom: '1rem',
+                marginBottom: "1rem",
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
             })}
@@ -50,15 +53,15 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
             variant="h2"
             fontWeight={700}
             sx={(theme) => ({
-              [theme.breakpoints.down('sm')]: {
-                fontSize: '1.5rem',
-                lineHeight: '1.75rem',
+              [theme.breakpoints.down("sm")]: {
+                fontSize: "1.5rem",
+                lineHeight: "1.75rem",
                 color: theme.palette.text.primary,
-                textAlign: 'center',
+                textAlign: "center",
               },
-              [theme.breakpoints.up('sm')]: {
-                fontSize: '2.5rem',
-                lineHeight: '2.5rem',
+              [theme.breakpoints.up("sm")]: {
+                fontSize: "2.5rem",
+                lineHeight: "2.5rem",
                 color: theme.palette.text.primary,
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
@@ -75,15 +78,15 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
             variant="h3"
             marginBottom="1rem"
             sx={(theme) => ({
-              [theme.breakpoints.down('sm')]: {
-                fontSize: '1.25rem',
-                lineHeight: '1.5rem',
+              [theme.breakpoints.down("sm")]: {
+                fontSize: "1.25rem",
+                lineHeight: "1.5rem",
                 color: theme.palette.text.primary,
-                textAlign: 'center',
+                textAlign: "center",
               },
-              [theme.breakpoints.up('sm')]: {
-                fontSize: '2rem',
-                lineHeight: '2.5rem',
+              [theme.breakpoints.up("sm")]: {
+                fontSize: "2rem",
+                lineHeight: "2.5rem",
                 color: theme.palette.text.primary,
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
@@ -115,7 +118,7 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
         );
       },
       [BLOCKS.PARAGRAPH]: (node: any, children: any) => {
-        if (children[0] === '') {
+        if (children[0] === "") {
           return <br />;
         }
 
@@ -123,15 +126,15 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
           <Typography
             className={lato.className}
             sx={(theme) => ({
-              [theme.breakpoints.down('sm')]: {
-                fontSize: '1rem',
-                lineHeight: '1.25rem',
+              [theme.breakpoints.down("sm")]: {
+                fontSize: "1rem",
+                lineHeight: "1.25rem",
                 color: theme.palette.text.primary,
-                textAlign: 'center',
+                textAlign: "center",
               },
-              [theme.breakpoints.up('sm')]: {
-                fontSize: '1.125rem',
-                lineHeight: '1.5rem',
+              [theme.breakpoints.up("sm")]: {
+                fontSize: "1.125rem",
+                lineHeight: "1.5rem",
                 color: theme.palette.text.primary,
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
@@ -148,7 +151,7 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
               children?.map((child: any) => (
                 // eslint-disable-next-line react/jsx-key
                 <ListItem component="li">
-                  <Typography component="span" sx={{ marginRight: '3px' }}>
+                  <Typography component="span" sx={{ marginRight: "3px" }}>
                     -
                   </Typography>
                   {child?.props?.children}
@@ -168,7 +171,7 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
               children?.map((child: any, index: number) => (
                 // eslint-disable-next-line react/jsx-key
                 <ListItem component="li">
-                  <Typography component="span" sx={{ marginRight: '3px' }}>
+                  <Typography component="span" sx={{ marginRight: "3px" }}>
                     {index + 1}.
                   </Typography>
                   {child?.props?.children}
@@ -179,19 +182,51 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
         );
       },
       [BLOCKS.HR]: (node: any, children: any) => {
-        return <hr style={{ width: '100%' }} />;
+        return <hr style={{ width: "100%" }} />;
       },
       [BLOCKS.EMBEDDED_ENTRY]: (node: any, children: any) => {
-        if (node.data.target.sys.contentType.sys.id === 'image') {
+        if (
+          node?.data?.target?.sys?.contentType?.sys?.id?.toLowerCase() ===
+          "image"
+        ) {
+          const justifyContent =
+            node?.data?.target?.fields?.alignment.toLowerCase();
+
           return (
-            <div>
-              <NextImage
-                width={node?.data?.target?.fields?.image?.fields?.file?.details?.image?.width}
-                height={node?.data?.target?.fields?.image?.fields?.file?.details?.image?.height}
-                src={`https:${node?.data?.target?.fields?.image?.fields?.file?.url}`}
-                alt={node?.data?.target?.fields?.alt}
-              />
-            </div>
+            <Box
+              position="relative"
+              display="flex"
+              width="100%"
+              justifyContent={justifyContent}
+            >
+              <Box
+                position="relative"
+                sx={(theme) => ({
+                  [theme.breakpoints.down("sm")]: {
+                    height:
+                      node?.data?.target?.fields?.image?.fields?.file?.details
+                        ?.image?.height * 0.4,
+                    width:
+                      node?.data?.target?.fields?.image?.fields?.file?.details
+                        ?.image?.width * 0.4,
+                  },
+                  [theme.breakpoints.up("sm")]: {
+                    height:
+                      node?.data?.target?.fields?.image?.fields?.file?.details
+                        ?.image?.height * 0.5,
+                    width:
+                      node?.data?.target?.fields?.image?.fields?.file?.details
+                        ?.image?.width * 0.5,
+                  },
+                })}
+              >
+                <NextImage
+                  src={`https:${node?.data?.target?.fields?.image?.fields?.file?.url}`}
+                  alt={node?.data?.target?.fields?.alt}
+                  fill
+                />
+              </Box>
+            </Box>
           );
         }
         const url = node?.data?.target?.fields?.linkToEntry
@@ -201,21 +236,21 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
         const variant = node?.data?.target?.fields?.variant;
 
         return (
-          <NextLink href={url} style={{ textDecoration: 'none' }}>
-            {variant === 'Link' && (
+          <NextLink href={url} style={{ textDecoration: "none" }}>
+            {variant === "Link" && (
               <Typography
                 fontWeight={700}
                 sx={(theme) => ({
-                  textDecoration: 'underline',
+                  textDecoration: "underline",
                   color: theme.palette.text.primary,
-                  [theme.breakpoints.down('sm')]: {
-                    fontSize: '0.75rem',
-                    lineHeight: '0.875rem',
-                    textAlign: 'center',
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "0.75rem",
+                    lineHeight: "0.875rem",
+                    textAlign: "center",
                   },
-                  [theme.breakpoints.up('sm')]: {
-                    fontSize: '1.125rem',
-                    lineHeight: '1.5rem',
+                  [theme.breakpoints.up("sm")]: {
+                    fontSize: "1.125rem",
+                    lineHeight: "1.5rem",
                     textAlign: textAlignment?.toLocaleLowerCase(),
                   },
                 })}
@@ -223,109 +258,109 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
                 {node?.data?.target?.fields?.label}
               </Typography>
             )}
-            {variant === 'Button - Solid' && (
+            {variant === "Button - Solid" && (
               <Box
                 className={lato.className}
                 sx={(theme) => ({
-                  [theme.breakpoints.down('sm')]: {
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '39px',
-                    background: '#FFD15C',
+                  [theme.breakpoints.down("sm")]: {
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "39px",
+                    background: "#FFD15C",
                     color: theme.palette.text.primary,
                     fontWeight: 600,
-                    fontSize: '1rem',
-                    ':focus': {
-                      background: '#FFD15C',
+                    fontSize: "1rem",
+                    ":focus": {
+                      background: "#FFD15C",
                     },
-                    ':active': {
-                      background: '#FFD15C',
+                    ":active": {
+                      background: "#FFD15C",
                     },
-                    textTransform: 'capitalize',
-                    textDecoration: 'none',
-                    minWidth: '100%',
-                    borderRadius: '5px',
-                    marginBottom: '1rem',
-                    cursor: 'pointer',
+                    textTransform: "capitalize",
+                    textDecoration: "none",
+                    minWidth: "100%",
+                    borderRadius: "5px",
+                    marginBottom: "1rem",
+                    cursor: "pointer",
                   },
-                  [theme.breakpoints.up('sm')]: {
-                    display: 'inline-block',
-                    padding: '14px 28px',
-                    background: '#FFD15C',
+                  [theme.breakpoints.up("sm")]: {
+                    display: "inline-block",
+                    padding: "14px 28px",
+                    background: "#FFD15C",
                     color: theme.palette.text.primary,
                     fontWeight: 600,
-                    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.15)',
-                    fontSize: '1rem',
-                    ':focus': {
-                      background: '#FFD15C',
+                    boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
+                    fontSize: "1rem",
+                    ":focus": {
+                      background: "#FFD15C",
                     },
-                    ':active': {
-                      background: '#FFD15C',
+                    ":active": {
+                      background: "#FFD15C",
                     },
-                    textTransform: 'capitalize',
-                    textDecoration: 'none',
-                    borderRadius: '5px',
-                    marginBottom: '1rem',
-                    cursor: 'pointer',
-                    marginRight: '1rem',
+                    textTransform: "capitalize",
+                    textDecoration: "none",
+                    borderRadius: "5px",
+                    marginBottom: "1rem",
+                    cursor: "pointer",
+                    marginRight: "1rem",
                   },
                 })}
               >
                 {node?.data?.target?.fields?.label}
               </Box>
             )}
-            {variant === 'Button - Outline' && (
+            {variant === "Button - Outline" && (
               <Box
                 className={lato.className}
                 sx={(theme) => ({
-                  [theme.breakpoints.down('sm')]: {
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '40px',
-                    background: '#ffffff',
+                  [theme.breakpoints.down("sm")]: {
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "40px",
+                    background: "#ffffff",
                     color: theme.palette.text.primary,
                     fontWeight: 600,
-                    fontSize: '1rem',
-                    border: '3px solid #FFD15C',
-                    ':focus': {
-                      background: '#ffffff',
-                      border: '3px solid #FFD15C',
+                    fontSize: "1rem",
+                    border: "3px solid #FFD15C",
+                    ":focus": {
+                      background: "#ffffff",
+                      border: "3px solid #FFD15C",
                     },
-                    ':active': {
-                      background: '#ffffff',
-                      border: '3px solid #FFD15C',
+                    ":active": {
+                      background: "#ffffff",
+                      border: "3px solid #FFD15C",
                     },
-                    textTransform: 'capitalize',
-                    textDecoration: 'none',
-                    minWidth: '100%',
-                    borderRadius: '5px',
-                    marginBottom: '1rem',
-                    cursor: 'pointer',
+                    textTransform: "capitalize",
+                    textDecoration: "none",
+                    minWidth: "100%",
+                    borderRadius: "5px",
+                    marginBottom: "1rem",
+                    cursor: "pointer",
                   },
-                  [theme.breakpoints.up('sm')]: {
-                    display: 'inline-block',
-                    padding: '12px 28px',
-                    background: '#ffffff',
+                  [theme.breakpoints.up("sm")]: {
+                    display: "inline-block",
+                    padding: "12px 28px",
+                    background: "#ffffff",
                     color: theme.palette.text.primary,
                     fontWeight: 600,
-                    boxShadow: '0px 10px 20px rgba(0, 0, 0, 0.15)',
-                    fontSize: '1rem',
-                    border: '3px solid #FFD15C',
-                    ':focus': {
-                      background: '#ffffff',
-                      border: '3px solid #FFD15C',
+                    boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
+                    fontSize: "1rem",
+                    border: "3px solid #FFD15C",
+                    ":focus": {
+                      background: "#ffffff",
+                      border: "3px solid #FFD15C",
                     },
-                    ':active': {
-                      background: '#ffffff',
-                      border: '3px solid #FFD15C',
+                    ":active": {
+                      background: "#ffffff",
+                      border: "3px solid #FFD15C",
                     },
-                    textTransform: 'capitalize',
-                    textDecoration: 'none',
-                    borderRadius: '5px',
-                    marginBottom: '1rem',
-                    cursor: 'pointer',
+                    textTransform: "capitalize",
+                    textDecoration: "none",
+                    borderRadius: "5px",
+                    marginBottom: "1rem",
+                    cursor: "pointer",
                   },
                 })}
               >
@@ -340,7 +375,9 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
 
-        return <NextLink href={url}>{node?.data?.target?.fields?.label}</NextLink>;
+        return (
+          <NextLink href={url}>{node?.data?.target?.fields?.label}</NextLink>
+        );
       },
       [INLINES.HYPERLINK]: (node: any, children: any) => {
         return (
@@ -360,11 +397,21 @@ export const ContentfulRichText = ({ data, textAlignment }: ContentfulRichTextPR
       },
     },
     renderMark: {
-      [MARKS.BOLD]: (text: boolean | ReactNode | ReactFragment | ReactPortal | null | undefined) => (
-        <strong>{text}</strong>
-      ),
+      [MARKS.BOLD]: (
+        text:
+          | boolean
+          | ReactNode
+          | ReactFragment
+          | ReactPortal
+          | null
+          | undefined
+      ) => <strong>{text}</strong>,
     },
   };
 
   return <>{documentToReactComponents(data, renderOptions)}</>;
+};
+
+const calcAspectRatio = (width: any, height: any) => {
+  return `${(height / width) * 100}%`;
 };
