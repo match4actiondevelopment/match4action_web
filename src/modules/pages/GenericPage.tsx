@@ -17,7 +17,7 @@ const ImageBackground = dynamic(
   }
 );
 
-export default function HomePage({ data }: HomePageInterface) {
+export default function GenericPage({ data }: HomePageInterface) {
   return (
     <>
       <ImageBackground />

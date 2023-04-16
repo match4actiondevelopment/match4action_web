@@ -1,14 +1,13 @@
 import { getContentfulData } from "@/modules/contentful/queries/getContentfulPageData";
-import { GenericPageInterface } from "@/modules/types/types";
 import { notFound } from "next/navigation";
-import HomePage from "../modules/pages/HomePage";
+import GenericPage from "../modules/pages/GenericPage";
 
-export default async function GenericPage({ params }: GenericPageInterface) {
-  const data = await getContentfulData(params?.slug);
+export default async function Page() {
+  const data = await getContentfulData("home");
 
   if (!data) {
     notFound();
   }
 
-  return <HomePage data={data} />;
+  return <GenericPage data={data} />;
 }
