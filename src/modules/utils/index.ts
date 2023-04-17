@@ -23,3 +23,8 @@ export const isValidUrl = (string: string) => {
     return false;
   }
 };
+
+export const headerMenuCustomProps = (path: string) => {
+  const color = path === "/" ? "#fff" : "#2C3235";
+  return { textDecoration: "none", color };
+};

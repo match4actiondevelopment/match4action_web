@@ -1,5 +1,6 @@
 "use client";
 
+import { headerMenuCustomProps } from "@/modules/utils";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -8,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import dynamic from "next/dynamic";
 import NextImage from "next/image";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 
 const HeaderButton = dynamic(
   () => import("../HeaderButton").then((doc) => doc.HeaderButton),
@@ -21,6 +23,9 @@ export interface HeaderDesktopInterface {
 }
 
 export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
+  const path = usePathname();
+  const style = headerMenuCustomProps(path);
+
   return (
     <Box
       component="header"
@@ -90,18 +95,12 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           })}
         >
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink
-              href="#"
-              style={{ textDecoration: "none", color: "#fff" }}
-            >
+            <NextLink href="/take-test" style={style}>
               <ListItemText primary="Take Test" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink
-              href="/opportunities"
-              style={{ textDecoration: "none", color: "#fff" }}
-            >
+            <NextLink href="/opportunities" style={style}>
               <ListItemText primary="Volunteer Now" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
@@ -109,24 +108,18 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
             <NextLink
               target="_blank"
               href="https://medium.com/@info_66495"
-              style={{ textDecoration: "none", color: "#fff" }}
+              style={style}
             >
               <ListItemText primary="Blog" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink
-              href="/about-us"
-              style={{ textDecoration: "none", color: "#fff" }}
-            >
+            <NextLink href="/about-us" style={style}>
               <ListItemText primary="About us" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink
-              href="/contact-us"
-              style={{ textDecoration: "none", color: "#fff" }}
-            >
+            <NextLink href="/contact-us" style={style}>
               <ListItemText primary="Get in Touch" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
