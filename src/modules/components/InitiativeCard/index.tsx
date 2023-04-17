@@ -14,7 +14,7 @@ import NextImage from "next/image";
 import NextLink from "next/link";
 import { useState } from "react";
 
-export const OpportunityCard = ({
+export const InitiativeCard = ({
   initiativeName,
   location,
   servicesNeeded,
@@ -100,7 +100,7 @@ export const OpportunityCard = ({
         </Typography>
       </Box>
       <NextLink
-        href={`/opportunities/${_id}`}
+        href={`/initiatives/${_id}`}
         style={{
           textDecoration: "none",
           position: "absolute",

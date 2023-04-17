@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchOpportunity } from "../services";
+import { fetchInitiative } from "../services";
 
-export const useGetOpportunity = (id?: string) => {
+export const useGetInitiative = (id?: string) => {
   const { data, isFetched, isLoading } = useQuery(
-    ["opportunity", id],
-    () => fetchOpportunity(id),
+    ["initiative", id],
+    () => fetchInitiative(id),
     {
       enabled: !!id,
     }
