@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetOpportunity } from "@/modules/hooks/useGetOpportunity";
+import { useGetInitiative } from "@/modules/hooks/useGetInitiative";
 import { lato } from "@/modules/styles/fonts";
 import { Goal } from "@/modules/types/types";
 import { formatEntryDate } from "@/modules/utils";
@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 import NextImage from "next/image";
 
 export default function VolunteerPost({ params }: { params: { id: string } }) {
-  const { data } = useGetOpportunity(params.id);
+  const { data } = useGetInitiative(params.id);
 
   return (
     <Box

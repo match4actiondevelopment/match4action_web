@@ -143,7 +143,7 @@ export const fetchGoals = async (): Promise<string | GoalsInterface[]> => {
   }
 };
 
-export const createOpportunity = async (formData: FormData) => {
+export const createInitiative = async (formData: FormData) => {
   try {
     const { data } = await http.post<RequestInterface<InitiativeInterface>>(
       `/initiatives`,
@@ -163,7 +163,7 @@ export const createOpportunity = async (formData: FormData) => {
   }
 };
 
-export const fetchOpportunities = async (): Promise<
+export const fetchInitiatives = async (): Promise<
   string | InitiativeInterface[]
 > => {
   try {
@@ -180,7 +180,7 @@ export const fetchOpportunities = async (): Promise<
   }
 };
 
-export const fetchOpportunity = async (
+export const fetchInitiative = async (
   id?: string
 ): Promise<InitiativeInterface> => {
   try {

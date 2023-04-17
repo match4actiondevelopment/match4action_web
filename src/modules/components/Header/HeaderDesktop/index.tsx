@@ -100,7 +100,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
             </NextLink>
           </ListItem>
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink href="/opportunities" style={style}>
+            <NextLink href="/Initiatives" style={style}>
               <ListItemText primary="Volunteer Now" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>

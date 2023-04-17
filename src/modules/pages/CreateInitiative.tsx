@@ -26,7 +26,7 @@ import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { useGetGoals } from "../hooks/useGetGoals";
-import { createOpportunity } from "../services";
+import { createInitiative } from "../services";
 import { lato, sourceSerifPro } from "../styles/fonts";
 
 import {
@@ -75,13 +75,13 @@ const schema = yup
   })
   .required();
 
-type CreateOpportunityInterface = {
+type CreateInitiativeInterface = {
   userId?: string;
 };
 
-export default function CreateOpportunity({
+export default function CreateInitiative({
   userId,
-}: CreateOpportunityInterface) {
+}: CreateInitiativeInterface) {
   const { data: userProfile } = useGetProfile(userId);
   const { data: goals } = useGetGoals();
 
@@ -140,10 +140,10 @@ export default function CreateOpportunity({
   const files = useMemo(() => (fileList ? [...fileList] : []), [fileList]);
 
   const {
-    mutate: createOpportunityMutation,
-    isLoading: isLoadingCreateOpportunity,
+    mutate: createInitiativeMutation,
+    isLoading: isLoadingCreateInitiative,
   } = useMutation({
-    mutationFn: (payload: FormData) => createOpportunity(payload),
+    mutationFn: (payload: FormData) => createInitiative(payload),
     onError: (err: { success: boolean; message: string }) => {
       const errorMessage = JSON.parse(err.message).message;
       alert(errorMessage);
@@ -176,7 +176,7 @@ export default function CreateOpportunity({
     formData.append("location", JSON.stringify(data?.location));
     formData.append("goals", JSON.stringify(selectedGoals));
 
-    createOpportunityMutation(formData);
+    createInitiativeMutation(formData);
     reset();
     setSelectedGoals([]);
     setFileList(null);
@@ -811,7 +811,7 @@ export default function CreateOpportunity({
               },
             })}
           >
-            {isLoadingCreateOpportunity ? (
+            {isLoadingCreateInitiative ? (
               <CircularProgress size={20} />
             ) : (
               "Publish Initiative"
