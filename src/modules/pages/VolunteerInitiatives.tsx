@@ -1,7 +1,7 @@
 "use client";
 
-import { OpportunityCard } from "@/modules/components/OpportunityCard";
-import { useGetOpportunities } from "@/modules/hooks/useGetOpportunities";
+import { InitiativeCard } from "@/modules/components/InitiativeCard";
+import { useGetInitiatives } from "@/modules/hooks/useGetInitiatives";
 import SortIcon from "@mui/icons-material/Sort";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
@@ -13,15 +13,15 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { lato } from "../styles/fonts";
 
-export default function VolunteerOpportunities() {
+export default function VolunteerInitiatives() {
   const [page, setPage] = useState(0);
   const {
     status,
-    data: opportunities,
+    data: initiatives,
     error,
     isFetching,
     isPreviousData,
-  } = useGetOpportunities();
+  } = useGetInitiatives();
 
   return (
     <Box
@@ -113,10 +113,10 @@ export default function VolunteerOpportunities() {
         spacing={[2, 4]}
         marginBottom={{ sm: "1rem", md: "2rem" }}
       >
-        {opportunities &&
-          opportunities?.map((item) => (
+        {initiatives &&
+          initiatives?.map((item) => (
             <Grid item xs={12} md={3} key={item._id}>
-              <OpportunityCard {...item} />
+              <InitiativeCard {...item} />
             </Grid>
           ))}
       </Grid>
