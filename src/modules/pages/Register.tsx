@@ -11,7 +11,6 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import NextImage from "next/image";
 import NextLink from "next/link";
-import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { register } from "../services";
@@ -34,9 +33,7 @@ const schema = yup
   })
   .required();
 
-export default function SignUpVolunteer() {
-  const router = useRouter();
-
+export default function Register() {
   const {
     handleSubmit,
     control,
@@ -55,9 +52,15 @@ export default function SignUpVolunteer() {
 
   const onSubmit = async (data: IFormInputs) => {
     try {
-      const res = await register(data);
-      if (res !== typeof String) {
-        router.push("/");
+      const res = await register({
+        ...data,
+        provider: {
+          name: data?.providerName,
+        },
+      });
+
+      if (res?.success) {
+        window.location.href = window.location.origin;
       }
     } catch (error: any) {
       alert(error?.response?.data?.message);
@@ -199,7 +202,7 @@ export default function SignUpVolunteer() {
                         href="https://match4action.org/termsAndConditions-of-service"
                         target="_blank"
                       >
-                        termsAndConditions of Service
+                        terms and conditions of service
                       </NextLink>
                       .
                     </>

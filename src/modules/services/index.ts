@@ -1,10 +1,8 @@
-import axios from "axios";
 import { http } from "../config/http";
 import {
   GoalsInterface,
   InitiativeInterface,
   RequestInterface,
-  TokensInterface,
   UpdatedProfileInterface,
   UpdateProfilePayload,
   UserI,
@@ -45,18 +43,33 @@ export const updateUserProfile = async ({ body, id }: UpdateProfilePayload) => {
   }
 };
 
-export const login = async (payload: { email: string; password: string }) => {
+export const login = async (payload: {
+  email: string;
+  password: string;
+}): Promise<{
+  success: boolean;
+  message: string;
+  data?: UserI;
+}> => {
   try {
-    const { data } = await axios.post<
-      RequestInterface<{ user: UserI } & TokensInterface>
-    >(`${process.env.NEXT_PUBLIC_API_PATH}/auth/login`, payload);
-    if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
-    }
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_PATH}/auth/login`,
+      {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    return response.json();
   } catch (error) {
-    return (error as Error).message;
+    return {
+      success: false,
+      message: (error as Error)?.message,
+    };
   }
 };
 
@@ -65,19 +78,33 @@ export const register = async (payload: {
   email: string;
   password: string;
   termsAndConditions: boolean;
-  providerName: string;
-}) => {
+  provider: {
+    name: string;
+  };
+}): Promise<{
+  success: boolean;
+  message: string;
+  data?: UserI;
+}> => {
   try {
-    const { data } = await axios.post<
-      RequestInterface<{ user: UserI } & TokensInterface>
-    >(`${process.env.NEXT_PUBLIC_API_PATH}/auth/register`, payload);
-    if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
-    }
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_PATH}/auth/register`,
+      {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    return response.json();
   } catch (error) {
-    return (error as Error).message;
+    return {
+      success: false,
+      message: (error as Error)?.message,
+    };
   }
 };
 
