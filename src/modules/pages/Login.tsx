@@ -8,7 +8,6 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import NextImage from "next/image";
 import NextLink from "next/link";
-import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { login } from "../services";
@@ -27,8 +26,6 @@ interface IFormInputs {
 }
 
 export default function Login() {
-  const router = useRouter();
-
   const {
     handleSubmit,
     control,
@@ -46,10 +43,8 @@ export default function Login() {
     try {
       const res = await login(data);
 
-      if (res !== typeof String) {
-        router.push("/");
-      } else {
-        throw new Error(res);
+      if (res?.success) {
+        window.location.href = window.location.origin;
       }
     } catch (error: any) {
       alert(error?.response?.data?.message);
