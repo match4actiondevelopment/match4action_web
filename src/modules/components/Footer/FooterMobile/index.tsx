@@ -1,6 +1,6 @@
 "use client";
 
-import { headerMenuCustomProps } from "@/modules/utils";
+import { footerMenuCustomProps } from "@/modules/utils";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import { List, ListItem, ListItemText, ListItemButton } from "@mui/material";
@@ -33,7 +33,7 @@ export interface FooterMobileInterface {
 export const FooterMobile = ({ accessToken }: FooterMobileInterface) => {
   const [open, setOpen] = useState(false);
   const path = usePathname();
-  const style = headerMenuCustomProps(path);
+  const style = footerMenuCustomProps();
   const socials = [
     { href: "https://www.facebook.com/Match4ActionFoundation", alt: "facebook match4purpose", src: "/facebook.svg", width: 24, height: 24 },
     { href: "https://www.instagram.com/match4action/", alt: "instagram match4purpose", src: "/instagram.svg", width: 24, height: 24 },
@@ -48,7 +48,7 @@ export const FooterMobile = ({ accessToken }: FooterMobileInterface) => {
   return (
     <>
       <Box sx={{
-        margin: "0 1.5rem 0 1.5rem",
+        margin: "3rem 1.5rem 0 1.5rem",
         borderTop: "1px solid #B4B4B4"
       }} />
       <AppBar
