@@ -97,13 +97,13 @@ export const FooterMobile = ({ accessToken }: FooterMobileInterface) => {
           })}
         >
           {menu.map(menu => (
-            <ListItem sx={{
+            <ListItem key={menu.primary} sx={{
               padding: 0,
               display: "flex",
               flexDirection: "column",
               alignItems: "center"
             }}>
-              <NextLink key={menu.primary} href={menu.href} style={style}>
+              <NextLink href={menu.href} style={style}>
                 <ListItemText primary={menu.primary} />
               </NextLink>
             </ListItem>
@@ -127,8 +127,8 @@ export const FooterMobile = ({ accessToken }: FooterMobileInterface) => {
             }}
           >
             {socials.map(social => (
-              <ListItem>
-                <NextLink key={social.alt} href={social.href} target="_blank" style={style}>
+              <ListItem key={social.alt}>
+                <NextLink href={social.href} target="_blank" style={style}>
                   <ListItemButton>
                     <NextImage
                       alt={social.alt}

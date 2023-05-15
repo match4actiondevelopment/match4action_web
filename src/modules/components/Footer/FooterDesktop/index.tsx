@@ -88,11 +88,11 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
               }}
             >
               {menu.map(menu => (
-                <ListItem sx={{
+                <ListItem key={menu.primary} sx={{
                   padding: 0,
                   marginBottom: "-0.6rem"
                 }}>
-                  <NextLink key={menu.primary} href={menu.href} style={style}>
+                  <NextLink href={menu.href} style={style}>
                     <ListItemText primary={menu.primary} />
                   </NextLink>
                 </ListItem>
@@ -130,8 +130,8 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
                 }}
               >
                 {socials.map(social => (
-                  <ListItem>
-                    <NextLink key={social.alt} href={social.href} target="_blank" style={style}>
+                  <ListItem key={social.alt}>
+                    <NextLink href={social.href} target="_blank" style={style}>
                       <ListItemButton>
                         <NextImage
                           alt={social.alt}
