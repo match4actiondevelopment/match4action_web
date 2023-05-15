@@ -92,7 +92,7 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
                   padding: 0,
                   marginBottom: "-0.6rem"
                 }}>
-                  <NextLink href={menu.href} style={style}>
+                  <NextLink key={menu.primary} href={menu.href} style={style}>
                     <ListItemText primary={menu.primary} />
                   </NextLink>
                 </ListItem>
@@ -131,7 +131,7 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
               >
                 {socials.map(social => (
                   <ListItem>
-                    <NextLink href={social.href} target="_blank" style={style}>
+                    <NextLink key={social.alt} href={social.href} target="_blank" style={style}>
                       <ListItemButton>
                         <NextImage
                           alt={social.alt}
