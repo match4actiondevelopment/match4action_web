@@ -107,7 +107,7 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
                   color: "rgba(0, 0, 0, 0.8)"
                 }}
               >
-                @Copyright 2021
+                @Copyright 2023
               </ListItem>
             </List>
           </Grid>
