@@ -1,3 +1,5 @@
+import { SolidButton } from "@/modules/components/SolidButton";
+import { OutlineButton } from "@/modules/components/OutlineButton";
 import { lato, sourceSerifPro } from "@/modules/styles/fonts";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES, MARKS } from "@contentful/rich-text-types";
@@ -40,8 +42,7 @@ export const ContentfulRichText = ({
                 marginBottom: "1rem",
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
-            })}
-          >
+            })}>
             {children}
           </Typography>
         );
@@ -65,8 +66,7 @@ export const ContentfulRichText = ({
                 color: theme.palette.text.primary,
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
-            })}
-          >
+            })}>
             {children}
           </Typography>
         );
@@ -90,8 +90,7 @@ export const ContentfulRichText = ({
                 color: theme.palette.text.primary,
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
-            })}
-          >
+            })}>
             {children}
           </Typography>
         );
@@ -138,8 +137,7 @@ export const ContentfulRichText = ({
                 color: theme.palette.text.primary,
                 textAlign: textAlignment?.toLocaleLowerCase(),
               },
-            })}
-          >
+            })}>
             {children}
           </Typography>
         );
@@ -197,8 +195,7 @@ export const ContentfulRichText = ({
               position="relative"
               display="flex"
               width="100%"
-              justifyContent={justifyContent}
-            >
+              justifyContent={justifyContent}>
               <Box
                 position="relative"
                 sx={(theme) => ({
@@ -218,8 +215,7 @@ export const ContentfulRichText = ({
                       node?.data?.target?.fields?.image?.fields?.file?.details
                         ?.image?.width * 0.5,
                   },
-                })}
-              >
+                })}>
                 <NextImage
                   src={`https:${node?.data?.target?.fields?.image?.fields?.file?.url}`}
                   alt={node?.data?.target?.fields?.alt}
@@ -253,119 +249,18 @@ export const ContentfulRichText = ({
                     lineHeight: "1.5rem",
                     textAlign: textAlignment?.toLocaleLowerCase(),
                   },
-                })}
-              >
+                })}>
                 {node?.data?.target?.fields?.label}
+                
               </Typography>
             )}
             {variant === "Button - Solid" && (
-              <Box
-                className={lato.className}
-                sx={(theme) => ({
-                  [theme.breakpoints.down("sm")]: {
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "39px",
-                    background: "#FFD15C",
-                    color: theme.palette.text.primary,
-                    fontWeight: 600,
-                    fontSize: "1rem",
-                    ":focus": {
-                      background: "#FFD15C",
-                    },
-                    ":active": {
-                      background: "#FFD15C",
-                    },
-                    textTransform: "capitalize",
-                    textDecoration: "none",
-                    minWidth: "100%",
-                    borderRadius: "5px",
-                    marginBottom: "1rem",
-                    cursor: "pointer",
-                  },
-                  [theme.breakpoints.up("sm")]: {
-                    display: "inline-block",
-                    padding: "14px 28px",
-                    background: "#FFD15C",
-                    color: theme.palette.text.primary,
-                    fontWeight: 600,
-                    boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
-                    fontSize: "1rem",
-                    ":focus": {
-                      background: "#FFD15C",
-                    },
-                    ":active": {
-                      background: "#FFD15C",
-                    },
-                    textTransform: "capitalize",
-                    textDecoration: "none",
-                    borderRadius: "5px",
-                    marginBottom: "1rem",
-                    cursor: "pointer",
-                    marginRight: "1rem",
-                  },
-                })}
-              >
-                {node?.data?.target?.fields?.label}
-              </Box>
+              <SolidButton>{node?.data?.target?.fields?.label} </SolidButton>
             )}
             {variant === "Button - Outline" && (
-              <Box
-                className={lato.className}
-                sx={(theme) => ({
-                  [theme.breakpoints.down("sm")]: {
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "40px",
-                    background: "#ffffff",
-                    color: theme.palette.text.primary,
-                    fontWeight: 600,
-                    fontSize: "1rem",
-                    border: "3px solid #FFD15C",
-                    ":focus": {
-                      background: "#ffffff",
-                      border: "3px solid #FFD15C",
-                    },
-                    ":active": {
-                      background: "#ffffff",
-                      border: "3px solid #FFD15C",
-                    },
-                    textTransform: "capitalize",
-                    textDecoration: "none",
-                    minWidth: "100%",
-                    borderRadius: "5px",
-                    marginBottom: "1rem",
-                    cursor: "pointer",
-                  },
-                  [theme.breakpoints.up("sm")]: {
-                    display: "inline-block",
-                    padding: "12px 28px",
-                    background: "#ffffff",
-                    color: theme.palette.text.primary,
-                    fontWeight: 600,
-                    boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
-                    fontSize: "1rem",
-                    border: "3px solid #FFD15C",
-                    ":focus": {
-                      background: "#ffffff",
-                      border: "3px solid #FFD15C",
-                    },
-                    ":active": {
-                      background: "#ffffff",
-                      border: "3px solid #FFD15C",
-                    },
-                    textTransform: "capitalize",
-                    textDecoration: "none",
-                    borderRadius: "5px",
-                    marginBottom: "1rem",
-                    cursor: "pointer",
-                  },
-                })}
-              >
+              <OutlineButton>
                 {node?.data?.target?.fields?.label}
-              </Box>
+              </OutlineButton>
             )}
           </NextLink>
         );
