@@ -2,7 +2,6 @@ import { logout } from "@/modules/services";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import LogoutIcon from '@mui/icons-material/Logout';
 import { useMediaQuery } from "@mui/material";
 import NextLink from "next/link";
 import NextImage from "next/image";
