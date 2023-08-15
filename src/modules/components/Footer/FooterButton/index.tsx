@@ -2,6 +2,7 @@ import { logout } from "@/modules/services";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useMediaQuery } from "@mui/material";
 import NextLink from "next/link";
 import NextImage from "next/image";
@@ -103,7 +104,7 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
               [theme.breakpoints.down(1130)]: {
                 minWidth: "328px",
                 background: "#525252",
-                color: "#000000",
+                color: "#FFFFFF",
                 fontWeight: 600,
                 fontSize: "1rem",
                 borderRadius: "5px",
@@ -122,7 +123,7 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
                 minWidth: "200px",
                 minHeight: "60px",
                 background: "#525252",
-                color: "#000000",
+                color: "#FFFFFF",
                 fontWeight: 600,
                 fontSize: "1rem",
                 borderRadius: "5px",
@@ -146,7 +147,7 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
               <NextImage
                 style={{ marginLeft: "0.7rem" }}
                 alt="logout"
-                src="/logout.svg"
+                src="/logout-white.svg"
                 width={18}
                 height={16} />
             )}

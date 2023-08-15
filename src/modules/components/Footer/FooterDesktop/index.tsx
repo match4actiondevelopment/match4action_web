@@ -30,8 +30,7 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
   ]
   const menu = [
     { href: "/about-us", primary: "About Us" },
-    { href: "/contact-us", primary: "Contact Us" },
-    { href: "/initiatives", primary: "Site Map" },
+    { href: "/contact-us", primary: "Contact Us" }
   ]
 
   return (
