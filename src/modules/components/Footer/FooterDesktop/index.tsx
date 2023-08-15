@@ -36,7 +36,7 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
 
   return (
     <>
-      <Grid container spacing={0} sx={{
+      <Grid position="absolute" container spacing={0} sx={{
         marginTop: "10rem",
         marginLeft: "-5rem",
         alignItems: "center",
