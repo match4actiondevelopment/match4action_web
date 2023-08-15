@@ -35,12 +35,12 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
 
   return (
     <>
-      <Grid position="absolute" container spacing={0} sx={{
+      <Grid position="relative" overflow-y="auto" container spacing={0} sx={{
         marginTop: "10rem",
         marginLeft: "-5rem",
         alignItems: "center",
         justifyContent: "flex-end",
-        gap: "5rem"
+        gap: "5rem",
       }}>
         <FooterBackground />
         <Grid>
