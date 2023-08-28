@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Modal from "../../Modal";
+import Portal from "@/HOC/modal-portal";
 
 export interface HeaderButtonInterface {
   accessToken?: string;
@@ -92,8 +93,8 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
               [theme.breakpoints.up(1130)]: {
                 background: "#FFD15C",
                 color: "#000000",
-                fontWeight: 400,
-                fontSize: "1rem",
+                fontWeight: 600,
+                fontSize: "0.7rem",
                 ":focus": {
                   background: "#FFD15C",
                 },
@@ -111,13 +112,15 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
           </Button>
 
           {openModal ?
-            <Modal
-              modalTitle="Are you sure you want to log out?"
-              firstButtonTitle="Yes"
-              lastButtonTitle="Cancel"
-              firstButtonFunction={() => { handleLogout() }}
-              lastButtonFunction={() => { setIsOpen(!openModal) }}
-            /> :
+            <Portal>
+              <Modal
+                modalTitle="Are you sure you want to log out?"
+                firstButtonTitle="Yes"
+                lastButtonTitle="Cancel"
+                firstButtonFunction={() => { handleLogout() }}
+                lastButtonFunction={() => { setIsOpen(!openModal) }}
+              />
+            </Portal> :
             <></>
           }
         </>
