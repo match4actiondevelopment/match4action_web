@@ -4,12 +4,12 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 Node.js 16.x
 
-# install dependencies
+_install dependencies_
 ```bash
 npm install
 ```
 
-# run the development server:
+_run the development server_
 ```bash
 npm run dev
 # or
