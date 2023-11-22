@@ -24,6 +24,13 @@ const Header = dynamic(
   }
 );
 
+const Footer = dynamic(
+  () => import("../../modules/components/Footer").then((doc) => doc.Footer),
+  {
+    ssr: false,
+  }
+);
+
 export const queryClient = new QueryClient();
 
 export const LayoutContext: React.FC<LayoutContextProps> = ({
@@ -49,6 +56,7 @@ export const LayoutContext: React.FC<LayoutContextProps> = ({
             >
               <Header accessToken={accessToken} />
               {children}
+              <Footer accessToken={accessToken} />
             </Box>
           </UserProvider>
         </ThemeProvider>

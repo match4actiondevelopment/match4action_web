@@ -28,3 +28,7 @@ export const headerMenuCustomProps = (path: string) => {
   const color = path === "/" ? "#fff" : "#2C3235";
   return { textDecoration: "none", color };
 };
+
+export const footerMenuCustomProps = () => {
+  return { textDecoration: "none", color: "rgba(0, 0, 0, 0.8)" };
+};
