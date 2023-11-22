@@ -3,6 +3,9 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import Modal from "../../Modal";
+import Portal from "@/HOC/modal-portal";
 
 export interface HeaderButtonInterface {
   accessToken?: string;
@@ -15,6 +18,8 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
     "login",
     "register",
   ].includes(pathname as string);
+
+  const [openModal, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -65,45 +70,60 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
           </Button>
         </NextLink>
       ) : accessToken ? (
-        <Button
-          onClick={handleLogout}
-          sx={(theme) => ({
-            [theme.breakpoints.down(1130)]: {
-              background: "#FFD15C",
-              color: "#000000",
-              fontWeight: 400,
-              fontSize: "0.75rem",
-              ":focus": {
+        <>
+          <Button
+            onClick={() => setIsOpen(!openModal)}
+            sx={(theme) => ({
+              [theme.breakpoints.down(1130)]: {
                 background: "#FFD15C",
+                color: "#000000",
+                fontWeight: 400,
+                fontSize: "0.75rem",
+                ":focus": {
+                  background: "#FFD15C",
+                },
+                ":active": {
+                  background: "#FFD15C",
+                },
+                ":hover": {
+                  background: "#FFD15C",
+                },
+                textTransform: "capitalize",
               },
-              ":active": {
+              [theme.breakpoints.up(1130)]: {
                 background: "#FFD15C",
+                color: "#000000",
+                fontWeight: 600,
+                fontSize: "0.7rem",
+                ":focus": {
+                  background: "#FFD15C",
+                },
+                ":active": {
+                  background: "#FFD15C",
+                },
+                ":hover": {
+                  background: "#FFD15C",
+                },
+                textTransform: "capitalize",
               },
-              ":hover": {
-                background: "#FFD15C",
-              },
-              textTransform: "capitalize",
-            },
-            [theme.breakpoints.up(1130)]: {
-              background: "#FFD15C",
-              color: "#000000",
-              fontWeight: 400,
-              fontSize: "1rem",
-              ":focus": {
-                background: "#FFD15C",
-              },
-              ":active": {
-                background: "#FFD15C",
-              },
-              ":hover": {
-                background: "#FFD15C",
-              },
-              textTransform: "capitalize",
-            },
-          })}
-        >
-          Log out
-        </Button>
+            })}
+          >
+            Log out
+          </Button>
+
+          {openModal ?
+            <Portal>
+              <Modal
+                modalTitle="Are you sure you want to log out?"
+                firstButtonTitle="Yes"
+                lastButtonTitle="Cancel"
+                firstButtonFunction={() => { handleLogout() }}
+                lastButtonFunction={() => { setIsOpen(!openModal) }}
+              />
+            </Portal> :
+            <></>
+          }
+        </>
       ) : (
         <Box width="4rem" />
       )}

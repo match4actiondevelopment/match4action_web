@@ -10,8 +10,10 @@ import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Dispatch, SetStateAction, useCallback, useContext, useMemo } from 'react';
+import { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState } from 'react';
 import { Item } from './Item';
+import Modal from "../Modal";
+import Portal from "@/HOC/modal-portal";
 
 export type DrawerItem = {
   name: string;
@@ -39,6 +41,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
   const router = useRouter();
   const { isLogged } = useContext(UserContext) ?? {};
   const { setUser } = useContext(UserContext) ?? {};
+  const [openModal, setIsOpen] = useState(false);
 
   const handleLogout = useCallback(async () => {
     const response = await logout();
@@ -49,6 +52,10 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
       toggleDrawer(false);
       router.push('/');
     }
+  }, []);
+
+  const setOpenModal = useCallback(async () => {
+    setIsOpen(!openModal)
   }, []);
 
   const authenticatedUserMenuList: DrawerItem[] = useMemo(
@@ -118,7 +125,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
             }}
           />
         ),
-        action: handleLogout,
+        action: setOpenModal,
       },
     ],
     []
@@ -156,6 +163,19 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
           </Box>
         ))}
       </Box>
+
+      {openModal ?
+        <Portal>
+          <Modal
+            modalTitle="Are you sure you want to log out?"
+            firstButtonTitle="Yes"
+            lastButtonTitle="Cancel"
+            firstButtonFunction={() => { handleLogout() }}
+            lastButtonFunction={() => { setIsOpen(!openModal) }}
+          />
+        </Portal> :
+        <></>
+      }
     </Drawer>
   );
 };

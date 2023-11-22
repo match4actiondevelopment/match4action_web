@@ -12,7 +12,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LayoutContext accessToken={accessToken}>{children}</LayoutContext>
+        <LayoutContext accessToken={accessToken}>
+          {children}
+          <div id="modal-portal"></div>
+        </LayoutContext>
       </body>
     </html>
   );
