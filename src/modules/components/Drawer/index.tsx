@@ -32,9 +32,9 @@ const notAuthenticatedUserMenuList: DrawerItem[] = [
     name: 'Volunteer now',
     url: '/volunteer-now',
   },
-  { name: 'Blog', url: '/blog' },
+  { name: 'Blog', url: 'https://medium.com/@info_66495' },
   { name: 'About us', url: '/about-us' },
-  { name: 'Get in touch', url: '/get-in-touch' },
+  { name: 'Get in touch', url: '/contact-us' },
 ];
 
 export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) => {
@@ -156,7 +156,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
             {item?.action ? (
               <Item data={item} />
             ) : (
-              <NextLink href={item.url} style={{ textDecoration: 'none', fontSize: '0.875rem !important' }}>
+              <NextLink href={item.url} target={item.name === "Blog" ? "_blank" : "_self"} style={{ textDecoration: 'none', fontSize: '0.875rem !important' }}>
                 <Item data={item} />
               </NextLink>
             )}
