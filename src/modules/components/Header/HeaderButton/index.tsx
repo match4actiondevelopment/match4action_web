@@ -3,9 +3,11 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Modal from "../../Modal";
 import Portal from "@/HOC/modal-portal";
+import Image from "next/image";
+import { UserContext } from "@/modules/context/user-context";
 
 export interface HeaderButtonInterface {
   accessToken?: string;
@@ -13,6 +15,8 @@ export interface HeaderButtonInterface {
 
 export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
   const pathname = usePathname();
+  const { user } = useContext(UserContext) ?? {};
+
   const doNotShowLoginButton = [
     "forgot-password",
     "login",
@@ -71,45 +75,12 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
         </NextLink>
       ) : accessToken ? (
         <>
-          <Button
-            onClick={() => setIsOpen(!openModal)}
-            sx={(theme) => ({
-              [theme.breakpoints.down(1130)]: {
-                background: "#FFD15C",
-                color: "#000000",
-                fontWeight: 400,
-                fontSize: "0.75rem",
-                ":focus": {
-                  background: "#FFD15C",
-                },
-                ":active": {
-                  background: "#FFD15C",
-                },
-                ":hover": {
-                  background: "#FFD15C",
-                },
-                textTransform: "capitalize",
-              },
-              [theme.breakpoints.up(1130)]: {
-                background: "#FFD15C",
-                color: "#000000",
-                fontWeight: 600,
-                fontSize: "0.7rem",
-                ":focus": {
-                  background: "#FFD15C",
-                },
-                ":active": {
-                  background: "#FFD15C",
-                },
-                ":hover": {
-                  background: "#FFD15C",
-                },
-                textTransform: "capitalize",
-              },
-            })}
-          >
-            Log out
-          </Button>
+          <Image
+            alt="profile-image"
+            src={user?.image ?? "default-user.svg"}
+            width={36}
+            height={36}
+          />
 
           {openModal ?
             <Portal>
