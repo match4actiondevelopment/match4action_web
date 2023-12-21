@@ -18,11 +18,9 @@ const HeaderButton = dynamic(
   }
 );
 
-export interface HeaderDesktopInterface {
-  accessToken?: string;
-}
 
-export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
+
+export const HeaderDesktop = () => {
   const path = usePathname();
   const style = headerMenuCustomProps(path);
 
@@ -131,7 +129,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
               minWidth: "64px",
             }}
           >
-            <HeaderButton accessToken={accessToken} />
+            <HeaderButton />
           </ListItem>
         </List>
       </Box>

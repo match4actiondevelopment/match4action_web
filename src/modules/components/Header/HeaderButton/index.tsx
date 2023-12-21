@@ -9,13 +9,11 @@ import Portal from "@/HOC/modal-portal";
 import Image from "next/image";
 import { UserContext } from "@/modules/context/user-context";
 
-export interface HeaderButtonInterface {
-  accessToken?: string;
-}
 
-export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
+
+export const HeaderButton = () => {
   const pathname = usePathname();
-  const { user } = useContext(UserContext) ?? {};
+  const { user, setUser, isLogged } = useContext(UserContext) ?? {};
 
   const doNotShowLoginButton = [
     "forgot-password",
@@ -27,12 +25,13 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
 
   const handleLogout = async () => {
     await logout();
+    setUser && setUser(null)
     window.location.href = window.location.origin;
   };
 
   return (
     <>
-      {!doNotShowLoginButton && !accessToken ? (
+      {!doNotShowLoginButton && !isLogged ? (
         <NextLink href="/login" style={{ textDecoration: "none" }}>
           <Button
             sx={(theme) => ({
@@ -73,9 +72,10 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
             Log in
           </Button>
         </NextLink>
-      ) : accessToken ? (
+      ) : isLogged ? (
         <>
           <Image
+            onClick={() => setIsOpen(!openModal)}
             alt="profile-image"
             src={user?.image ?? "default-user.svg"}
             width={36}

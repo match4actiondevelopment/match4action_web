@@ -16,11 +16,8 @@ const HeaderDesktop = dynamic(
   }
 );
 
-export interface HeaderInterface {
-  accessToken?: string;
-}
 
-export const Header = ({ accessToken }: HeaderInterface) => {
+export const Header = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down(1129), {
     noSsr: true,
   });
@@ -28,9 +25,9 @@ export const Header = ({ accessToken }: HeaderInterface) => {
   return (
     <>
       {isMobile ? (
-        <HeaderMobile accessToken={accessToken} />
+        <HeaderMobile />
       ) : (
-        <HeaderDesktop accessToken={accessToken} />
+        <HeaderDesktop />
       )}
     </>
   );
