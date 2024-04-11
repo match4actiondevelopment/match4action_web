@@ -63,7 +63,7 @@ export const login = async (payload: {
         body: JSON.stringify(payload),
       }
     );
-
+  
     return response.json();
   } catch (error) {
     return {
@@ -202,7 +202,7 @@ export const logout = async () => {
   try {
     await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/auth/logout`, {
       credentials: "include",
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
