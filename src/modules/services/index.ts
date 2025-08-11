@@ -63,12 +63,19 @@ export const login = async (payload: {
         body: JSON.stringify(payload),
       }
     );
+
+    const data = await response.json();
+    
+    // Check if the response status indicates an error
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
+    }
   
-    return response.json();
+    return data;
   } catch (error) {
     return {
       success: false,
-      message: (error as Error)?.message,
+      message: (error as Error)?.message || 'Login failed',
     };
   }
 };
@@ -79,6 +86,7 @@ export const register = async (payload: {
   password: string;
   termsAndConditions: boolean;
   provider: {
+    id: string;
     name: string;
   };
 }): Promise<{
@@ -99,11 +107,18 @@ export const register = async (payload: {
       }
     );
 
-    return response.json();
+    const data = await response.json();
+    
+    // Check if the response status indicates an error
+    if (!response.ok) {
+      throw new Error(data.message || 'Registration failed');
+    }
+
+    return data;
   } catch (error) {
     return {
       success: false,
-      message: (error as Error)?.message,
+      message: (error as Error)?.message || 'Registration failed',
     };
   }
 };

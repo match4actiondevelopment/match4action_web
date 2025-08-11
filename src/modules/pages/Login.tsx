@@ -52,9 +52,12 @@ export default function Login() {
           setUser(data)
         }
         window.location.href = window.location.origin;
+      } else {
+        // Handle login failure
+        alert(res?.message || 'Login failed. Please check your credentials.');
       }
     } catch (error: any) {
-      alert(error?.response?.data?.message);
+      alert(error?.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 

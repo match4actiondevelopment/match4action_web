@@ -30,6 +30,7 @@ const schema = yup
     email: yup.string().required(),
     password: yup.string().required(),
     termsAndConditions: yup.boolean().required(),
+    providerName: yup.string().required(), // Add missing validation
   })
   .required();
 
@@ -55,15 +56,19 @@ export default function Register() {
       const res = await register({
         ...data,
         provider: {
+          id: data?.providerName || 'credentials', // Add the missing id field
           name: data?.providerName,
         },
       });
 
       if (res?.success) {
         window.location.href = window.location.origin;
+      } else {
+        // Handle registration failure
+        alert(res?.message || 'Registration failed. Please try again.');
       }
     } catch (error: any) {
-      alert(error?.response?.data?.message);
+      alert(error?.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
