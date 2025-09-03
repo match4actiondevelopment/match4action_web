@@ -62,7 +62,7 @@ export default function Register() {
       });
 
       if (res?.success) {
-        window.location.href = window.location.origin;
+        window.location.href = `${window.location.origin}/role-selection`;
       } else {
         // Handle registration failure
         alert(res?.message || 'Registration failed. Please try again.');
