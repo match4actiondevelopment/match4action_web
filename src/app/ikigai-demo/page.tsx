@@ -82,6 +82,15 @@ export default function IkigaiQuiz() {
       </Typography>
     );
 
+  // Guard against empty questions to avoid accessing undefined
+  if (!loading && questions.length === 0) {
+    return (
+      <Typography textAlign="center" marginTop={10} color="gray">
+        No questions available.
+      </Typography>
+    );
+  }
+
   // 🎉 Results screen
   if (finished) {
     const grouped: Record<string, QuestionOption[]> = {
@@ -166,7 +175,7 @@ export default function IkigaiQuiz() {
   }
 
   const currentQuestion = questions[currentIndex];
-  const selected = answers[currentQuestion._id];
+  const selected = currentQuestion ? answers[currentQuestion._id] : undefined;
 
   return (
     <Box
