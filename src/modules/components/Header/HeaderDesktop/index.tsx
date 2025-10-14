@@ -104,6 +104,20 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
               <ListItemText primary="Volunteer Now" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
+          {accessToken && (
+            <>
+              <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
+                <NextLink href="/create-initiative" style={style}>
+                  <ListItemText primary="Create Initiative" sx={{ padding: 0 }} />
+                </NextLink>
+              </ListItem>
+              <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
+                <NextLink href="/recommended-initiatives" style={style}>
+                  <ListItemText primary="For You" sx={{ padding: 0 }} />
+                </NextLink>
+              </ListItem>
+            </>
+          )}
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink
               target="_blank"

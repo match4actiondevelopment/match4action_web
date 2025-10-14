@@ -6,6 +6,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import NextLink from 'next/link';
@@ -73,9 +74,20 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
       },
       {
         name: 'Create initiative',
-        url: '/create',
+        url: '/create-initiative',
         icon: (
           <CreateNewFolderOutlinedIcon
+            sx={{
+              fill: '#2C3235',
+            }}
+          />
+        ),
+      },
+      {
+        name: 'Recommended for you',
+        url: '/recommended-initiatives',
+        icon: (
+          <PsychologyIcon
             sx={{
               fill: '#2C3235',
             }}

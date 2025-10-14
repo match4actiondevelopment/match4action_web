@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import Alert from "@mui/material/Alert";
 
 interface QuestionOption {
   text: string;
@@ -25,6 +26,7 @@ export default function IkigaiQuiz() {
   const [answers, setAnswers] = useState<Record<string, QuestionOption>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [resultsSaved, setResultsSaved] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:3003/ikigai-questions")
@@ -50,11 +52,43 @@ export default function IkigaiQuiz() {
     }));
   };
 
+  const saveResults = async () => {
+    try {
+      // Prepare answers for the API
+      const answersArray = Object.entries(answers).map(([questionId, option]) => ({
+        questionId,
+        optionValue: option.value,
+        category: option.category,
+      }));
+
+      const response = await fetch("http://localhost:3003/ikigai-responses", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: answersArray,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to save Ikigai results");
+      } else {
+        setResultsSaved(true);
+      }
+    } catch (error) {
+      console.error("Error saving Ikigai results:", error);
+    }
+  };
+
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
       setFinished(true);
+      // Save results when test is completed
+      saveResults();
     }
   };
 
@@ -123,13 +157,45 @@ export default function IkigaiQuiz() {
           py: 6,
         }}
       >
-        <Box maxWidth="800px" width="100%" textAlign="center">
-          <Typography variant="h4" fontWeight={700} color="primary" mb={3}>
-            🎉 Your Ikigai Results
-          </Typography>
-          <Typography color="text.secondary" mb={6}>
-            Here’s a breakdown of your answers by category:
-          </Typography>
+          <Box maxWidth="800px" width="100%" textAlign="center">
+            <Typography variant="h4" fontWeight={700} color="primary" mb={3}>
+              🎉 Your Ikigai Results
+            </Typography>
+            <Typography color="text.secondary" mb={4}>
+              Here&apos;s a breakdown of your answers by category:
+            </Typography>
+            
+            <Box mb={4}>
+              {resultsSaved ? (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  ✅ Your results have been saved! You can now get personalized recommendations.
+                </Alert>
+              ) : (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  💾 Saving your results...
+                </Alert>
+              )}
+              <Button
+                component="a"
+                href="/recommended-initiatives"
+                variant="contained"
+                size="large"
+                disabled={!resultsSaved}
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  boxShadow: 3,
+                  backgroundColor: resultsSaved ? "#4F46E5" : "#D1D5DB",
+                  color: "white",
+                  ":hover": { backgroundColor: resultsSaved ? "#4338CA" : "#D1D5DB" },
+                }}
+              >
+                {resultsSaved ? "View Recommended Initiatives" : "Saving Results..."}
+              </Button>
+            </Box>
 
           <Box
             display="grid"
