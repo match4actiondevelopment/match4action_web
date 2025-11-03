@@ -232,9 +232,14 @@ export const ContentfulRichText = ({
             </Box>
           );
         }
-        const url = node?.data?.target?.fields?.linkToEntry
+        let url = node?.data?.target?.fields?.linkToEntry
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
+        
+        // Redirect /opportunities to /initiatives to fix 404 error
+        if (url === "/opportunities") {
+          url = "/initiatives";
+        }
 
         const variant = node?.data?.target?.fields?.variant;
 
@@ -374,9 +379,14 @@ export const ContentfulRichText = ({
         );
       },
       [INLINES.EMBEDDED_ENTRY]: (node: any, children: any) => {
-        const url = node?.data?.target?.fields?.linkToEntry
+        let url = node?.data?.target?.fields?.linkToEntry
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
+        
+        // Redirect /opportunities to /initiatives to fix 404 error
+        if (url === "/opportunities") {
+          url = "/initiatives";
+        }
 
         return (
           <NextLink href={url}>{node?.data?.target?.fields?.label}</NextLink>

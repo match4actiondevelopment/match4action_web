@@ -162,7 +162,7 @@ export default function IkigaiQuiz() {
               🎉 Your Ikigai Results
             </Typography>
             <Typography color="text.secondary" mb={4}>
-              Here&apos;s a breakdown of your answers by category:
+              Here's a breakdown of your answers by category:
             </Typography>
             
             <Box mb={4}>
@@ -172,7 +172,7 @@ export default function IkigaiQuiz() {
                 </Alert>
               ) : (
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  💾 Saving your results...
+                  💾 Saving your results for 24 hrs, if you want to see the match initiatives, please Sign Up or Log In
                 </Alert>
               )}
               <Button

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -29,6 +29,7 @@ import {
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import NextLink from "next/link";
+import { UserContext } from "@/modules/context/user-context";
 
 interface RecommendedInitiative {
   _id: string;
@@ -61,11 +62,22 @@ interface RecommendedInitiative {
 
 export default function RecommendedInitiatives() {
   const router = useRouter();
+  const { isLogged } = useContext(UserContext) ?? {};
   const [recommendations, setRecommendations] = useState<RecommendedInitiative[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const handleInitiativeClick = (initiativeId: string) => {
+    if (!isLogged) {
+      // Redirect to login page if not authenticated
+      window.location.href = '/login';
+      return;
+    }
+    // If authenticated, navigate to the initiative detail page
+    window.location.href = `/initiatives/${initiativeId}`;
+  };
 
   const fetchRecommendations = async (isRefresh = false) => {
     if (isRefresh) {
@@ -360,8 +372,7 @@ export default function RecommendedInitiatives() {
 
                     <CardActions sx={{ p: 2 }}>
                       <Button
-                        component={NextLink}
-                        href={`/initiatives/${initiative._id}`}
+                        onClick={() => handleInitiativeClick(initiative._id)}
                         variant="contained"
                         fullWidth
                         sx={{ fontWeight: 600 }}

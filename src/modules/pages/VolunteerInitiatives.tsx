@@ -6,6 +6,7 @@ import SortIcon from "@mui/icons-material/Sort";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
@@ -14,7 +15,7 @@ import { useState } from "react";
 import { lato } from "../styles/fonts";
 
 export default function VolunteerInitiatives() {
-  const [page, setPage] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(5);
   const {
     status,
     data: initiatives,
@@ -114,12 +115,20 @@ export default function VolunteerInitiatives() {
         marginBottom={{ sm: "1rem", md: "2rem" }}
       >
         {initiatives &&
-          initiatives?.map((item) => (
+          initiatives?.slice(0, visibleCount).map((item) => (
             <Grid item xs={12} md={3} key={item._id}>
               <InitiativeCard {...item} />
             </Grid>
           ))}
       </Grid>
+      {initiatives && initiatives.length > visibleCount && (
+        <Button
+          onClick={() => setVisibleCount((c) => c + 5)}
+          sx={{ background: "#FFD15C", color: "#000", textTransform: "capitalize" }}
+        >
+          More
+        </Button>
+      )}
     </Box>
   );
 }

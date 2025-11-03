@@ -140,7 +140,7 @@ export default function CreateInitiative() {
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...(prev[parent as keyof InitiativeFormData] as any),
+          ...prev[parent as keyof InitiativeFormData],
           [child]: value,
         },
       }));
