@@ -1,8 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchInitiatives } from "../services";
 
-export const useGetInitiatives = () => {
-  const res = useQuery(["Initiatives"], () => fetchInitiatives());
+export const useGetInitiatives = (filters?: { country?: string; city?: string; location?: string; search?: string }) => {
+  const res = useQuery(
+    ["Initiatives", filters],
+    () => fetchInitiatives(filters),
+    {
+      // Keep previous data while fetching new data
+      keepPreviousData: true,
+    }
+  );
 
   return {
     ...res,

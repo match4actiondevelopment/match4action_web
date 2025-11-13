@@ -178,12 +178,30 @@ export const createInitiative = async (formData: FormData) => {
   }
 };
 
-export const fetchInitiatives = async (): Promise<
-  string | InitiativeInterface[]
-> => {
+export const fetchInitiatives = async (
+  filters?: { country?: string; city?: string; location?: string; search?: string }
+): Promise<string | InitiativeInterface[]> => {
   try {
+    // Build query string from filters
+    const queryParams = new URLSearchParams();
+    if (filters?.country) {
+      queryParams.append("country", filters.country);
+    }
+    if (filters?.city) {
+      queryParams.append("city", filters.city);
+    }
+    if (filters?.location) {
+      queryParams.append("location", filters.location);
+    }
+    if (filters?.search) {
+      queryParams.append("search", filters.search);
+    }
+    
+    const queryString = queryParams.toString();
+    const url = `/initiatives${queryString ? `?${queryString}` : ""}`;
+    
     const { data } = await http.get<RequestInterface<InitiativeInterface[]>>(
-      `/initiatives`
+      url
     );
     if (data?.success) {
       return data?.data;

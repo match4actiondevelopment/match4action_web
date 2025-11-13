@@ -50,6 +50,7 @@ export const LayoutContext: React.FC<LayoutContextProps> = ({
               position="relative"
               sx={{
                 overflowX: "hidden",
+                overflowY: "auto",
                 height: "100%",
                 minHeight: "100vh",
               }}
