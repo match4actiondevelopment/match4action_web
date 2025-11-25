@@ -162,7 +162,7 @@ export default function IkigaiQuiz() {
               🎉 Your Ikigai Results
             </Typography>
             <Typography color="text.secondary" mb={4}>
-              Here's a breakdown of your answers by category:
+              Here&apos;s a breakdown of your answers by category:
             </Typography>
             
             <Box mb={4}>

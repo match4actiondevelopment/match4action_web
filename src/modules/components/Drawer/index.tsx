@@ -53,10 +53,10 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
       toggleDrawer(false);
       router.push('/');
     }
-  }, []);
+  }, [router, setUser, toggleDrawer]);
 
   const setOpenModal = useCallback(async () => {
-    setIsOpen(!openModal)
+    setIsOpen((prev) => !prev);
   }, []);
 
   const authenticatedUserMenuList: DrawerItem[] = useMemo(
@@ -140,7 +140,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
         action: setOpenModal,
       },
     ],
-    []
+    [setOpenModal]
   );
 
   const drawer = useMemo(() => {
@@ -150,7 +150,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
       list,
       bg,
     };
-  }, [isLogged]);
+  }, [isLogged, authenticatedUserMenuList]);
 
   return (
     <Drawer open={open} anchor={'left'} onClose={() => toggleDrawer(false)}>
