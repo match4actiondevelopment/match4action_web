@@ -12,7 +12,8 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import NextImage from "next/image";
 import NextLink from "next/link";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "@/modules/context/user-context";
 
 export const InitiativeCard = ({
   initiativeName,
@@ -25,7 +26,19 @@ export const InitiativeCard = ({
   "initiativeName" | "location" | "servicesNeeded" | "_id" | "image"
 >) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const { isLogged } = useContext(UserContext) ?? {};
   const imageUrl = image && isValidUrl(image[0]) ? image[0] : null;
+
+  const handleApplyClick = () => {
+    if (!isLogged) {
+      // Redirect to login page if not authenticated
+      window.location.href = '/login';
+      return;
+    }
+    // If authenticated, navigate to the initiative detail page
+    window.location.href = `/initiatives/${_id}`;
+  };
+
   return (
     <Card
       elevation={0}
@@ -99,77 +112,71 @@ export const InitiativeCard = ({
             : location?.city}
         </Typography>
       </Box>
-      <NextLink
-        href={`/initiatives/${_id}`}
-        style={{
-          textDecoration: "none",
+      <Button
+        onClick={handleApplyClick}
+        sx={(theme) => ({
           position: "absolute",
           bottom: 0,
           right: 0,
           margin: "1rem 0.5rem",
-        }}
+          [theme.breakpoints.down("sm")]: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "#FFD15C",
+            color: theme.palette.text.primary,
+            fontWeight: 400,
+            fontSize: "0.75rem",
+            ":focus": {
+              background: "#FFD15C",
+            },
+            ":active": {
+              background: "#FFD15C",
+            },
+            ":hover": {
+              background: "#FFD15C",
+            },
+            ":disabled": {
+              background: "#D3D3D3",
+              boxShadow: "none",
+            },
+            textTransform: "capitalize",
+            textDecoration: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
+          },
+          [theme.breakpoints.up("sm")]: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "#FFD15C",
+            color: theme.palette.text.primary,
+            fontWeight: 400,
+            boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
+            fontSize: "0.75rem",
+            ":focus": {
+              background: "#FFD15C",
+            },
+            ":active": {
+              background: "#FFD15C",
+            },
+            ":hover": {
+              background: "#FFD15C",
+            },
+            ":disabled": {
+              background: "#D3D3D3",
+              boxShadow: "none",
+            },
+            textTransform: "capitalize",
+            textDecoration: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          },
+        })}
       >
-        <Button
-          sx={(theme) => ({
-            [theme.breakpoints.down("sm")]: {
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              background: "#FFD15C",
-              color: theme.palette.text.primary,
-              fontWeight: 400,
-              fontSize: "0.75rem",
-              ":focus": {
-                background: "#FFD15C",
-              },
-              ":active": {
-                background: "#FFD15C",
-              },
-              ":hover": {
-                background: "#FFD15C",
-              },
-              ":disabled": {
-                background: "#D3D3D3",
-                boxShadow: "none",
-              },
-              textTransform: "capitalize",
-              textDecoration: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
-            },
-            [theme.breakpoints.up("sm")]: {
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              background: "#FFD15C",
-              color: theme.palette.text.primary,
-              fontWeight: 400,
-              boxShadow: "0px 8px 15px rgba(0, 0, 0, 0.1)",
-              fontSize: "0.75rem",
-              ":focus": {
-                background: "#FFD15C",
-              },
-              ":active": {
-                background: "#FFD15C",
-              },
-              ":hover": {
-                background: "#FFD15C",
-              },
-              ":disabled": {
-                background: "#D3D3D3",
-                boxShadow: "none",
-              },
-              textTransform: "capitalize",
-              textDecoration: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            },
-          })}
-        >
-          Apply
-        </Button>
-      </NextLink>
+        Apply
+      </Button>
       <IconButton
         onClick={() => setIsFavorite(!isFavorite)}
         sx={{

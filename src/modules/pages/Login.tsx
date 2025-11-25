@@ -12,6 +12,8 @@ import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { login } from "../services";
 import { lato, sourceSerifPro } from "../styles/fonts";
+import { UserContext } from "../context/user-context";
+import { useContext } from "react";
 
 const schema = yup
   .object({
@@ -26,6 +28,7 @@ interface IFormInputs {
 }
 
 export default function Login() {
+  const { setUser } = useContext(UserContext) ?? {};
   const {
     handleSubmit,
     control,
@@ -44,10 +47,17 @@ export default function Login() {
       const res = await login(data);
 
       if (res?.success) {
+        const { data } = res
+        if (data && setUser) {
+          setUser(data)
+        }
         window.location.href = window.location.origin;
+      } else {
+        // Handle login failure
+        alert(res?.message || 'Login failed. Please check your credentials.');
       }
     } catch (error: any) {
-      alert(error?.response?.data?.message);
+      alert(error?.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
