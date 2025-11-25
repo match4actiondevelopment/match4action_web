@@ -202,13 +202,28 @@ export default function CreateInitiative() {
   const handleInputChange = (field: string, value: any) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof InitiativeFormData],
-          [child]: value,
-        },
-      }));
+      setFormData((prev) => {
+        const parentValue = prev[parent as keyof InitiativeFormData];
+        // Type guard: ensure we only spread object types
+        if (typeof parentValue === 'object' && parentValue !== null && !Array.isArray(parentValue)) {
+          const parentObject = parentValue as Record<string, any>;
+          return {
+            ...prev,
+            [parent]: {
+              ...parentObject,
+              [child]: value,
+            },
+          };
+        } else {
+          // Fallback: if parent is not an object, create a new object
+          return {
+            ...prev,
+            [parent]: {
+              [child]: value,
+            },
+          };
+        }
+      });
     } else {
       setFormData((prev) => ({
         ...prev,
