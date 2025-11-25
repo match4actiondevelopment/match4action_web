@@ -1,6 +1,7 @@
 import { lato, sourceSerifPro } from "@/modules/styles/fonts";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES, MARKS } from "@contentful/rich-text-types";
+import { SxProps, Theme } from '@mui/material/styles';
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -117,33 +118,34 @@ export const ContentfulRichText = ({
           </Typography>
         );
       },
-      [BLOCKS.PARAGRAPH]: (node: any, children: any) => {
-        if (children[0] === "") {
-          return <br />;
-        }
+    [BLOCKS.PARAGRAPH]: (node: any, children: any) => {
+      if (!node?.content?.length) return <br />;
 
-        return (
-          <Typography
-            className={lato.className}
-            sx={(theme) => ({
-              [theme.breakpoints.down("sm")]: {
-                fontSize: "1rem",
-                lineHeight: "1.25rem",
-                color: theme.palette.text.primary,
-                textAlign: "center",
-              },
-              [theme.breakpoints.up("sm")]: {
-                fontSize: "1.125rem",
-                lineHeight: "1.5rem",
-                color: theme.palette.text.primary,
-                textAlign: textAlignment?.toLocaleLowerCase(),
-              },
-            })}
-          >
-            {children}
-          </Typography>
-        );
-      },
+      // Flatten all text in the paragraph
+      const paragraphText = node.content
+        .map((c: any) => c.value || '')
+        .join('');
+
+      const isSpecial = paragraphText.includes(
+        'By taking our test, you will be guided'
+      );
+
+      const commonStyles: SxProps<Theme> = {
+        fontSize: { xs: '1rem', sm: '1.125rem' },
+        lineHeight: { xs: '1.25rem', sm: '1.5rem' },
+        color: 'text.primary',
+        textAlign: { xs: 'center', sm: 'left' },
+        maxWidth: isSpecial ? { xs: '100%', sm: '700px' } : '100%',
+        marginBottom: '1rem'
+      };
+
+      return (
+        <Typography className={lato.className} sx={commonStyles}>
+          {children}
+        </Typography>
+      );
+    },
+
       [BLOCKS.UL_LIST]: (node: any, children: any) => {
         return (
           <List component="ul">
@@ -198,6 +200,7 @@ export const ContentfulRichText = ({
               display="flex"
               width="100%"
               justifyContent={justifyContent}
+
             >
               <Box
                 position="relative"
@@ -229,9 +232,14 @@ export const ContentfulRichText = ({
             </Box>
           );
         }
-        const url = node?.data?.target?.fields?.linkToEntry
+        let url = node?.data?.target?.fields?.linkToEntry
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
+        
+        // Redirect /opportunities to /initiatives to fix 404 error
+        if (url === "/opportunities") {
+          url = "/initiatives";
+        }
 
         const variant = node?.data?.target?.fields?.variant;
 
@@ -371,9 +379,14 @@ export const ContentfulRichText = ({
         );
       },
       [INLINES.EMBEDDED_ENTRY]: (node: any, children: any) => {
-        const url = node?.data?.target?.fields?.linkToEntry
+        let url = node?.data?.target?.fields?.linkToEntry
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
+        
+        // Redirect /opportunities to /initiatives to fix 404 error
+        if (url === "/opportunities") {
+          url = "/initiatives";
+        }
 
         return (
           <NextLink href={url}>{node?.data?.target?.fields?.label}</NextLink>

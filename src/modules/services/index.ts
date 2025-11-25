@@ -64,11 +64,18 @@ export const login = async (payload: {
       }
     );
 
-    return response.json();
+    const data = await response.json();
+    
+    // Check if the response status indicates an error
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
+    }
+  
+    return data;
   } catch (error) {
     return {
       success: false,
-      message: (error as Error)?.message,
+      message: (error as Error)?.message || 'Login failed',
     };
   }
 };
@@ -79,6 +86,7 @@ export const register = async (payload: {
   password: string;
   termsAndConditions: boolean;
   provider: {
+    id: string;
     name: string;
   };
 }): Promise<{
@@ -99,11 +107,18 @@ export const register = async (payload: {
       }
     );
 
-    return response.json();
+    const data = await response.json();
+    
+    // Check if the response status indicates an error
+    if (!response.ok) {
+      throw new Error(data.message || 'Registration failed');
+    }
+
+    return data;
   } catch (error) {
     return {
       success: false,
-      message: (error as Error)?.message,
+      message: (error as Error)?.message || 'Registration failed',
     };
   }
 };
@@ -163,12 +178,30 @@ export const createInitiative = async (formData: FormData) => {
   }
 };
 
-export const fetchInitiatives = async (): Promise<
-  string | InitiativeInterface[]
-> => {
+export const fetchInitiatives = async (
+  filters?: { country?: string; city?: string; location?: string; search?: string }
+): Promise<string | InitiativeInterface[]> => {
   try {
+    // Build query string from filters
+    const queryParams = new URLSearchParams();
+    if (filters?.country) {
+      queryParams.append("country", filters.country);
+    }
+    if (filters?.city) {
+      queryParams.append("city", filters.city);
+    }
+    if (filters?.location) {
+      queryParams.append("location", filters.location);
+    }
+    if (filters?.search) {
+      queryParams.append("search", filters.search);
+    }
+    
+    const queryString = queryParams.toString();
+    const url = `/initiatives${queryString ? `?${queryString}` : ""}`;
+    
     const { data } = await http.get<RequestInterface<InitiativeInterface[]>>(
-      `/initiatives`
+      url
     );
     if (data?.success) {
       return data?.data;
@@ -202,7 +235,7 @@ export const logout = async () => {
   try {
     await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/auth/logout`, {
       credentials: "include",
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },

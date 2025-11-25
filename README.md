@@ -2,8 +2,14 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+Node.js 16.x
 
+_install dependencies_
+```bash
+npm install
+```
+
+_run the development server_
 ```bash
 npm run dev
 # or
@@ -21,6 +27,32 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+## How to use the Modal component
+
+Portal was needed to make sure Modal component renders properly considering position absolute as the whole father-component (match4action_web\src\app\layout.tsx).
+
+```js
+import { useState } from "react";
+import Modal from "relative-path/Modal";
+import Portal from "relative-path/HOC/modal-portal";
+
+const [openModal, setIsOpen] = useState(false);
+
+// inside JSX
+{openModal ?
+  <Portal>
+    <Modal
+      modalTitle="Title"
+      firstButtonTitle="Yes"
+      lastButtonTitle="Cancel"
+      firstButtonFunction={() => { handleLogout() }}
+      lastButtonFunction={() => { setIsOpen(!openModal) }}
+  />
+  </Portal> :
+  <></>
+}
+```
 
 ## Learn More
 

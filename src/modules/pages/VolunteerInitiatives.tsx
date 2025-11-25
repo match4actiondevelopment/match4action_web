@@ -6,22 +6,54 @@ import SortIcon from "@mui/icons-material/Sort";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { lato } from "../styles/fonts";
 
 export default function VolunteerInitiatives() {
-  const [page, setPage] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [locationFilter, setLocationFilter] = useState("");
+  const [searchFilter, setSearchFilter] = useState("");
+  
+  // Parse location filter - can be "City, Country" or just "City" or just "Country"
+  const locationFilters = useMemo(() => {
+    if (!locationFilter.trim()) {
+      return undefined;
+    }
+    
+    const parts = locationFilter.split(",").map((part) => part.trim());
+    
+    if (parts.length === 2) {
+      // Format: "City, Country" - search both fields specifically
+      return { city: parts[0], country: parts[1] };
+    } else if (parts.length === 1) {
+      // Single value - search in both city and country fields
+      // Backend will handle this with $or query
+      return { location: parts[0] };
+    }
+    
+    return undefined;
+  }, [locationFilter]);
+  
+  // Combine all filters
+  const allFilters = useMemo(() => {
+    return {
+      ...locationFilters,
+      ...(searchFilter.trim() ? { search: searchFilter.trim() } : {}),
+    };
+  }, [locationFilters, searchFilter]);
+  
   const {
     status,
     data: initiatives,
     error,
     isFetching,
     isPreviousData,
-  } = useGetInitiatives();
+  } = useGetInitiatives(allFilters);
 
   return (
     <Box
@@ -40,8 +72,19 @@ export default function VolunteerInitiatives() {
           label="Jobs titles, companies, keywords"
           variant="outlined"
           size="small"
+          value={searchFilter}
+          onChange={(e) => setSearchFilter(e.target.value)}
+          placeholder="Search by initiative name, description, services, etc."
         />
-        <TextField fullWidth label="Location" variant="outlined" size="small" />
+        <TextField
+          fullWidth
+          label="Location (e.g., 'New York' or 'New York, United States')"
+          variant="outlined"
+          size="small"
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value)}
+          placeholder="City or City, Country"
+        />
 
         <Box>
           <Switch inputProps={{ "aria-label": "Remote Work" }} defaultChecked />
@@ -114,12 +157,20 @@ export default function VolunteerInitiatives() {
         marginBottom={{ sm: "1rem", md: "2rem" }}
       >
         {initiatives &&
-          initiatives?.map((item) => (
+          initiatives?.slice(0, visibleCount).map((item) => (
             <Grid item xs={12} md={3} key={item._id}>
               <InitiativeCard {...item} />
             </Grid>
           ))}
       </Grid>
+      {initiatives && initiatives.length > visibleCount && (
+        <Button
+          onClick={() => setVisibleCount((c) => c + 5)}
+          sx={{ background: "#FFD15C", color: "#000", textTransform: "capitalize" }}
+        >
+          More
+        </Button>
+      )}
     </Box>
   );
 }
