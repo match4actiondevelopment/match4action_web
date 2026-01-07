@@ -48,13 +48,11 @@ if [ -f .env ]; then
     [[ "$key" =~ ^#.*$ ]] && continue
     [[ -z "$key" ]] && continue
     
-    # Clean quotes (double and single)
+    # Clean quotes
     value=${value%\"}
     value=${value#\"}
-    value=${value%\'}
-    value=${value#\'}
     
-    if [[ "$key" == "CONTENTFUL_SPACE_ID" || "$key" == "CONTENTFUL_PUBLIC_ACCESS_TOKEN" || "$key" == "NEXT_PUBLIC_SITE_IDENTIFIER" || "$key" == "CONTENTFUL_ENVIRONMENT" || "$key" == "CONTENTFUL_HOST" || "$key" == "CONTENTFUL_PREVIEW_ACCESS_TOKEN" ]]; then
+    if [[ "$key" == "CONTENTFUL_SPACE_ID" || "$key" == "CONTENTFUL_PUBLIC_ACCESS_TOKEN" || "$key" == "NEXT_PUBLIC_SITE_IDENTIFIER" ]]; then
        add_env "$key" "$value"
     fi
   done < .env
