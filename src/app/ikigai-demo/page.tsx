@@ -29,7 +29,7 @@ export default function IkigaiQuiz() {
   const [resultsSaved, setResultsSaved] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:3003/ikigai-questions")
+    fetch(`${process.env.NEXT_PUBLIC_API_PATH}/ikigai-questions`)
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to fetch questions: ${res.status}`);
         return res.json();
@@ -61,7 +61,7 @@ export default function IkigaiQuiz() {
         category: option.category,
       }));
 
-      const response = await fetch("http://localhost:3003/ikigai-responses", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/ikigai-responses`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -157,45 +157,45 @@ export default function IkigaiQuiz() {
           py: 6,
         }}
       >
-          <Box maxWidth="800px" width="100%" textAlign="center">
-            <Typography variant="h4" fontWeight={700} color="primary" mb={3}>
-              🎉 Your Ikigai Results
-            </Typography>
-            <Typography color="text.secondary" mb={4}>
-              Here&apos;s a breakdown of your answers by category:
-            </Typography>
-            
-            <Box mb={4}>
-              {resultsSaved ? (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                  ✅ Your results have been saved! You can now get personalized recommendations.
-                </Alert>
-              ) : (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                  💾 Saving your results for 24 hrs, if you want to see the match initiatives, please Sign Up or Log In
-                </Alert>
-              )}
-              <Button
-                component="a"
-                href="/recommended-initiatives"
-                variant="contained"
-                size="large"
-                disabled={!resultsSaved}
-                sx={{
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: "999px",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  boxShadow: 3,
-                  backgroundColor: resultsSaved ? "#4F46E5" : "#D1D5DB",
-                  color: "white",
-                  ":hover": { backgroundColor: resultsSaved ? "#4338CA" : "#D1D5DB" },
-                }}
-              >
-                {resultsSaved ? "View Recommended Initiatives" : "Saving Results..."}
-              </Button>
-            </Box>
+        <Box maxWidth="800px" width="100%" textAlign="center">
+          <Typography variant="h4" fontWeight={700} color="primary" mb={3}>
+            🎉 Your Ikigai Results
+          </Typography>
+          <Typography color="text.secondary" mb={4}>
+            Here&apos;s a breakdown of your answers by category:
+          </Typography>
+
+          <Box mb={4}>
+            {resultsSaved ? (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                ✅ Your results have been saved! You can now get personalized recommendations.
+              </Alert>
+            ) : (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                💾 Saving your results for 24 hrs, if you want to see the match initiatives, please Sign Up or Log In
+              </Alert>
+            )}
+            <Button
+              component="a"
+              href="/recommended-initiatives"
+              variant="contained"
+              size="large"
+              disabled={!resultsSaved}
+              sx={{
+                px: 4,
+                py: 1.5,
+                borderRadius: "999px",
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow: 3,
+                backgroundColor: resultsSaved ? "#4F46E5" : "#D1D5DB",
+                color: "white",
+                ":hover": { backgroundColor: resultsSaved ? "#4338CA" : "#D1D5DB" },
+              }}
+            >
+              {resultsSaved ? "View Recommended Initiatives" : "Saving Results..."}
+            </Button>
+          </Box>
 
           <Box
             display="grid"
@@ -327,10 +327,10 @@ export default function IkigaiQuiz() {
                         textTransform: "none",
                         ...(selected?.text === opt.text
                           ? {
-                              backgroundColor: "#4F46E5",
-                              color: "white",
-                              ":hover": { backgroundColor: "#4338CA" },
-                            }
+                            backgroundColor: "#4F46E5",
+                            color: "white",
+                            ":hover": { backgroundColor: "#4338CA" },
+                          }
                           : {}),
                       }}
                     >
