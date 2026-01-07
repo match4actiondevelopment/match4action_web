@@ -2,7 +2,7 @@ import { logout } from "@/modules/services";
 import axios from "axios";
 
 const http = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_PATH,
+  baseURL: "https://match4action-api-five.vercel.app",
   headers: {
     "Content-Type": "application/json",
   },

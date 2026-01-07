@@ -1,17 +1,17 @@
 import Box from '@mui/material/Box';
 import NextImage from 'next/image';
-import {ContentfulRichText} from '../../contentful/components/ContentfulRichText';
+import { ContentfulRichText } from '../../contentful/components/ContentfulRichText';
 
 interface CardHowItWorksInterface {
     data: any;
 }
 
-export const CardHowItWorks = ({data}: CardHowItWorksInterface) => {
+export const CardHowItWorks = ({ data }: CardHowItWorksInterface) => {
     const text = data?.fields?.content;
     const width =
-        data?.fields?.image?.fields?.image?.fields?.file?.details?.image?.width;
+        data?.fields?.image?.fields?.image?.fields?.file?.details?.image?.width || 100;
     const height =
-        data?.fields?.image?.fields?.image?.fields?.file?.details?.image?.height;
+        data?.fields?.image?.fields?.image?.fields?.file?.details?.image?.height || 100;
 
     return (
         <Box
@@ -43,7 +43,7 @@ export const CardHowItWorks = ({data}: CardHowItWorksInterface) => {
                 },
             })}
         >
-            <ContentfulRichText data={text}/>
+            <ContentfulRichText data={text} />
             <Box
                 position="relative"
                 sx={(theme) => ({
@@ -58,11 +58,13 @@ export const CardHowItWorks = ({data}: CardHowItWorksInterface) => {
                     },
                 })}
             >
-                <NextImage
-                    fill
-                    src={`https:${data?.fields?.image?.fields?.image?.fields?.file?.url}`}
-                    alt={data?.fields?.image?.fields?.image?.fields?.description}
-                />
+                {data?.fields?.image?.fields?.image?.fields?.file?.url && (
+                    <NextImage
+                        fill
+                        src={`https:${data?.fields?.image?.fields?.image?.fields?.file?.url}`}
+                        alt={data?.fields?.image?.fields?.image?.fields?.description || ''}
+                    />
+                )}
             </Box>
         </Box>
     );

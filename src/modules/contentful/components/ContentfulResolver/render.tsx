@@ -34,7 +34,7 @@ export const render = (data: any) => {
         </Grid>
       );
     case 'card':
-      const variant = data.fields.variant;
+      const variant = data?.fields?.variant;
       return <>{variant === 'default' && <CardHowItWorks data={data} />}</>;
     case 'container':
       return (

@@ -53,7 +53,7 @@ export const login = async (payload: {
 }> => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_PATH}/auth/login`,
+      `https://match4action-api-five.vercel.app/auth/login`,
       {
         credentials: "include",
         method: "POST",
@@ -65,12 +65,12 @@ export const login = async (payload: {
     );
 
     const data = await response.json();
-    
+
     // Check if the response status indicates an error
     if (!response.ok) {
       throw new Error(data.message || 'Login failed');
     }
-  
+
     return data;
   } catch (error) {
     return {
@@ -96,7 +96,7 @@ export const register = async (payload: {
 }> => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_PATH}/auth/register`,
+      `https://match4action-api-five.vercel.app/auth/register`,
       {
         credentials: "include",
         method: "POST",
@@ -108,7 +108,7 @@ export const register = async (payload: {
     );
 
     const data = await response.json();
-    
+
     // Check if the response status indicates an error
     if (!response.ok) {
       throw new Error(data.message || 'Registration failed');
@@ -196,10 +196,10 @@ export const fetchInitiatives = async (
     if (filters?.search) {
       queryParams.append("search", filters.search);
     }
-    
+
     const queryString = queryParams.toString();
     const url = `/initiatives${queryString ? `?${queryString}` : ""}`;
-    
+
     const { data } = await http.get<RequestInterface<InitiativeInterface[]>>(
       url
     );
@@ -233,7 +233,7 @@ export const fetchInitiative = async (
 
 export const logout = async () => {
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/auth/logout`, {
+    await fetch(`https://match4action-api-five.vercel.app/auth/logout`, {
       credentials: "include",
       method: "POST",
       headers: {
