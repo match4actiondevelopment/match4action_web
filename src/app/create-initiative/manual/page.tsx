@@ -169,7 +169,7 @@ export default function CreateInitiative() {
     if (!document.getElementById('menu-overflow-fix')) {
       document.head.appendChild(style);
     }
-    
+
     // Also add observer to fix menu when it appears
     const observer = new MutationObserver(() => {
       const menus = document.querySelectorAll('.MuiPaper-root.MuiMenu-paper');
@@ -178,7 +178,7 @@ export default function CreateInitiative() {
         menuEl.style.overflow = 'visible';
         menuEl.style.maxWidth = 'calc(100vw - 32px)';
         menuEl.style.position = 'fixed';
-        
+
         // Also fix parent presentation div
         const presentation = menuEl.closest('div[role="presentation"]') as HTMLElement;
         if (presentation) {
@@ -186,9 +186,9 @@ export default function CreateInitiative() {
         }
       });
     });
-    
+
     observer.observe(document.body, { childList: true, subtree: true });
-    
+
     return () => {
       const existingStyle = document.getElementById('menu-overflow-fix');
       if (existingStyle) {
@@ -202,13 +202,24 @@ export default function CreateInitiative() {
   const handleInputChange = (field: string, value: any) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof InitiativeFormData],
-          [child]: value,
-        },
-      }));
+      setFormData((prev) => {
+        // Safe access to nested object
+        const parentKey = parent as keyof InitiativeFormData;
+        const parentValue = prev[parentKey];
+
+        // Ensure parentValue is treated as an object if we're spreading it
+        const safeParentValue = typeof parentValue === 'object' && parentValue !== null
+          ? parentValue
+          : {};
+
+        return {
+          ...prev,
+          [parent]: {
+            ...safeParentValue,
+            [child]: value,
+          },
+        };
+      });
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -307,17 +318,17 @@ export default function CreateInitiative() {
   }
 
   return (
+    <Box
+      minHeight="100vh"
+      sx={{
+        background: "linear-gradient(to bottom right, #EEF2FF, #FFFFFF)",
+        py: 4,
+        px: 2,
+        width: '100%',
+      }}
+    >
       <Box
-        minHeight="100vh"
-        sx={{
-          background: "linear-gradient(to bottom right, #EEF2FF, #FFFFFF)",
-          py: 4,
-          px: 2,
-          width: '100%',
-        }}
-      >
-      <Box 
-        maxWidth="800px" 
+        maxWidth="800px"
         mx="auto"
         sx={{
           width: '100%',
@@ -331,9 +342,9 @@ export default function CreateInitiative() {
           transition={{ duration: 0.6 }}
           style={{ width: '100%', overflow: 'visible', position: 'relative' }}
         >
-          <Paper 
-            elevation={3} 
-            sx={{ 
+          <Paper
+            elevation={3}
+            sx={{
               p: { xs: 2, sm: 4 },
               width: '100%',
               maxWidth: '100%',
@@ -355,10 +366,10 @@ export default function CreateInitiative() {
             )}
 
             <form onSubmit={handleSubmit} style={{ width: '100%', overflow: 'visible' }}>
-              <Grid 
-                container 
+              <Grid
+                container
                 spacing={{ xs: 2, sm: 3 }}
-                sx={{ 
+                sx={{
                   width: '100%',
                   margin: 0,
                   overflow: 'visible',
@@ -366,11 +377,11 @@ export default function CreateInitiative() {
               >
                 {/* Basic Information */}
                 <Grid item xs={12}>
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={600} 
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
                     gutterBottom
-                    sx={{ 
+                    sx={{
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
                       width: '100%'
@@ -413,11 +424,11 @@ export default function CreateInitiative() {
 
                 {/* Event Details */}
                 <Grid item xs={12}>
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={600} 
-                    gutterBottom 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    gutterBottom
+                    sx={{
                       mt: 2,
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
@@ -591,11 +602,11 @@ export default function CreateInitiative() {
 
                 {/* Location */}
                 <Grid item xs={12}>
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={600} 
-                    gutterBottom 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    gutterBottom
+                    sx={{
                       mt: 2,
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
@@ -654,11 +665,11 @@ export default function CreateInitiative() {
 
                 {/* Motivations */}
                 <Grid item xs={12}>
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={600} 
-                    gutterBottom 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    gutterBottom
+                    sx={{
                       mt: 2,
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
@@ -685,11 +696,11 @@ export default function CreateInitiative() {
 
                 {/* Areas Covered */}
                 <Grid item xs={12}>
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={600} 
-                    gutterBottom 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    gutterBottom
+                    sx={{
                       mt: 2,
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
@@ -716,11 +727,11 @@ export default function CreateInitiative() {
 
                 {/* Services Needed */}
                 <Grid item xs={12}>
-                  <Typography 
-                    variant="h6" 
-                    fontWeight={600} 
-                    gutterBottom 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    gutterBottom
+                    sx={{
                       mt: 2,
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
@@ -759,8 +770,8 @@ export default function CreateInitiative() {
                       type="submit"
                       variant="contained"
                       disabled={
-                        loading || 
-                        !formData.initiativeName || 
+                        loading ||
+                        !formData.initiativeName ||
                         !formData.description ||
                         (!formData.isRemote && (!formData.location.country || !formData.location.city))
                       }

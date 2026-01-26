@@ -6,8 +6,13 @@ interface ContentfulImageInterface {
 }
 
 export const ContentfulImage = ({ data }: ContentfulImageInterface) => {
-  const width = data?.fields?.image?.fields?.file?.details?.image?.width;
-  const height = data?.fields?.image?.fields?.file?.details?.image?.height;
+  const width = data?.fields?.image?.fields?.file?.details?.image?.width || 800;
+  const height = data?.fields?.image?.fields?.file?.details?.image?.height || 600;
+
+  const imageUrl = data?.fields?.image?.fields?.file?.url;
+
+  if (!imageUrl) return null;
+
   return (
     <Box
       position="relative"
@@ -26,8 +31,8 @@ export const ContentfulImage = ({ data }: ContentfulImageInterface) => {
       <NextImage
         fill
         priority={data?.fields?.priority ?? false}
-        src={`https:${data?.fields?.image?.fields?.file?.url}`}
-        alt={data?.fields?.image?.fields?.description}
+        src={`https:${imageUrl}`}
+        alt={data?.fields?.image?.fields?.description || ''}
       />
     </Box>
   );
