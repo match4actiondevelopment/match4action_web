@@ -1,24 +1,20 @@
 "use client";
 
-import { headerMenuCustomProps } from "@/modules/utils";
+
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
-import dynamic from "next/dynamic";
+
 import NextImage from "next/image";
 import NextLink from "next/link";
 import { useContext } from "react";
 import { UserContext } from "@/modules/context/user-context";
 import { usePathname } from "next/navigation";
+import { HeaderButton } from "../HeaderButton";
 
-const HeaderButton = dynamic(
-  () => import("../HeaderButton").then((doc) => doc.HeaderButton),
-  {
-    ssr: false,
-  }
-);
+
 
 export interface HeaderDesktopInterface {
   accessToken?: string;
@@ -26,9 +22,15 @@ export interface HeaderDesktopInterface {
 
 export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
   const path = usePathname();
-  const style = headerMenuCustomProps(path);
   const { isLogged } = useContext(UserContext) ?? {};
   const showAuthLinks = Boolean(accessToken || isLogged);
+
+  const isTransparentMode = path === "/" && !showAuthLinks;
+
+  const headerColor = isTransparentMode ? "#fff" : "#2C3235";
+  const headerBg = isTransparentMode ? "transparent" : "#FFFFFF";
+
+  const style = { textDecoration: "none", color: headerColor };
 
   return (
     <Box
@@ -37,6 +39,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
         display: "flex",
         justifyContent: "space-between",
         padding: "1.5rem 2.5rem",
+        backgroundColor: headerBg,
       }}
     >
       <NextLink href="/" style={{ textDecoration: "none" }}>
