@@ -9,6 +9,8 @@ import Typography from "@mui/material/Typography";
 import dynamic from "next/dynamic";
 import NextImage from "next/image";
 import NextLink from "next/link";
+import { useContext } from "react";
+import { UserContext } from "@/modules/context/user-context";
 import { usePathname } from "next/navigation";
 
 const HeaderButton = dynamic(
@@ -25,6 +27,8 @@ export interface HeaderDesktopInterface {
 export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
   const path = usePathname();
   const style = headerMenuCustomProps(path);
+  const { isLogged } = useContext(UserContext) ?? {};
+  const showAuthLinks = Boolean(accessToken || isLogged);
 
   return (
     <Box
@@ -104,7 +108,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
               <ListItemText primary="Volunteer Now" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
-          {accessToken && (
+          {showAuthLinks && (
             <>
               <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
                 <NextLink href="/create-initiative" style={style}>

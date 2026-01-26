@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { fetchProfile } from "../services";
 import { UserI } from "../types/types";
 
 interface UserContextInterface {
@@ -25,8 +26,19 @@ const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
   // fetch data
   useEffect(() => {
     const value = localStorage.getItem("match4action@user");
-    const user = value && value !== "undefined" ? JSON.parse(value) : null;
-    setUser(user);
+    const storedUser = value && value !== "undefined" ? JSON.parse(value) : null;
+    if (storedUser) {
+      setUser(storedUser);
+    } else {
+      // Try to fetch current user if no stored user
+      fetchProfile().then((fetchedUser) => {
+        if (fetchedUser && typeof fetchedUser === 'object' && '_id' in fetchedUser) {
+          setUser(fetchedUser);
+        }
+      }).catch(() => {
+        // Ignore errors, user is not logged in
+      });
+    }
   }, []);
 
   useEffect(() => {
