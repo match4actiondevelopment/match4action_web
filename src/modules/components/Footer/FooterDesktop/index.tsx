@@ -73,7 +73,7 @@ export const FooterDesktop = ({ accessToken }: FooterDesktopInterface) => {
                   margin: 0,
                   padding: 0,
                   fontSize: "18px",
-                  color: "#000000",
+                  color: "#795d5dff",
                   fontWeight: 700
                 }}
               >
