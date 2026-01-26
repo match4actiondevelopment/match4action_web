@@ -68,7 +68,7 @@ export const HeaderMobile = ({ accessToken }: HeaderMobileInterface) => {
               }}
             >
               <NextImage
-                alt="logo match4purpose"
+                alt="logo match4action"
                 src="/logo.png"
                 width={19}
                 height={22}
@@ -86,7 +86,7 @@ export const HeaderMobile = ({ accessToken }: HeaderMobileInterface) => {
                   marginLeft: "8px",
                 }}
               >
-                match4purpose
+                match4action
               </Typography>
             </Box>
           </NextLink>
