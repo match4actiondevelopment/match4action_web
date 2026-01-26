@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Match4purpose - Not Found",
+  title: "Match4Action - Not Found",
   description: "...",
 };
 

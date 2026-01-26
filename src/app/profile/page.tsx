@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
-  title: "Match4purpose - Profile",
+  title: "Match4Action - Profile",
   description: "...",
 };
 

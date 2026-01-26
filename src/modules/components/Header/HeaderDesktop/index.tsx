@@ -51,7 +51,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           }}
         >
           <NextImage
-            alt="logo match4purpose"
+            alt="logo match4action"
             src="/logo.png"
             width={19}
             height={22}
@@ -69,7 +69,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
               marginLeft: "8px",
             }}
           >
-            match4purpose
+            match4action
           </Typography>
         </Box>
       </NextLink>

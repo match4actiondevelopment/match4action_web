@@ -35,9 +35,9 @@ export const FooterMobile = ({ accessToken }: FooterMobileInterface) => {
   const path = usePathname();
   const style = footerMenuCustomProps();
   const socials = [
-    { href: "https://www.facebook.com/Match4ActionFoundation", alt: "facebook match4purpose", src: "/facebook.svg", width: 24, height: 24 },
-    { href: "https://www.instagram.com/match4action/", alt: "instagram match4purpose", src: "/instagram.svg", width: 24, height: 24 },
-    { href: "https://medium.com/@info_66495", alt: "medium match4purpose", src: "/medium.svg", width: 22, height: 17.5 },
+    { href: "https://www.facebook.com/Match4ActionFoundation", alt: "facebook match4action", src: "/facebook.svg", width: 24, height: 24 },
+    { href: "https://www.instagram.com/match4action/", alt: "instagram match4action", src: "/instagram.svg", width: 24, height: 24 },
+    { href: "https://medium.com/@info_66495", alt: "medium match4action", src: "/medium.svg", width: 22, height: 17.5 },
   ]
   const menu = [
     { href: "/about-us", primary: "About Us" },
@@ -70,7 +70,7 @@ export const FooterMobile = ({ accessToken }: FooterMobileInterface) => {
               fontWeight: 700
             }}
           >
-            Match4Purpose
+            Match4Action
           </Typography>
         </NextLink>
         <List

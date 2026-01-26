@@ -10,7 +10,7 @@ export async function generateMetadata({
   const data = await fetchInitiative(params.id);
 
   return {
-    title: data ? `Match4purpose - ${data?.initiativeName} Initiative` : "",
+    title: data ? `Match4Action - ${data?.initiativeName} Initiative` : "",
   };
 }
 
