@@ -23,7 +23,7 @@ export interface HeaderButtonInterface {
 
 export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
   const pathname = usePathname();
-  const { user } = useContext(UserContext) ?? {};
+  const { user, isLogged, setUser } = useContext(UserContext) ?? {};
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 
@@ -35,6 +35,7 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
 
   const handleLogout = async () => {
     await logout();
+    setUser?.(null);
     window.location.href = window.location.origin;
   };
 
@@ -47,7 +48,7 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
 
   const handleCloseMenu = () => setAnchorEl(null);
 
-  if (!doNotShowLoginButton && !accessToken) {
+  if (!doNotShowLoginButton && !accessToken && !isLogged) {
     return (
       <NextLink href="/login" style={{ textDecoration: "none" }}>
         <Button
@@ -80,7 +81,7 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
     );
   }
 
-  if (accessToken) {
+  if (accessToken || isLogged) {
     return (
       <>
         <IconButton onClick={handleOpenMenu} sx={{ p: 0 }} aria-label="user menu">
