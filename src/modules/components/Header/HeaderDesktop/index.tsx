@@ -102,7 +102,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           })}
         >
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink href="/ikigai-demo" style={style}>
+            <NextLink href="/test" style={style}>
               <ListItemText primary="Take Test" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
