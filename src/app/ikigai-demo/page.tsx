@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { UserContext } from "../../modules/context/user-context";
+import { http } from "../../modules/config/http";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -27,15 +29,15 @@ export default function IkigaiQuiz() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [finished, setFinished] = useState(false);
   const [resultsSaved, setResultsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const userContext = useContext(UserContext);
+  const isLogged = userContext?.isLogged ?? false;
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_PATH}/ikigai-questions`)
+    http.get("/ikigai-questions")
       .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch questions: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        setQuestions(data);
+        setQuestions(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -53,7 +55,9 @@ export default function IkigaiQuiz() {
   };
 
   const saveResults = async () => {
+    if (!isLogged) return;
     try {
+      setIsSaving(true);
       // Prepare answers for the API
       const answersArray = Object.entries(answers).map(([questionId, option]) => ({
         questionId,
@@ -61,24 +65,22 @@ export default function IkigaiQuiz() {
         category: option.category,
       }));
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/ikigai-responses`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          answers: answersArray,
-        }),
-      });
+      const { data } = await http.post(
+        "/ikigai-responses",
+        { answers: answersArray },
+        { withCredentials: true }
+      );
 
-      if (!response.ok) {
-        console.error("Failed to save Ikigai results");
+      if (!data?.success) {
+        console.error("Failed to save Ikigai results:", data?.message);
+        throw new Error(data?.message || "Failed to save Ikigai results");
       } else {
         setResultsSaved(true);
       }
     } catch (error) {
       console.error("Error saving Ikigai results:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -166,35 +168,65 @@ export default function IkigaiQuiz() {
           </Typography>
 
           <Box mb={4}>
-            {resultsSaved ? (
-              <Alert severity="success" sx={{ mb: 2 }}>
-                ✅ Your results have been saved! You can now get personalized recommendations.
+            {!isLogged ? (
+              <>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  💾 To save your results and see match initiatives, please Sign Up or Log In.
+                </Alert>
+                <Box display="flex" gap={2} justifyContent="center" mt={2}>
+                  <Button
+                    component="a"
+                    href="/login"
+                    variant="outlined"
+                    sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 600, textTransform: "none" }}
+                  >
+                    Log In
+                  </Button>
+                  <Button
+                    component="a"
+                    href="/register"
+                    variant="contained"
+                    sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 600, textTransform: "none", backgroundColor: "#4F46E5", ":hover": { backgroundColor: "#4338CA" } }}
+                  >
+                    Sign Up
+                  </Button>
+                </Box>
+              </>
+            ) : resultsSaved ? (
+              <>
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  ✅ Your results have been saved! You can now get personalized recommendations.
+                </Alert>
+                <Button
+                  component="a"
+                  href="/recommended-initiatives"
+                  variant="contained"
+                  size="large"
+                  sx={{
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: "999px",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    boxShadow: 3,
+                    backgroundColor: "#4F46E5",
+                    color: "white",
+                    ":hover": { backgroundColor: "#4338CA" },
+                    mt: 2
+                  }}
+                >
+                  View Recommended Initiatives
+                </Button>
+              </>
+            ) : isSaving ? (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Saving your results...
               </Alert>
             ) : (
-              <Alert severity="info" sx={{ mb: 2 }}>
-                💾 Saving your results for 24 hrs, if you want to see the match initiatives, please Sign Up or Log In
+              <Alert severity="error" sx={{ mb: 2 }}>
+                Failed to save results. Please try again.
               </Alert>
             )}
-            <Button
-              component="a"
-              href="/recommended-initiatives"
-              variant="contained"
-              size="large"
-              disabled={!resultsSaved}
-              sx={{
-                px: 4,
-                py: 1.5,
-                borderRadius: "999px",
-                fontWeight: 600,
-                textTransform: "none",
-                boxShadow: 3,
-                backgroundColor: resultsSaved ? "#4F46E5" : "#D1D5DB",
-                color: "white",
-                ":hover": { backgroundColor: resultsSaved ? "#4338CA" : "#D1D5DB" },
-              }}
-            >
-              {resultsSaved ? "View Recommended Initiatives" : "Saving Results..."}
-            </Button>
           </Box>
 
           <Box
