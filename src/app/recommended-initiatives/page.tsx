@@ -30,6 +30,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import NextLink from "next/link";
 import { UserContext } from "@/modules/context/user-context";
+import { http } from "@/modules/config/http";
 
 interface RecommendedInitiative {
   _id: string;
@@ -88,20 +89,19 @@ export default function RecommendedInitiatives() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:3003/matching/recommendations", {
-        credentials: "include",
+      const response = await http.get("/matching/recommendations", {
+        withCredentials: true,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch recommendations");
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || "Failed to fetch recommendations");
       }
 
-      const data = await response.json();
-      setRecommendations(data.data || []);
+      setRecommendations(response.data?.data || []);
       setLastUpdated(new Date());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || "An error occurred";
+      setError(errorMessage);
     } finally {
       setLoading(false);
       setRefreshing(false);
