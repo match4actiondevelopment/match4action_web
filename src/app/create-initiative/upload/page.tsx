@@ -58,7 +58,8 @@ export default function UploadInitiativeExcel() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://localhost:3003/initiatives/upload-excel", {
+      const baseURL = process.env.NEXT_PUBLIC_API_PATH || "http://localhost:3003";
+      const response = await fetch(`${baseURL}/initiatives/upload-excel`, {
         method: "POST",
         credentials: "include",
         body: formData,

@@ -3,6 +3,7 @@ import GenericPage from "@/modules/pages/GenericPage";
 import { GenericPageInterface } from "@/modules/types/types";
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface";
 import { notFound } from "next/navigation";
+import AboutUsEditor from "@/modules/components/AboutUsEditor";
 
 export async function generateMetadata({
   params,
@@ -23,5 +24,10 @@ export default async function Page({ params }: GenericPageInterface) {
     notFound();
   }
 
-  return <GenericPage data={data} />;
+  return (
+    <>
+      {params.slug !== "about-us" && <GenericPage data={data} />}
+      {params.slug === "about-us" && <AboutUsEditor />}
+    </>
+  );
 }

@@ -52,8 +52,9 @@ export const login = async (payload: {
   data?: UserI;
 }> => {
   try {
+    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "https://match4action-api-five.vercel.app";
     const response = await fetch(
-      `https://match4action-api-five.vercel.app/auth/login`,
+      `${baseURL}/auth/login`,
       {
         credentials: "include",
         method: "POST",
@@ -95,8 +96,9 @@ export const register = async (payload: {
   data?: UserI;
 }> => {
   try {
+    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "https://match4action-api-five.vercel.app";
     const response = await fetch(
-      `https://match4action-api-five.vercel.app/auth/register`,
+      `${baseURL}/auth/register`,
       {
         credentials: "include",
         method: "POST",
@@ -233,7 +235,8 @@ export const fetchInitiative = async (
 
 export const logout = async () => {
   try {
-    await fetch(`https://match4action-api-five.vercel.app/auth/logout`, {
+    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "https://match4action-api-five.vercel.app";
+    await fetch(`${baseURL}/auth/logout`, {
       credentials: "include",
       method: "POST",
       headers: {

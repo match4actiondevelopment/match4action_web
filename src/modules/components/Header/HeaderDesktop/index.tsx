@@ -9,8 +9,9 @@ import Typography from "@mui/material/Typography";
 
 import NextImage from "next/image";
 import NextLink from "next/link";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "@/modules/context/user-context";
+import { UserRole } from "@/modules/types/types";
 import { usePathname } from "next/navigation";
 import { HeaderButton } from "../HeaderButton";
 
@@ -22,7 +23,7 @@ export interface HeaderDesktopInterface {
 
 export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
   const path = usePathname();
-  const { isLogged } = useContext(UserContext) ?? {};
+  const { isLogged, user } = useContext(UserContext) ?? {};
   const showAuthLinks = Boolean(accessToken || isLogged);
 
   const isTransparentMode = path === "/" && !showAuthLinks;
@@ -31,6 +32,20 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
   const headerBg = isTransparentMode ? "transparent" : "#FFFFFF";
 
   const style = { textDecoration: "none", color: headerColor };
+
+  const [blogUrl, setBlogUrl] = useState("https://medium.com/@info_66495");
+
+  useEffect(() => {
+    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "http://localhost:3003";
+    fetch(`${baseURL}/bloglink`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.data?.url) {
+          setBlogUrl(data.data.url);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   return (
     <Box
@@ -113,11 +128,13 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           </ListItem>
           {showAuthLinks && (
             <>
-              <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-                <NextLink href="/create-initiative" style={style}>
-                  <ListItemText primary="Create Initiative" sx={{ padding: 0 }} />
-                </NextLink>
-              </ListItem>
+              {(user?.role === UserRole.admin || user?.role === UserRole.organization) && (
+                <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
+                  <NextLink href="/create-initiative" style={style}>
+                    <ListItemText primary="Create Initiative" sx={{ padding: 0 }} />
+                  </NextLink>
+                </ListItem>
+              )}
               <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
                 <NextLink href="/recommended-initiatives" style={style}>
                   <ListItemText primary="For You" sx={{ padding: 0 }} />
@@ -128,7 +145,7 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink
               target="_blank"
-              href="https://medium.com/@info_66495"
+              href={blogUrl}
               style={style}
             >
               <ListItemText primary="Blog" sx={{ padding: 0 }} />
