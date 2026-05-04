@@ -1,4 +1,5 @@
 import { UserContext } from '@/modules/context/user-context';
+import { UserRole } from '@/modules/types/types';
 import { logout } from '@/modules/services';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
@@ -11,7 +12,7 @@ import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState, useEffect } from 'react';
 import { Item } from './Item';
 import Modal from "../Modal";
 import Portal from "@/HOC/modal-portal";
@@ -33,14 +34,14 @@ const notAuthenticatedUserMenuList: DrawerItem[] = [
     name: 'Volunteer now',
     url: '/volunteer-now',
   },
-  { name: 'Blog', url: 'https://medium.com/@info_66495' },
+  { name: 'Blog', url: '/blog' },
   { name: 'About us', url: '/about-us' },
   { name: 'Get in touch', url: '/contact-us' },
 ];
 
 export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) => {
   const router = useRouter();
-  const { isLogged } = useContext(UserContext) ?? {};
+  const { isLogged, user } = useContext(UserContext) ?? {};
   const { setUser } = useContext(UserContext) ?? {};
   const [openModal, setIsOpen] = useState(false);
 
@@ -72,7 +73,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
           />
         ),
       },
-      {
+      ...((user?.role === UserRole.admin || user?.role === UserRole.organization) ? [{
         name: 'Create initiative',
         url: '/create-initiative',
         icon: (
@@ -82,7 +83,7 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
             }}
           />
         ),
-      },
+      }] : []),
       {
         name: 'Recommended for you',
         url: '/recommended-initiatives',
@@ -139,18 +140,38 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
         ),
         action: setOpenModal,
       },
+      { name: 'Blog', url: '/blog' },
+      { name: 'About us', url: '/about-us' },
+      { name: 'Get in touch', url: '/contact-us' },
     ],
-    [setOpenModal]
+    [setOpenModal, user?.role]
   );
+
+  const [blogUrl, setBlogUrl] = useState("https://medium.com/@info_66495");
+
+  useEffect(() => {
+    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "http://localhost:3003";
+    fetch(`${baseURL}/bloglink`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success && data?.data?.url) {
+          setBlogUrl(data.data.url);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   const drawer = useMemo(() => {
     const list = isLogged ? authenticatedUserMenuList : notAuthenticatedUserMenuList;
+    const mappedList = list.map(item => 
+      item.name === 'Blog' ? { ...item, url: blogUrl } : item
+    );
     const bg = isLogged ? '#FFD15C' : '#FFFFFF';
     return {
-      list,
+      list: mappedList,
       bg,
     };
-  }, [isLogged, authenticatedUserMenuList]);
+  }, [isLogged, authenticatedUserMenuList, blogUrl]);
 
   return (
     <Drawer open={open} anchor={'left'} onClose={() => toggleDrawer(false)}>
