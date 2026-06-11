@@ -5,7 +5,6 @@ import { useGetInitiatives } from "@/modules/hooks/useGetInitiatives";
 import SortIcon from "@mui/icons-material/Sort";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
-import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
@@ -54,6 +53,42 @@ export default function VolunteerInitiatives() {
     isFetching,
     isPreviousData,
   } = useGetInitiatives(allFilters);
+
+  // Dev-only mock initiatives to allow visual checks when API is unavailable
+  const mockInitiatives = [
+    {
+      _id: "mock-1",
+      initiativeName: "Park Cleanup",
+      location: { city: "Austin", country: "USA" },
+      servicesNeeded: ["Cleanup", "Logistics"],
+      image: [],
+    },
+    {
+      _id: "mock-2",
+      initiativeName: "Food Bank Support with a Longer Title to Test Truncation",
+      location: { city: "Austin", country: "USA" },
+      servicesNeeded: ["Food Prep", "Distribution", "Coordination"],
+      image: [],
+    },
+    {
+      _id: "mock-3",
+      initiativeName: "Senior Center Visits",
+      location: { city: "San Antonio", country: "USA" },
+      servicesNeeded: ["Companionship"],
+      image: [],
+    },
+    {
+      _id: "mock-4",
+      initiativeName: "Tree Planting",
+      location: { city: "Houston", country: "USA" },
+      servicesNeeded: ["Planting", "PR"],
+      image: [],
+    },
+  ];
+
+  const displayInitiatives = (initiatives && initiatives.length > 0)
+    ? initiatives
+    : (process.env.NODE_ENV === "development" ? mockInitiatives : []);
 
   return (
     <Box
@@ -151,18 +186,28 @@ export default function VolunteerInitiatives() {
           margin: "0.5rem 0 1rem",
         }}
       />
-      <Grid
-        container
-        spacing={[2, 4]}
-        marginBottom={{ sm: "1rem", md: "2rem" }}
+      <Box
+        component="div"
+        sx={{
+          width: "100%",
+          display: "grid",
+          gap: 2,
+          gridTemplateColumns: "1fr",
+          gridAutoRows: "1fr",
+          alignItems: "stretch",
+          justifyItems: "stretch",
+          "@media only screen and (min-width:1501px)": {
+            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          },
+        }}
       >
-        {initiatives &&
-          initiatives?.slice(0, visibleCount).map((item) => (
-            <Grid item xs={12} md={3} key={item._id}>
+        {displayInitiatives &&
+          displayInitiatives?.slice(0, visibleCount).map((item) => (
+            <Box key={item._id} sx={{ height: "100%", display: "flex" }}>
               <InitiativeCard {...item} />
-            </Grid>
+            </Box>
           ))}
-      </Grid>
+      </Box>
       {initiatives && initiatives.length > visibleCount && (
         <Button
           onClick={() => setVisibleCount((c) => c + 5)}

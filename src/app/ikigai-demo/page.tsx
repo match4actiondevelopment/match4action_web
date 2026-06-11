@@ -140,11 +140,14 @@ export default function IkigaiQuiz() {
       grouped[opt.category].push(opt);
     });
 
-    const colors: Record<string, string> = {
-      passion: "#FCE7F3",
-      mission: "#DBEAFE",
-      profession: "#DCFCE7",
-      vocation: "#EDE9FE",
+    const categoryMeta: Record<
+      string,
+      { label: string; color: string; accent: string }
+    > = {
+      passion: { label: "Passion", color: "#EEF2FF", accent: "#4F46E5" },
+      mission: { label: "Mission", color: "#EFF6FF", accent: "#1D4ED8" },
+      profession: { label: "Profession", color: "#ECFDF5", accent: "#047857" },
+      vocation: { label: "Vocation", color: "#FAF5FF", accent: "#7C3AED" },
     };
 
     return (
@@ -154,118 +157,200 @@ export default function IkigaiQuiz() {
         alignItems="center"
         justifyContent="center"
         sx={{
-          background: "linear-gradient(to bottom right, #EEF2FF, #FFFFFF)",
+          background: "linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%)",
           px: 3,
           py: 6,
         }}
       >
-        <Box maxWidth="800px" width="100%" textAlign="center">
-          <Typography variant="h4" fontWeight={700} color="primary" mb={3}>
-            🎉 Your Ikigai Results
-          </Typography>
-          <Typography color="text.secondary" mb={4}>
-            Here&apos;s a breakdown of your answers by category:
-          </Typography>
+        <Box maxWidth="980px" width="100%">
+          <Box
+            sx={{
+              bgcolor: "#FFFFFF",
+              borderRadius: "28px",
+              boxShadow: "0px 28px 80px rgba(15, 23, 42, 0.08)",
+              p: { xs: 4, md: 5 },
+            }}
+          >
+            <Box textAlign="center" mb={5}>
+              <Typography variant="h3" fontWeight={700} color="primary" mb={1}>
+                Your Ikigai Results
+              </Typography>
+              <Typography color="text.secondary" sx={{ maxWidth: 680, mx: "auto" }}>
+                These results reflect the four areas that guide your purpose and impact. Use them to discover initiatives that align with your strengths.
+              </Typography>
+            </Box>
 
-          <Box mb={4}>
-            {!isLogged ? (
-              <>
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  💾 To save your results and see match initiatives, please Sign Up or Log In.
-                </Alert>
-                <Box display="flex" gap={2} justifyContent="center" mt={2}>
+            <Box mb={4}>
+              {!isLogged ? (
+                <>
+                  <Alert severity="warning" sx={{ mb: 3, borderRadius: "18px", fontWeight: 500 }}>
+                    💾 Save your Ikigai results and unlock tailored initiative recommendations by logging in or registering.
+                  </Alert>
+                  <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center">
+                    <Button
+                      component="a"
+                      href="/login"
+                      variant="outlined"
+                      sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 700, textTransform: "none" }}
+                    >
+                      Log In
+                    </Button>
+                    <Button
+                      component="a"
+                      href="/register"
+                      variant="contained"
+                      sx={{
+                        px: 4,
+                        py: 1.5,
+                        borderRadius: "999px",
+                        fontWeight: 700,
+                        textTransform: "none",
+                        backgroundColor: "#4F46E5",
+                        color: "#FFFFFF",
+                        ":hover": { backgroundColor: "#4338CA" },
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                  </Box>
+                </>
+              ) : resultsSaved ? (
+                <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center">
+                  <Alert severity="success" sx={{ width: "100%", borderRadius: "18px", fontWeight: 500 }}>
+                    ✅ Your results have been saved successfully.
+                  </Alert>
                   <Button
                     component="a"
-                    href="/login"
-                    variant="outlined"
-                    sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 600, textTransform: "none" }}
-                  >
-                    Log In
-                  </Button>
-                  <Button
-                    component="a"
-                    href="/register"
+                    href="/recommended-initiatives"
                     variant="contained"
-                    sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 600, textTransform: "none", backgroundColor: "#4F46E5", ":hover": { backgroundColor: "#4338CA" } }}
+                    size="large"
+                    sx={{
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: "999px",
+                      fontWeight: 700,
+                      textTransform: "none",
+                      boxShadow: 3,
+                      backgroundColor: "#4F46E5",
+                      color: "#FFFFFF",
+                      ":hover": { backgroundColor: "#4338CA" },
+                    }}
                   >
-                    Sign Up
+                    View Recommended Initiatives
                   </Button>
                 </Box>
-              </>
-            ) : resultsSaved ? (
-              <>
-                <Alert severity="success" sx={{ mb: 2 }}>
-                  ✅ Your results have been saved! You can now get personalized recommendations.
+              ) : isSaving ? (
+                <Alert severity="info" sx={{ borderRadius: "18px", fontWeight: 500 }}>
+                  Saving your results...
                 </Alert>
+              ) : (
+                <Alert severity="error" sx={{ borderRadius: "18px", fontWeight: 500 }}>
+                  Failed to save results. Please try again.
+                </Alert>
+              )}
+            </Box>
+
+            <Box
+              display="grid"
+              gap={3}
+              gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
+            >
+              {Object.entries(grouped).map(([category, opts]) => (
+                <motion.div key={category} whileHover={{ y: -4 }}>
+                  <Box
+                    sx={{
+                      height: "100%",
+                      borderRadius: "22px",
+                      border: "1px solid rgba(79, 70, 229, 0.12)",
+                      background: categoryMeta[category].color,
+                      p: 4,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="overline"
+                        sx={{
+                          display: "inline-block",
+                          px: 2,
+                          py: 0.5,
+                          mb: 2,
+                          borderRadius: "999px",
+                          backgroundColor: "rgba(255,255,255,0.8)",
+                          color: categoryMeta[category].accent,
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.14em",
+                        }}
+                      >
+                        {categoryMeta[category].label}
+                      </Typography>
+                      <Typography variant="h6" fontWeight={700} mb={3}>
+                        Key themes
+                      </Typography>
+                    </Box>
+
+                    {opts.length > 0 ? (
+                      <Box
+                        component="ul"
+                        sx={{
+                          pl: 2,
+                          m: 0,
+                          color: "text.primary",
+                          listStyle: "disc",
+                          "& li": {
+                            mb: 1.5,
+                            ml: 2,
+                            fontSize: "0.96rem",
+                            lineHeight: 1.6,
+                          },
+                        }}
+                      >
+                        {opts.map((o, i) => (
+                          <li key={i}>{o.text}</li>
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography fontSize="0.95rem" color="text.secondary">
+                        No answers chosen.
+                      </Typography>
+                    )}
+                  </Box>
+                </motion.div>
+              ))}
+            </Box>
+
+            <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center" mt={5}>
+              <Button
+                component="a"
+                href="/ikigai-demo"
+                variant="outlined"
+                sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 700, textTransform: "none" }}
+              >
+                Retake the Quiz
+              </Button>
+              {isLogged && (
                 <Button
                   component="a"
                   href="/recommended-initiatives"
                   variant="contained"
-                  size="large"
                   sx={{
                     px: 4,
                     py: 1.5,
                     borderRadius: "999px",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     textTransform: "none",
-                    boxShadow: 3,
                     backgroundColor: "#4F46E5",
-                    color: "white",
+                    color: "#FFFFFF",
                     ":hover": { backgroundColor: "#4338CA" },
-                    mt: 2
                   }}
                 >
-                  View Recommended Initiatives
+                  Recommended Initiatives
                 </Button>
-              </>
-            ) : isSaving ? (
-              <Alert severity="info" sx={{ mb: 2 }}>
-                Saving your results...
-              </Alert>
-            ) : (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                Failed to save results. Please try again.
-              </Alert>
-            )}
-          </Box>
-
-          <Box
-            display="grid"
-            gap={3}
-            gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}
-          >
-            {Object.entries(grouped).map(([category, opts]) => (
-              <motion.div key={category} whileHover={{ scale: 1.03 }}>
-                <Box
-                  p={3}
-                  borderRadius="12px"
-                  boxShadow={2}
-                  sx={{
-                    background: colors[category],
-                    textAlign: "left",
-                  }}
-                >
-                  <Typography variant="h6" fontWeight={600} mb={2}>
-                    {category}
-                  </Typography>
-                  {opts.length > 0 ? (
-                    <ul>
-                      {opts.map((o, i) => (
-                        <li key={i}>• {o.text}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <Typography
-                      fontSize="0.875rem"
-                      fontStyle="italic"
-                      color="text.secondary"
-                    >
-                      No answers chosen.
-                    </Typography>
-                  )}
-                </Box>
-              </motion.div>
-            ))}
+              )}
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -347,6 +432,7 @@ export default function IkigaiQuiz() {
                     key={opt.text}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    style={{ display: "flex", height: "100%" }}
                   >
                     <Button
                       fullWidth
@@ -357,6 +443,13 @@ export default function IkigaiQuiz() {
                         borderRadius: "12px",
                         fontWeight: 600,
                         textTransform: "none",
+                        height: "100%",
+                        minHeight: 72,
+                        whiteSpace: "normal",
+                        textAlign: "center",
+                        alignItems: "center",
+                        display: "flex",
+                        justifyContent: "center",
                         ...(selected?.text === opt.text
                           ? {
                             backgroundColor: "#4F46E5",
