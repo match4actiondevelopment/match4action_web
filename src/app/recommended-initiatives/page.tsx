@@ -181,7 +181,7 @@ export default function RecommendedInitiatives() {
                 <PsychologyIcon sx={{ fontSize: 40, color: "primary.main" }} />
                 <Box>
                   <Typography variant="h4" fontWeight={700} color="primary">
-                    Recommended Initiatives
+                    These options can help you explore
                   </Typography>
                   <Typography color="text.secondary">
                     Personalized recommendations based on your Ikigai test results
@@ -315,23 +315,29 @@ export default function RecommendedInitiatives() {
                       </Box>
 
                       {/* Matching Reasons */}
-                      {initiative.matchingReasons.length > 0 && (
-                        <Box mb={2}>
-                          <Typography variant="body2" fontWeight={600} gutterBottom>
-                            Why this matches you:
+                      <Box mb={2}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={600}
+                          gutterBottom
+                        >
+                          Why this matches you:
+                        </Typography>
+
+                        {(initiative.matchingReasons?.length
+                          ? initiative.matchingReasons.slice(0, 2)
+                          : ["This opportunity may align with your Ikigai profile."]
+                        ).map((reason, index) => (
+                          <Typography
+                            key={index}
+                            variant="body2"
+                            color="primary"
+                            sx={{ fontSize: "0.75rem" }}
+                          >
+                            • {reason}
                           </Typography>
-                          {initiative.matchingReasons.slice(0, 2).map((reason, idx) => (
-                            <Typography
-                              key={idx}
-                              variant="body2"
-                              color="primary"
-                              sx={{ fontSize: "0.75rem" }}
-                            >
-                              • {reason}
-                            </Typography>
-                          ))}
-                        </Box>
-                      )}
+                        ))}
+                      </Box>
 
                       {/* Tags */}
                       <Box mb={2}>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useContext } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserContext } from "../../modules/context/user-context";
 import { http } from "../../modules/config/http";
@@ -22,6 +23,7 @@ interface Question {
 }
 
 export default function IkigaiQuiz() {
+  const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +78,7 @@ export default function IkigaiQuiz() {
         throw new Error(data?.message || "Failed to save Ikigai results");
       } else {
         setResultsSaved(true);
+        router.replace("/recommended-initiatives");
       }
     } catch (error) {
       console.error("Error saving Ikigai results:", error);
