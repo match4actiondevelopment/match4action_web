@@ -1,6 +1,7 @@
 import { http } from "../config/http";
 import {
   GoalsInterface,
+  InitiativeApplicationResponse,
   InitiativeInterface,
   RequestInterface,
   UpdatedProfileInterface,
@@ -230,6 +231,30 @@ export const fetchInitiative = async (
   } catch (error: any) {
     return error;
     // return (error as Error).message;
+  }
+};
+
+export const applyToInitiative = async (
+  id: string
+): Promise<InitiativeApplicationResponse> => {
+  try {
+    const { data } = await http.patch<
+      RequestInterface<InitiativeApplicationResponse>
+    >(`/initiatives/apply/${id}`, undefined, {
+      withCredentials: true,
+    });
+
+    if (data?.success) {
+      return data.data;
+    }
+
+    throw new Error("Application could not be submitted.");
+  } catch (error: any) {
+    throw new Error(
+      error?.response?.data?.message ||
+        error?.message ||
+        "Application could not be submitted."
+    );
   }
 };
 

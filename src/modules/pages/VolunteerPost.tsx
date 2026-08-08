@@ -1,17 +1,69 @@
 "use client";
 
+import { UserContext } from "@/modules/context/user-context";
 import { useGetInitiative } from "@/modules/hooks/useGetInitiative";
+import { applyToInitiative } from "@/modules/services";
 import { lato } from "@/modules/styles/fonts";
-import { Goal } from "@/modules/types/types";
+import { Goal, UserRole } from "@/modules/types/types";
 import { formatEntryDate } from "@/modules/utils";
-import { Grid } from "@mui/material";
+import {
+  Alert,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import NextImage from "next/image";
+import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
 
 export default function VolunteerPost({ params }: { params: { id: string } }) {
-  const { data } = useGetInitiative(params.id);
+  const router = useRouter();
+  const userContext = useContext(UserContext);
+  const { data, isLoading } = useGetInitiative(params.id);
+  const [isApplying, setIsApplying] = useState(false);
+  const [applyError, setApplyError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const isUnavailable =
+    data?.status === "inactive" || data?.status === "closed";
+
+  const isNonVolunteer =
+    userContext?.isLogged && userContext.user?.role !== UserRole.volunteer;
+
+  const handleApply = async () => {
+    setApplyError("");
+
+    if (!userContext?.isLogged) {
+      router.push("/login");
+      return;
+    }
+
+    if (userContext.user?.role !== UserRole.volunteer) {
+      setApplyError("Only volunteer accounts can apply to opportunities.");
+      return;
+    }
+
+    if (isUnavailable) {
+      setApplyError("This opportunity is not accepting applications.");
+      return;
+    }
+
+    try {
+      setIsApplying(true);
+      await applyToInitiative(params.id);
+      setShowSuccess(true);
+    } catch (error) {
+      setApplyError((error as Error).message);
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   return (
     <Box
@@ -203,9 +255,33 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           },
         })}
       >
+        <Grid item xs={12}>
+          <Typography
+            className={lato.className}
+            variant="body2"
+            color="text.secondary"
+          >
+            Applying shares your name and email with this organisation.
+          </Typography>
+        </Grid>
+
+        {applyError && (
+          <Grid item xs={12}>
+            <Alert severity="error">{applyError}</Alert>
+          </Grid>
+        )}
+
+        {isNonVolunteer && (
+          <Grid item xs={12}>
+            <Alert severity="info">
+              Only volunteer accounts can apply to opportunities.
+            </Alert>
+          </Grid>
+        )}
         <Grid item xs={6} sm={6}>
           <Button
-            type="submit"
+            onClick={handleApply}
+            disabled={isLoading || isApplying || isUnavailable || isNonVolunteer}
             className={lato.className}
             sx={(theme) => ({
               [theme.breakpoints.down("sm")]: {
@@ -225,6 +301,11 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
                 },
                 ":hover": {
                   background: "#FFD15C",
+                },
+                ":disabled": {
+                  background: "#D3D3D3",
+                  color: theme.palette.text.secondary,
+                  boxShadow: "none",
                 },
                 textTransform: "capitalize",
                 textDecoration: "none",
@@ -253,6 +334,11 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
                 ":hover": {
                   background: "#FFD15C",
                 },
+                ":disabled": {
+                  background: "#D3D3D3",
+                  color: theme.palette.text.secondary,
+                  boxShadow: "none",
+                },
                 textTransform: "capitalize",
                 textDecoration: "none",
                 borderRadius: "5px",
@@ -262,7 +348,13 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
               },
             })}
           >
-            Apply
+            {isApplying ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : isUnavailable ? (
+              "Applications closed"
+            ) : (
+              "Apply"
+            )}
           </Button>
         </Grid>
         <Grid item xs={6} sm={6}>
@@ -327,6 +419,39 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           </Button>
         </Grid>
       </Grid>
+      <Dialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Application sent</DialogTitle>
+
+        <DialogContent>
+          <Alert severity="success" sx={{ mb: 2 }}>
+            Your application was sent successfully.
+          </Alert>
+
+          <Typography>
+            This role has been saved to your profile under Applied volunteer
+            positions.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => router.push("/recommended-initiatives")}>
+            Back to recommendations
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={() => router.push("/profile")}
+            sx={{ background: "#FFD15C", color: "text.primary" }}
+          >
+            View profile
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

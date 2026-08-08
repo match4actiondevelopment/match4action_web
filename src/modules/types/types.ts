@@ -88,6 +88,7 @@ export interface Location {
 
 export interface InitiativeInterface {
   userId: string;
+  status?: "active" | "inactive" | "closed";
   eventTimeFrame?: string;
   eventType?: string;
   initiativeName: string;
@@ -108,6 +109,11 @@ export interface InitiativeInterface {
   createdAt?: string;
   updatedAt?: string;
   _id?: string;
+}
+
+export interface InitiativeApplicationResponse {
+  initiativeId: string;
+  applied: boolean;
 }
 
 export interface Goal {
