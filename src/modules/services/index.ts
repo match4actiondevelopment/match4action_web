@@ -1,5 +1,6 @@
 import { http } from "../config/http";
 import {
+  VolunteerApplication,
   GoalsInterface,
   InitiativeApplicationResponse,
   InitiativeInterface,
@@ -12,33 +13,37 @@ import {
 export const fetchProfile = async (id?: string | null) => {
   try {
     const { data } = await http.post<RequestInterface<UserI>>(
-      `/users/profile`,
+      "/users/profile",
       { id },
       { withCredentials: true }
     );
 
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error) {
     return (error as Error).message;
   }
 };
 
-export const updateUserProfile = async ({ body, id }: UpdateProfilePayload) => {
+export const updateUserProfile = async ({
+  body,
+  id,
+}: UpdateProfilePayload) => {
   try {
     const { data } = await http.patch<
       RequestInterface<UpdatedProfileInterface>
     >(`/users/${id}`, body, {
       withCredentials: true,
     });
+
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error) {
     return (error as Error).message;
   }
@@ -53,31 +58,30 @@ export const login = async (payload: {
   data?: UserI;
 }> => {
   try {
-    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "https://match4action-api-five.vercel.app";
-    const response = await fetch(
-      `${baseURL}/auth/login`,
-      {
-        credentials: "include",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const baseURL =
+      process.env.NEXT_PUBLIC_API_PATH ||
+      "https://match4action-api-five.vercel.app";
+
+    const response = await fetch(`${baseURL}/auth/login`, {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
     const data = await response.json();
 
-    // Check if the response status indicates an error
     if (!response.ok) {
-      throw new Error(data.message || 'Login failed');
+      throw new Error(data.message || "Login failed");
     }
 
     return data;
   } catch (error) {
     return {
       success: false,
-      message: (error as Error)?.message || 'Login failed',
+      message: (error as Error)?.message || "Login failed",
     };
   }
 };
@@ -97,65 +101,70 @@ export const register = async (payload: {
   data?: UserI;
 }> => {
   try {
-    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "https://match4action-api-five.vercel.app";
-    const response = await fetch(
-      `${baseURL}/auth/register`,
-      {
-        credentials: "include",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const baseURL =
+      process.env.NEXT_PUBLIC_API_PATH ||
+      "https://match4action-api-five.vercel.app";
+
+    const response = await fetch(`${baseURL}/auth/register`, {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
 
     const data = await response.json();
 
-    // Check if the response status indicates an error
     if (!response.ok) {
-      throw new Error(data.message || 'Registration failed');
+      throw new Error(data.message || "Registration failed");
     }
 
     return data;
   } catch (error) {
     return {
       success: false,
-      message: (error as Error)?.message || 'Registration failed',
+      message: (error as Error)?.message || "Registration failed",
     };
   }
 };
 
-export const updateImage = async (formData: FormData): Promise<string> => {
+export const updateImage = async (
+  formData: FormData
+): Promise<string> => {
   try {
     const { data } = await http.post<RequestInterface<string>>(
-      `/upload`,
+      "/upload",
       formData,
       {
         headers: { "Content-Type": undefined },
         withCredentials: true,
       }
     );
+
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error) {
     return (error as Error).message;
   }
 };
 
-export const fetchGoals = async (): Promise<string | GoalsInterface[]> => {
+export const fetchGoals = async (): Promise<
+  string | GoalsInterface[]
+> => {
   try {
-    const { data } = await http.get<RequestInterface<GoalsInterface[]>>(
-      `/goals`
-    );
+    const { data } = await http.get<
+      RequestInterface<GoalsInterface[]>
+    >("/goals");
+
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error) {
     return (error as Error).message;
   }
@@ -163,39 +172,46 @@ export const fetchGoals = async (): Promise<string | GoalsInterface[]> => {
 
 export const createInitiative = async (formData: FormData) => {
   try {
-    const { data } = await http.post<RequestInterface<InitiativeInterface>>(
-      `/initiatives`,
-      formData,
-      {
-        headers: { "Content-Type": undefined },
-        withCredentials: true,
-      }
-    );
+    const { data } = await http.post<
+      RequestInterface<InitiativeInterface>
+    >("/initiatives", formData, {
+      headers: { "Content-Type": undefined },
+      withCredentials: true,
+    });
+
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error: any) {
     throw new Error(JSON.stringify(error?.response?.data));
   }
 };
 
 export const fetchInitiatives = async (
-  filters?: { country?: string; city?: string; location?: string; search?: string }
+  filters?: {
+    country?: string;
+    city?: string;
+    location?: string;
+    search?: string;
+  }
 ): Promise<string | InitiativeInterface[]> => {
   try {
-    // Build query string from filters
     const queryParams = new URLSearchParams();
+
     if (filters?.country) {
       queryParams.append("country", filters.country);
     }
+
     if (filters?.city) {
       queryParams.append("city", filters.city);
     }
+
     if (filters?.location) {
       queryParams.append("location", filters.location);
     }
+
     if (filters?.search) {
       queryParams.append("search", filters.search);
     }
@@ -203,14 +219,15 @@ export const fetchInitiatives = async (
     const queryString = queryParams.toString();
     const url = `/initiatives${queryString ? `?${queryString}` : ""}`;
 
-    const { data } = await http.get<RequestInterface<InitiativeInterface[]>>(
-      url
-    );
+    const { data } = await http.get<
+      RequestInterface<InitiativeInterface[]>
+    >(url);
+
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error) {
     return (error as Error).message;
   }
@@ -220,17 +237,17 @@ export const fetchInitiative = async (
   id?: string
 ): Promise<InitiativeInterface> => {
   try {
-    const { data } = await http.get<RequestInterface<InitiativeInterface>>(
-      `/initiatives/${id}`
-    );
+    const { data } = await http.get<
+      RequestInterface<InitiativeInterface>
+    >(`/initiatives/${id}`);
+
     if (data?.success) {
-      return data?.data;
-    } else {
-      throw new Error("Error!");
+      return data.data;
     }
+
+    throw new Error("Error!");
   } catch (error: any) {
     return error;
-    // return (error as Error).message;
   }
 };
 
@@ -250,17 +267,42 @@ export const applyToInitiative = async (
 
     throw new Error("Application could not be submitted.");
   } catch (error: any) {
-    throw new Error(
+    const failure = new Error(
       error?.response?.data?.message ||
         error?.message ||
         "Application could not be submitted."
     );
+
+    Object.assign(failure, {
+      status: error?.response?.status,
+    });
+
+    throw failure;
   }
+};
+
+export const fetchMyApplications = async (): Promise<
+  VolunteerApplication[]
+> => {
+  const { data } = await http.get<
+    RequestInterface<VolunteerApplication[]>
+  >("/initiatives/applications/me", {
+    withCredentials: true,
+  });
+
+  if (!data?.success || !Array.isArray(data.data)) {
+    throw new Error("Could not load your applications.");
+  }
+
+  return data.data;
 };
 
 export const logout = async () => {
   try {
-    const baseURL = process.env.NEXT_PUBLIC_API_PATH || "https://match4action-api-five.vercel.app";
+    const baseURL =
+      process.env.NEXT_PUBLIC_API_PATH ||
+      "https://match4action-api-five.vercel.app";
+
     await fetch(`${baseURL}/auth/logout`, {
       credentials: "include",
       method: "POST",

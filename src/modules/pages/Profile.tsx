@@ -1,5 +1,7 @@
 "use client";
 
+import AppliedVolunteerPositions from "@/modules/components/AppliedVolunteerPositions";
+import { UserContext } from "@/modules/context/user-context";
 import { queryClient } from "@/modules/context/layout-context";
 import { useGetProfile } from "@/modules/hooks/useGetProfile";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,13 +19,23 @@ import Typography from "@mui/material/Typography";
 import { useMutation } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import NextImage from "next/image";
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Controller, useForm } from "react-hook-form";
 import "react-quill/dist/quill.snow.css";
 import * as yup from "yup";
 import { updateImage, updateUserProfile } from "../services";
 import { lato, sourceSerifPro } from "../styles/fonts";
-import { ProfileFormInterface, UpdateProfilePayload } from "../types/types";
+import {
+  ProfileFormInterface,
+  UpdateProfilePayload,
+} from "../types/types";
 import { formatEntryDate } from "../utils";
 
 const schema = yup
@@ -38,72 +50,89 @@ type ProfileInterface = {
 };
 
 export default function Profile({ userId }: ProfileInterface) {
+  const userContext = useContext(UserContext);
+  const applicationUserId = userContext?.user?._id || userId;
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [editPersonalInfo, setEditPersonalInfo] = useState(false);
   const [fileList, setFileList] = useState<FileList | null>(null);
   const [bio, setBio] = useState("");
 
-  const { data: userProfile, isLoading } = useGetProfile(userId);
+  const { data: userProfile, isLoading } =
+    useGetProfile(applicationUserId);
 
-  const { handleSubmit, control, reset } = useForm<ProfileFormInterface>({
-    resolver: yupResolver(schema),
-    defaultValues: useMemo(() => {
-      return {
-        birthDate: userProfile?.birthDate?.toString() ?? "",
-        location: {
-          city: userProfile?.location?.city,
-          country: userProfile?.location?.country,
-        },
-        name: userProfile?.name,
-        role: userProfile?.role?.toString(),
-      };
-    }, [userProfile]),
-  });
+  const { handleSubmit, control, reset } =
+    useForm<ProfileFormInterface>({
+      resolver: yupResolver(schema),
+      defaultValues: useMemo(() => {
+        return {
+          birthDate: userProfile?.birthDate?.toString() ?? "",
+          location: {
+            city: userProfile?.location?.city,
+            country: userProfile?.location?.country,
+          },
+          name: userProfile?.name,
+          role: userProfile?.role?.toString(),
+        };
+      }, [userProfile]),
+    });
 
   useEffect(() => {
     if (userProfile) {
       setBio(userProfile?.bio ?? "");
+
       reset({
         birthDate: userProfile?.birthDate
-          ? formatEntryDate(userProfile?.birthDate?.toString())
+          ? formatEntryDate(userProfile.birthDate.toString())
           : "",
         location: {
           city: userProfile?.location?.city,
           country: userProfile?.location?.country,
         },
         name: userProfile?.name,
-
         role: userProfile?.role?.toString(),
       });
     }
   }, [userProfile, reset]);
 
-  const { mutate: updateMutation, isLoading: isLoadingUpdate } = useMutation({
-    mutationFn: (payload: UpdateProfilePayload) => updateUserProfile(payload),
+  const {
+    mutate: updateMutation,
+    isLoading: isLoadingUpdate,
+  } = useMutation({
+    mutationFn: (payload: UpdateProfilePayload) =>
+      updateUserProfile(payload),
     onSuccess() {
-      queryClient.invalidateQueries(["profile", userProfile?._id]).then(() => {
-        setEditPersonalInfo(false);
-      });
+      queryClient
+        .invalidateQueries(["profile", userProfile?._id])
+        .then(() => {
+          setEditPersonalInfo(false);
+        });
     },
   });
 
-  const { mutate: updateImageMutation, isLoading: isLoadingImageUpdate } =
-    useMutation({
-      mutationFn: (payload: FormData) => updateImage(payload),
-      onSuccess(data) {
-        updateMutation({
-          body: { image: data },
-          id: userId as string,
-        });
-        queryClient
-          .invalidateQueries(["profile", userProfile?._id])
-          .then(() => {
-            setFileList(null);
-          });
-      },
-    });
+  const {
+    mutate: updateImageMutation,
+    isLoading: isLoadingImageUpdate,
+  } = useMutation({
+    mutationFn: (payload: FormData) => updateImage(payload),
+    onSuccess(data) {
+      updateMutation({
+        body: { image: data },
+        id: userId as string,
+      });
 
-  const files = useMemo(() => (fileList ? [...fileList] : []), [fileList]);
+      queryClient
+        .invalidateQueries(["profile", userProfile?._id])
+        .then(() => {
+          setFileList(null);
+        });
+    },
+  });
+
+  const files = useMemo(
+    () => (fileList ? [...fileList] : []),
+    [fileList]
+  );
 
   const RichText = useMemo(
     () => dynamic(() => import("react-quill"), { ssr: false }),
@@ -125,7 +154,9 @@ export default function Profile({ userId }: ProfileInterface) {
     );
   }
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
     setFileList(e.target.files);
   };
 
@@ -137,6 +168,7 @@ export default function Profile({ userId }: ProfileInterface) {
     if (!fileList) {
       return;
     }
+
     const formData = new FormData();
     formData.append("file", fileList[0]);
     formData.append("id", userId as string);
@@ -180,6 +212,7 @@ export default function Profile({ userId }: ProfileInterface) {
       >
         My Profile
       </Typography>
+
       <Box
         display="flex"
         alignItems="center"
@@ -208,7 +241,8 @@ export default function Profile({ userId }: ProfileInterface) {
                 style={{ borderRadius: "50%" }}
               />
             )}
-            {files?.length === 0 ? (
+
+            {files.length === 0 ? (
               <Button
                 sx={{
                   alignSelf: "end",
@@ -250,6 +284,7 @@ export default function Profile({ userId }: ProfileInterface) {
               </Button>
             )}
           </Box>
+
           <Box
             component="input"
             type="file"
@@ -259,6 +294,7 @@ export default function Profile({ userId }: ProfileInterface) {
           />
         </Box>
       </Box>
+
       {!editPersonalInfo ? (
         <Button
           sx={{
@@ -277,7 +313,11 @@ export default function Profile({ userId }: ProfileInterface) {
           />
         </Button>
       ) : (
-        <Box display="flex" justifyContent="end" marginBottom=".5rem">
+        <Box
+          display="flex"
+          justifyContent="end"
+          marginBottom=".5rem"
+        >
           <Button
             sx={{
               ":hover": {
@@ -286,10 +326,13 @@ export default function Profile({ userId }: ProfileInterface) {
               minWidth: "fit-content",
               padding: 0,
             }}
-            onClick={() => setEditPersonalInfo(!editPersonalInfo)}
+            onClick={() =>
+              setEditPersonalInfo(!editPersonalInfo)
+            }
           >
             Cancel
           </Button>
+
           <Button
             onClick={handleSubmit((data) =>
               updateMutation({
@@ -306,13 +349,26 @@ export default function Profile({ userId }: ProfileInterface) {
               marginLeft: ".75rem",
             }}
           >
-            {isLoadingUpdate ? <CircularProgress size={14} /> : "Save"}
+            {isLoadingUpdate ? (
+              <CircularProgress size={14} />
+            ) : (
+              "Save"
+            )}
           </Button>
         </Box>
       )}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
         {!editPersonalInfo ? (
-          <Box display="flex" flexDirection="column" justifyContent="center">
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+          >
             {userProfile?.name && (
               <Typography
                 className={lato.className}
@@ -327,9 +383,10 @@ export default function Profile({ userId }: ProfileInterface) {
                   },
                 })}
               >
-                {userProfile?.name}
+                {userProfile.name}
               </Typography>
             )}
+
             {userProfile?.birthDate && (
               <Typography
                 className={lato.className}
@@ -344,37 +401,41 @@ export default function Profile({ userId }: ProfileInterface) {
                   },
                 })}
               >
-                {userProfile?.birthDate
-                  ? formatEntryDate(userProfile?.birthDate?.toString())
-                  : ""}
+                {formatEntryDate(
+                  userProfile.birthDate.toString()
+                )}
               </Typography>
             )}
-            {userProfile?.location?.city && userProfile?.location?.country && (
-              <Typography
-                textAlign="left"
-                className={lato.className}
-                display="flex"
-                alignItems="center"
-                sx={(theme) => ({
-                  [theme.breakpoints.down("sm")]: {
-                    color: theme.palette.text.primary,
-                    lineHeight: "40px",
-                  },
-                  [theme.breakpoints.up("sm")]: {
-                    color: theme.palette.text.primary,
-                    lineHeight: "40px",
-                  },
-                })}
-              >
-                <RoomIcon
-                  sx={{
-                    fill: "#7F8390",
-                    marginRight: "3px",
-                  }}
-                />
-                {userProfile?.location?.city} ({userProfile?.location?.country})
-              </Typography>
-            )}
+
+            {userProfile?.location?.city &&
+              userProfile?.location?.country && (
+                <Typography
+                  textAlign="left"
+                  className={lato.className}
+                  display="flex"
+                  alignItems="center"
+                  sx={(theme) => ({
+                    [theme.breakpoints.down("sm")]: {
+                      color: theme.palette.text.primary,
+                      lineHeight: "40px",
+                    },
+                    [theme.breakpoints.up("sm")]: {
+                      color: theme.palette.text.primary,
+                      lineHeight: "40px",
+                    },
+                  })}
+                >
+                  <RoomIcon
+                    sx={{
+                      fill: "#7F8390",
+                      marginRight: "3px",
+                    }}
+                  />
+                  {userProfile.location.city} (
+                  {userProfile.location.country})
+                </Typography>
+              )}
+
             {userProfile?.role && (
               <Typography
                 className={lato.className}
@@ -390,7 +451,7 @@ export default function Profile({ userId }: ProfileInterface) {
                   },
                 })}
               >
-                {userProfile?.role}
+                {userProfile.role}
               </Typography>
             )}
           </Box>
@@ -410,6 +471,7 @@ export default function Profile({ userId }: ProfileInterface) {
                 )}
               />
             </Grid>
+
             <Grid item xs={12} sm={12}>
               <Controller
                 name="birthDate"
@@ -426,15 +488,22 @@ export default function Profile({ userId }: ProfileInterface) {
                 )}
               />
             </Grid>
+
             <Grid item xs={12} sm={6}>
               <Controller
                 name="location.city"
                 control={control}
                 render={({ field }) => (
-                  <TextField size="small" fullWidth label="City" {...field} />
+                  <TextField
+                    size="small"
+                    fullWidth
+                    label="City"
+                    {...field}
+                  />
                 )}
               />
             </Grid>
+
             <Grid item xs={12} sm={6}>
               <Controller
                 name="location.country"
@@ -449,18 +518,25 @@ export default function Profile({ userId }: ProfileInterface) {
                 )}
               />
             </Grid>
+
             <Grid item xs={12} sm={12}>
               <Controller
                 name="role"
                 control={control}
                 render={({ field }) => (
-                  <TextField size="small" fullWidth label="Role" {...field} />
+                  <TextField
+                    size="small"
+                    fullWidth
+                    label="Role"
+                    {...field}
+                  />
                 )}
               />
             </Grid>
           </Grid>
         )}
       </Box>
+
       <Typography
         className={sourceSerifPro.className}
         fontWeight={600}
@@ -484,6 +560,7 @@ export default function Profile({ userId }: ProfileInterface) {
       >
         About
       </Typography>
+
       {!editPersonalInfo ? (
         <Box
           sx={(theme) => ({
@@ -499,7 +576,9 @@ export default function Profile({ userId }: ProfileInterface) {
           })}
           className={lato.className}
           fontWeight={400}
-          dangerouslySetInnerHTML={{ __html: userProfile?.bio ?? "" }}
+          dangerouslySetInnerHTML={{
+            __html: userProfile?.bio ?? "",
+          }}
         />
       ) : (
         <RichText
@@ -510,7 +589,13 @@ export default function Profile({ userId }: ProfileInterface) {
           theme="snow"
         />
       )}
+
+      <AppliedVolunteerPositions
+        userId={applicationUserId}
+      />
+
       <Divider sx={{ marginTop: "2rem" }} />
+
       <Typography
         className={sourceSerifPro.className}
         fontWeight={600}
@@ -534,7 +619,9 @@ export default function Profile({ userId }: ProfileInterface) {
       >
         My Test Results
       </Typography>
+
       <Divider sx={{ marginTop: "2rem" }} />
+
       <Typography
         className={sourceSerifPro.className}
         fontWeight={600}
@@ -575,7 +662,6 @@ const modules = {
     ["link"],
   ],
   clipboard: {
-    // toggle to add extra line breaks when pasting HTML:
     matchVisual: false,
   },
 };

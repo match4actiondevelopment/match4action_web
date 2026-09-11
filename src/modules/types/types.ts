@@ -71,6 +71,7 @@ export interface UpdatedProfileInterface {
   success: boolean;
   data: UserI;
 }
+
 export interface Location {
   country: string;
   city: string;
@@ -79,11 +80,6 @@ export interface Location {
 export interface Provider {
   id: string;
   name: string;
-}
-
-export interface Location {
-  city: string;
-  country: string;
 }
 
 export interface InitiativeInterface {
@@ -120,4 +116,21 @@ export interface Goal {
   image?: string;
   name: string;
   _id: string;
+}
+
+export interface VolunteerApplication {
+  applicationId: string;
+  initiativeId: string;
+  roleName: string;
+  organisationName: string | null;
+  appliedAt: string | null;
+  status:
+    | "applied"
+    | "viewed"
+    | "shortlisted"
+    | "accepted"
+    | "declined"
+    | "withdrawn"
+    | "closed";
+  legacy: boolean;
 }

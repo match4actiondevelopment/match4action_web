@@ -1,5 +1,10 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  myApplicationsKey,
+  useGetMyApplications,
+} from "@/modules/hooks/useGetMyApplications";
 import { UserContext } from "@/modules/context/user-context";
 import { useGetInitiative } from "@/modules/hooks/useGetInitiative";
 import { applyToInitiative } from "@/modules/services";
@@ -22,19 +27,45 @@ import NextImage from "next/image";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
-export default function VolunteerPost({ params }: { params: { id: string } }) {
+export default function VolunteerPost({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const userContext = useContext(UserContext);
+
   const { data, isLoading } = useGetInitiative(params.id);
+
+  const userId = userContext?.user?._id;
+  const applicationQuery = useGetMyApplications(userId);
+
+  const [submittedKey, setSubmittedKey] = useState("");
   const [isApplying, setIsApplying] = useState(false);
   const [applyError, setApplyError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const currentKey = `${userId}:${params.id}`;
+
+  const alreadyApplied =
+    submittedKey === currentKey ||
+    !!applicationQuery.data?.some(
+      (application) => application.initiativeId === params.id
+    );
+
+  const checkingApplication =
+    !!userId && applicationQuery.isLoading;
+
+  const applicationCheckFailed =
+    !!userId && applicationQuery.isError;
 
   const isUnavailable =
     data?.status === "inactive" || data?.status === "closed";
 
   const isNonVolunteer =
-    userContext?.isLogged && userContext.user?.role !== UserRole.volunteer;
+    userContext?.isLogged &&
+    userContext.user?.role !== UserRole.volunteer;
 
   const handleApply = async () => {
     setApplyError("");
@@ -45,21 +76,51 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
     }
 
     if (userContext.user?.role !== UserRole.volunteer) {
-      setApplyError("Only volunteer accounts can apply to opportunities.");
+      setApplyError(
+        "Only volunteer accounts can apply to opportunities."
+      );
+      return;
+    }
+
+    if (
+      alreadyApplied ||
+      checkingApplication ||
+      applicationCheckFailed
+    ) {
       return;
     }
 
     if (isUnavailable) {
-      setApplyError("This opportunity is not accepting applications.");
+      setApplyError(
+        "This opportunity is not accepting applications."
+      );
       return;
     }
 
     try {
       setIsApplying(true);
+
       await applyToInitiative(params.id);
+
+      setSubmittedKey(currentKey);
+
+      void queryClient.invalidateQueries(
+        myApplicationsKey(userId)
+      );
+
       setShowSuccess(true);
     } catch (error) {
-      setApplyError((error as Error).message);
+      const failure = error as Error & {
+        status?: number;
+      };
+
+      if (failure.status === 409) {
+        void queryClient.invalidateQueries(
+          myApplicationsKey(userId)
+        );
+      }
+
+      setApplyError(failure.message);
     } finally {
       setIsApplying(false);
     }
@@ -89,7 +150,11 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
         {data?.image?.map((image, index) => (
           <Box
             key={image}
-            sx={{ width: "100%", height: "240px", position: "relative" }}
+            sx={{
+              width: "100%",
+              height: "240px",
+              position: "relative",
+            }}
           >
             <NextImage
               alt={`${data?.initiativeName} ${index} image`}
@@ -99,6 +164,7 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           </Box>
         ))}
       </Box>
+
       <Typography
         className={lato.className}
         fontWeight="700"
@@ -121,6 +187,7 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
       >
         Date Posted: {formatEntryDate(data?.createdAt)}
       </Typography>
+
       <Typography
         className={lato.className}
         fontWeight="700"
@@ -141,6 +208,7 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
       >
         {data?.initiativeName}
       </Typography>
+
       <Typography
         className={lato.className}
         sx={(theme) => ({
@@ -161,10 +229,13 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
         {data?.servicesNeeded?.map(
           (service, index) =>
             `${service}${
-              data?.servicesNeeded?.length - 1 === index ? "" : ", "
+              data.servicesNeeded.length - 1 === index
+                ? ""
+                : ", "
             }`
         )}
       </Typography>
+
       <Typography
         className={lato.className}
         sx={(theme) => ({
@@ -183,9 +254,12 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
         })}
       >
         {`Location: ${data?.location?.city} ${
-          data?.location?.country ? `, ${data?.location?.country}` : null
+          data?.location?.country
+            ? `, ${data.location.country}`
+            : null
         }`}
       </Typography>
+
       <Typography
         className={lato.className}
         sx={(theme) => ({
@@ -194,11 +268,14 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           marginTop: "1rem",
           color: theme.palette.text.primary,
           [theme.breakpoints.down("sm")]: {},
-          [theme.breakpoints.up("sm")]: { maxWidth: "600px" },
+          [theme.breakpoints.up("sm")]: {
+            maxWidth: "600px",
+          },
         })}
       >
         {data?.description}
       </Typography>
+
       <Typography
         className={lato.className}
         sx={(theme) => ({
@@ -208,16 +285,24 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           marginBottom: "1rem",
           color: theme.palette.text.primary,
           [theme.breakpoints.down("sm")]: {},
-          [theme.breakpoints.up("sm")]: { maxWidth: "600px" },
+          [theme.breakpoints.up("sm")]: {
+            maxWidth: "600px",
+          },
         })}
       >
         Global Goals attended by this cause
       </Typography>
-      <Grid container spacing={{ xs: 2, md: 2 }} sx={{ maxWidth: "600px" }}>
+
+      <Grid
+        container
+        spacing={{ xs: 2, md: 2 }}
+        sx={{ maxWidth: "600px" }}
+      >
         {data?.goals &&
-          data?.goals?.length > 0 &&
-          data?.goals?.map((item) => {
+          data.goals.length > 0 &&
+          data.goals.map((item) => {
             const goal = item as Goal;
+
             return (
               <Grid item xs={4} sm={2} key={goal?._id}>
                 <Button
@@ -231,7 +316,11 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
                   }}
                 >
                   {goal?.image ? (
-                    <NextImage alt={goal?.name} src={goal?.image} fill />
+                    <NextImage
+                      alt={goal.name}
+                      src={goal.image}
+                      fill
+                    />
                   ) : (
                     goal?.name
                   )}
@@ -240,6 +329,7 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
             );
           })}
       </Grid>
+
       <Grid
         container
         spacing={{ xs: 2, md: 2 }}
@@ -261,9 +351,36 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
             variant="body2"
             color="text.secondary"
           >
-            Applying shares your name and email with this organisation.
+            Applying shares your name and email with this
+            organisation.
           </Typography>
         </Grid>
+
+        {alreadyApplied && (
+          <Grid item xs={12}>
+            <Alert severity="info">
+              You have already applied to this opportunity.
+            </Alert>
+          </Grid>
+        )}
+
+        {applicationCheckFailed && (
+          <Grid item xs={12}>
+            <Alert
+              severity="error"
+              action={
+                <Button
+                  onClick={() => applicationQuery.refetch()}
+                >
+                  Retry
+                </Button>
+              }
+            >
+              Could not check your application status. Please
+              retry before applying.
+            </Alert>
+          </Grid>
+        )}
 
         {applyError && (
           <Grid item xs={12}>
@@ -274,14 +391,24 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
         {isNonVolunteer && (
           <Grid item xs={12}>
             <Alert severity="info">
-              Only volunteer accounts can apply to opportunities.
+              Only volunteer accounts can apply to
+              opportunities.
             </Alert>
           </Grid>
         )}
+
         <Grid item xs={6} sm={6}>
           <Button
             onClick={handleApply}
-            disabled={isLoading || isApplying || isUnavailable || isNonVolunteer}
+            disabled={
+              isLoading ||
+              isApplying ||
+              isUnavailable ||
+              isNonVolunteer ||
+              alreadyApplied ||
+              checkingApplication ||
+              applicationCheckFailed
+            }
             className={lato.className}
             sx={(theme) => ({
               [theme.breakpoints.down("sm")]: {
@@ -322,7 +449,8 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
                 height: "56px",
                 background: "#FFD15C",
                 color: theme.palette.text.primary,
-                boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
+                boxShadow:
+                  "0px 10px 20px rgba(0, 0, 0, 0.15)",
                 fontWeight: 600,
                 fontSize: "1rem",
                 ":focus": {
@@ -350,6 +478,10 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           >
             {isApplying ? (
               <CircularProgress size={20} color="inherit" />
+            ) : alreadyApplied ? (
+              "Already applied"
+            ) : checkingApplication ? (
+              "Checking application…"
             ) : isUnavailable ? (
               "Applications closed"
             ) : (
@@ -357,6 +489,7 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
             )}
           </Button>
         </Grid>
+
         <Grid item xs={6} sm={6}>
           <Button
             className={lato.className}
@@ -390,7 +523,8 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
                 padding: "12px 28px",
                 background: "#ffffff",
                 color: theme.palette.text.primary,
-                boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.15)",
+                boxShadow:
+                  "0px 10px 20px rgba(0, 0, 0, 0.15)",
                 fontWeight: 600,
                 fontSize: "1rem",
                 border: "3px solid #FFD15C",
@@ -419,6 +553,7 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           </Button>
         </Grid>
       </Grid>
+
       <Dialog
         open={showSuccess}
         onClose={() => setShowSuccess(false)}
@@ -433,20 +568,31 @@ export default function VolunteerPost({ params }: { params: { id: string } }) {
           </Alert>
 
           <Typography>
-            This role has been saved to your profile under Applied volunteer
-            positions.
+            This role has been saved to your profile under
+            Applied volunteer positions.
           </Typography>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => router.push("/recommended-initiatives")}>
+          <Button
+            onClick={() =>
+              router.push("/recommended-initiatives")
+            }
+          >
             Back to recommendations
           </Button>
 
           <Button
             variant="contained"
-            onClick={() => router.push("/profile")}
-            sx={{ background: "#FFD15C", color: "text.primary" }}
+            onClick={() =>
+              router.push(
+                "/profile#applied-volunteer-positions"
+              )
+            }
+            sx={{
+              background: "#FFD15C",
+              color: "text.primary",
+            }}
           >
             View profile
           </Button>
