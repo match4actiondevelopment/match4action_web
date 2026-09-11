@@ -1,15 +1,11 @@
-import Profile from "@/modules/pages/Profile";
+import AuthenticatedProfile from "@/modules/components/AuthenticatedProfile";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Match4Action - Profile",
   description: "...",
 };
 
-export default async function Page() {
-  const cookieStore = cookies();
-  const userId = cookieStore.get("userId")?.value;
-
-  return <Profile userId={userId} />;
+export default function Page() {
+  return <AuthenticatedProfile />;
 }
