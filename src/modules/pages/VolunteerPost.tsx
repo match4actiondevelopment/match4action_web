@@ -35,7 +35,6 @@ export default function VolunteerPost({
   const router = useRouter();
   const queryClient = useQueryClient();
   const userContext = useContext(UserContext);
-
   const { data, isLoading } = useGetInitiative(params.id);
 
   const userId = userContext?.user?._id;
@@ -45,13 +44,16 @@ export default function VolunteerPost({
   const [isApplying, setIsApplying] = useState(false);
   const [applyError, setApplyError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [notificationStatus, setNotificationStatus] =
+    useState("pending");
 
   const currentKey = `${userId}:${params.id}`;
 
   const alreadyApplied =
     submittedKey === currentKey ||
     !!applicationQuery.data?.some(
-      (application) => application.initiativeId === params.id
+      (application) =>
+        application.initiativeId === params.id
     );
 
   const checkingApplication =
@@ -61,7 +63,8 @@ export default function VolunteerPost({
     !!userId && applicationQuery.isError;
 
   const isUnavailable =
-    data?.status === "inactive" || data?.status === "closed";
+    data?.status === "inactive" ||
+    data?.status === "closed";
 
   const isNonVolunteer =
     userContext?.isLogged &&
@@ -100,7 +103,16 @@ export default function VolunteerPost({
     try {
       setIsApplying(true);
 
-      await applyToInitiative(params.id);
+      const result = (await applyToInitiative(
+        params.id
+      )) as {
+        applied: boolean;
+        notificationStatus?: string;
+      };
+
+      setNotificationStatus(
+        result.notificationStatus || "pending"
+      );
 
       setSubmittedKey(currentKey);
 
@@ -370,21 +382,25 @@ export default function VolunteerPost({
               severity="error"
               action={
                 <Button
-                  onClick={() => applicationQuery.refetch()}
+                  onClick={() =>
+                    applicationQuery.refetch()
+                  }
                 >
                   Retry
                 </Button>
               }
             >
-              Could not check your application status. Please
-              retry before applying.
+              Could not check your application status.
+              Please retry before applying.
             </Alert>
           </Grid>
         )}
 
         {applyError && (
           <Grid item xs={12}>
-            <Alert severity="error">{applyError}</Alert>
+            <Alert severity="error">
+              {applyError}
+            </Alert>
           </Grid>
         )}
 
@@ -420,15 +436,9 @@ export default function VolunteerPost({
                 color: theme.palette.text.primary,
                 fontWeight: 600,
                 fontSize: "1rem",
-                ":focus": {
-                  background: "#FFD15C",
-                },
-                ":active": {
-                  background: "#FFD15C",
-                },
-                ":hover": {
-                  background: "#FFD15C",
-                },
+                ":focus": { background: "#FFD15C" },
+                ":active": { background: "#FFD15C" },
+                ":hover": { background: "#FFD15C" },
                 ":disabled": {
                   background: "#D3D3D3",
                   color: theme.palette.text.secondary,
@@ -453,15 +463,9 @@ export default function VolunteerPost({
                   "0px 10px 20px rgba(0, 0, 0, 0.15)",
                 fontWeight: 600,
                 fontSize: "1rem",
-                ":focus": {
-                  background: "#FFD15C",
-                },
-                ":active": {
-                  background: "#FFD15C",
-                },
-                ":hover": {
-                  background: "#FFD15C",
-                },
+                ":focus": { background: "#FFD15C" },
+                ":active": { background: "#FFD15C" },
+                ":hover": { background: "#FFD15C" },
                 ":disabled": {
                   background: "#D3D3D3",
                   color: theme.palette.text.secondary,
@@ -477,7 +481,10 @@ export default function VolunteerPost({
             })}
           >
             {isApplying ? (
-              <CircularProgress size={20} color="inherit" />
+              <CircularProgress
+                size={20}
+                color="inherit"
+              />
             ) : alreadyApplied ? (
               "Already applied"
             ) : checkingApplication ? (
@@ -536,9 +543,7 @@ export default function VolunteerPost({
                   background: "#ffffff",
                   border: "3px solid #FFD15C",
                 },
-                ":hover": {
-                  background: "#ffffff",
-                },
+                ":hover": { background: "#ffffff" },
                 textTransform: "capitalize",
                 textDecoration: "none",
                 borderRadius: "5px",
@@ -570,6 +575,17 @@ export default function VolunteerPost({
           <Typography>
             This role has been saved to your profile under
             Applied volunteer positions.
+          </Typography>
+
+          <Typography sx={{ mt: 2 }}>
+            {notificationStatus === "sent"
+              ? "The organisation notification email has been sent."
+              : notificationStatus === "test_sent"
+              ? "A test notification was sent to the staging test inbox."
+              : notificationStatus === "pending" ||
+                notificationStatus === "processing"
+              ? "The organisation notification is pending. Your application is saved."
+              : "Your application is saved, but the organisation notification needs attention. You do not need to apply again."}
           </Typography>
         </DialogContent>
 
