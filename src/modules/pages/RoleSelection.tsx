@@ -188,11 +188,10 @@ export default function RoleSelection() {
             Log in
           </Button>
         </>
-      ) : account.role === "admin" ? (
+      ) : account.role === "admin" || account.roleSelectionPending !== true ? (
         <>
           <Alert severity="info">
-            Administrator roles cannot be changed
-            on this page.
+            Your account role has already been selected.
           </Alert>
 
           <Button

@@ -480,7 +480,7 @@ export default function Profile({
               InputProps={{
                 readOnly: true,
               }}
-              helperText="Use Choose account role to change this."
+              helperText="Your account role."
             />
           </Grid>
         </Grid>
@@ -536,16 +536,10 @@ export default function Profile({
         </Box>
       )}
 
-      {!editing &&
-        (profile.role === "volunteer" ||
-          profile.role ===
-            "organization") && (
-          <Button
-            component={NextLink}
-            href="/role-selection"
-            sx={{ mt: 1 }}
-          >
-            Choose account role
+      {!editing && profile.roleSelectionPending !== true &&
+        (profile.role === "organization" || profile.role === "admin") && (
+          <Button component={NextLink} href="/reports" sx={{ mt: 1 }}>
+            Application reports
           </Button>
         )}
 

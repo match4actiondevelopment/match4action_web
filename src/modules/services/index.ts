@@ -257,7 +257,7 @@ export const applyToInitiative = async (
   try {
     const { data } = await http.patch<
       RequestInterface<InitiativeApplicationResponse>
-    >(`/initiatives/apply/${id}`, undefined, {
+    >(`/initiatives/apply/${id}`, { applicationSource: applicationEntrySource() }, {
       withCredentials: true,
     });
 
@@ -314,3 +314,17 @@ export const logout = async () => {
     return error;
   }
 };
+
+// Navigation to role details currently uses a full page navigation.
+// Only classify a referrer from this frontend; do not trust other sites.
+function applicationEntrySource(): string {
+  if (typeof window === "undefined") return "unknown";
+  try {
+    const previous = new URL(document.referrer);
+    if (previous.origin === window.location.origin) {
+      if (previous.pathname === "/recommended-initiatives") return "recommendations";
+      if (previous.pathname === "/initiatives") return "initiatives";
+    }
+  } catch {}
+  return /^\/initiatives\/[^/]+$/.test(window.location.pathname) ? "role_details" : "unknown";
+}

@@ -60,6 +60,11 @@ export default function AuthenticatedProfile() {
           throw new Error("Invalid profile response.");
         }
 
+        if (data.data.roleSelectionPending === true) {
+          window.location.replace("/role-selection");
+          return;
+        }
+
         queryClient.setQueryData(
           ["profile", data.data._id],
           data.data

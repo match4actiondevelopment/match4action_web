@@ -51,7 +51,7 @@ export default function Login() {
         if (data && setUser) {
           setUser(data)
         }
-        window.location.href = window.location.origin;
+        window.location.href = data?.roleSelectionPending === true ? "/role-selection" : window.location.origin;
       } else {
         // Handle login failure
         alert(res?.message || 'Login failed. Please check your credentials.');

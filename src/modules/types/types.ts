@@ -10,6 +10,7 @@ export interface UserI {
   image?: string;
   termsAndConditions: boolean;
   role?: UserRole;
+  roleSelectionPending?: boolean;
   birthDate?: Date;
   bio?: string;
   location: {
