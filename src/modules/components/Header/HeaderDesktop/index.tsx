@@ -1,6 +1,5 @@
 "use client";
 
-
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -15,15 +14,15 @@ import { UserRole } from "@/modules/types/types";
 import { usePathname } from "next/navigation";
 import { HeaderButton } from "../HeaderButton";
 
-
-
 export interface HeaderDesktopInterface {
   accessToken?: string;
 }
 
 export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
   const path = usePathname();
-  const { isLogged, user } = useContext(UserContext) ?? {};
+  const { isLogged, user, isLoading } = useContext(UserContext) ?? {};
+  const volunteerView =
+    !isLoading && (!isLogged || user?.role === UserRole.volunteer);
   const showAuthLinks = Boolean(accessToken || isLogged);
 
   const isTransparentMode = path === "/" && !showAuthLinks;
@@ -116,38 +115,47 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
             },
           })}
         >
-          <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink href="/test" style={style}>
-              <ListItemText primary="Take Test" sx={{ padding: 0 }} />
-            </NextLink>
-          </ListItem>
+          {volunteerView && (
+            <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
+              <NextLink href="/test" style={style}>
+                <ListItemText primary="Take Test" sx={{ padding: 0 }} />
+              </NextLink>
+            </ListItem>
+          )}
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
             <NextLink href="/initiatives" style={style}>
-              <ListItemText primary="Volunteer Now" sx={{ padding: 0 }} />
+              <ListItemText
+                primary={
+                  volunteerView ? "Volunteer Now" : "Browse opportunities"
+                }
+                sx={{ padding: 0 }}
+              />
             </NextLink>
           </ListItem>
           {showAuthLinks && (
             <>
-              {(user?.role === UserRole.admin || user?.role === UserRole.organization) && (
+              {(user?.role === UserRole.admin ||
+                user?.role === UserRole.organization) && (
                 <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
                   <NextLink href="/create-initiative" style={style}>
-                    <ListItemText primary="Create Initiative" sx={{ padding: 0 }} />
+                    <ListItemText
+                      primary="Create Initiative"
+                      sx={{ padding: 0 }}
+                    />
                   </NextLink>
                 </ListItem>
               )}
-              <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-                <NextLink href="/recommended-initiatives" style={style}>
-                  <ListItemText primary="For You" sx={{ padding: 0 }} />
-                </NextLink>
-              </ListItem>
+              {user?.role === UserRole.volunteer && (
+                <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
+                  <NextLink href="/recommended-initiatives" style={style}>
+                    <ListItemText primary="For You" sx={{ padding: 0 }} />
+                  </NextLink>
+                </ListItem>
+              )}
             </>
           )}
           <ListItem sx={{ padding: 0, minInlineSize: "fit-content" }}>
-            <NextLink
-              target="_blank"
-              href={blogUrl}
-              style={style}
-            >
+            <NextLink target="_blank" href={blogUrl} style={style}>
               <ListItemText primary="Blog" sx={{ padding: 0 }} />
             </NextLink>
           </ListItem>
@@ -176,4 +184,3 @@ export const HeaderDesktop = ({ accessToken }: HeaderDesktopInterface) => {
     </Box>
   );
 };
-

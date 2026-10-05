@@ -1,5 +1,6 @@
 "use client";
 
+import PasswordField from "@/modules/components/PasswordField";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Grid } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -13,7 +14,8 @@ import * as yup from "yup";
 import { login } from "../services";
 import { lato, sourceSerifPro } from "../styles/fonts";
 import { UserContext } from "../context/user-context";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const schema = yup
   .object({
@@ -28,7 +30,7 @@ interface IFormInputs {
 }
 
 export default function Login() {
-  const { setUser } = useContext(UserContext) ?? {};
+  const { setUser, isLogged, isLoading, user } = useContext(UserContext) ?? {};
   const {
     handleSubmit,
     control,
@@ -42,24 +44,40 @@ export default function Login() {
     },
   });
 
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoading && isLogged)
+      router.replace(
+        user?.roleSelectionPending ? "/role-selection" : "/profile"
+      );
+  }, [isLoading, isLogged, user?.roleSelectionPending, router]);
+
   const onSubmit = async (data: IFormInputs) => {
     try {
       const res = await login(data);
 
       if (res?.success) {
-        const { data } = res
+        const { data } = res;
         if (data && setUser) {
-          setUser(data)
+          setUser(data);
         }
-        window.location.href = data?.roleSelectionPending === true ? "/role-selection" : window.location.origin;
+        window.location.href =
+          data?.roleSelectionPending === true
+            ? "/role-selection"
+            : window.location.origin;
       } else {
         // Handle login failure
-        alert(res?.message || 'Login failed. Please check your credentials.');
+        alert(res?.message || "Login failed. Please check your credentials.");
       }
     } catch (error: any) {
-      alert(error?.response?.data?.message || 'Login failed. Please try again.');
+      alert(
+        error?.response?.data?.message || "Login failed. Please try again."
+      );
     }
   };
+
+  if (isLoading || isLogged)
+    return <Typography sx={{ p: 4 }}>Checking account…</Typography>;
 
   return (
     <Box
@@ -138,10 +156,9 @@ export default function Login() {
             name="password"
             control={control}
             render={({ field }) => (
-              <TextField
+              <PasswordField
                 {...field}
                 label="Password"
-                type="password"
                 fullWidth
                 InputLabelProps={{ required: true }}
                 size="small"

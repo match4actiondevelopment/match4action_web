@@ -1,64 +1,53 @@
+"use client";
 import React, {
   createContext,
   Dispatch,
   PropsWithChildren,
   SetStateAction,
   useEffect,
-  useMemo,
-  useRef,
   useState,
 } from "react";
-import { fetchProfile } from "../services";
+import { getCurrentAccount } from "../services/account";
 import { UserI } from "../types/types";
-
 interface UserContextInterface {
   user: UserI | null;
   isLogged: boolean;
+  isLoading: boolean;
   setUser: Dispatch<SetStateAction<UserI | null>>;
 }
-
 const UserContext = createContext<UserContextInterface | null>(null);
-
 const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const initialRender = useRef(true);
   const [user, setUser] = useState<UserI | null>(null);
-
-  // fetch data
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    const value = localStorage.getItem("match4action@user");
-    const storedUser = value && value !== "undefined" ? JSON.parse(value) : null;
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      // Try to fetch current user if no stored user
-      fetchProfile().then((fetchedUser) => {
-        if (fetchedUser && typeof fetchedUser === 'object' && '_id' in fetchedUser) {
-          setUser(fetchedUser);
-        }
-      }).catch(() => {
-        // Ignore errors, user is not logged in
+    const controller = new AbortController();
+    getCurrentAccount(controller.signal)
+      .then((account) => {
+        if (!controller.signal.aborted) setUser(account);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setUser(null);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
       });
-    }
+    return () => controller.abort();
   }, []);
-
   useEffect(() => {
-    if (initialRender.current) {
-      initialRender.current = false;
-      return;
+    if (isLoading) return;
+    try {
+      if (user) localStorage.setItem("match4action@user", JSON.stringify(user));
+      else localStorage.removeItem("match4action@user");
+    } catch {
+      /* Storage is optional; authentication uses the API session. */
     }
-    localStorage.setItem("match4action@user", JSON.stringify(user));
-  }, [user]);
-
-  const isLogged = useMemo(
-    () => (user && Object.keys(user).length > 0 ? true : false),
-    [user]
-  );
-
+  }, [user, isLoading]);
   return (
-    <UserContext.Provider value={{ user, setUser, isLogged }}>
+    <UserContext.Provider
+      value={{ user, setUser, isLogged: !!user, isLoading }}
+    >
       {children}
     </UserContext.Provider>
   );
 };
-
 export { UserProvider, UserContext };

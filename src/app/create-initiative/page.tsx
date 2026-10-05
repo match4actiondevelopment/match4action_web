@@ -34,8 +34,16 @@ export default function CreateInitiativeLanding() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Paper elevation={3} sx={{ p: { xs: 3, sm: 6 }, textAlign: "center" }}>
-            <Typography variant="h3" fontWeight={700} color="primary" gutterBottom>
+          <Paper
+            elevation={3}
+            sx={{ p: { xs: 3, sm: 6 }, textAlign: "center" }}
+          >
+            <Typography
+              variant="h3"
+              fontWeight={700}
+              color="primary"
+              gutterBottom
+            >
               Create Initiative
             </Typography>
             <Typography variant="h6" color="text.secondary" mb={4}>
@@ -68,11 +76,20 @@ export default function CreateInitiativeLanding() {
                     <Typography variant="h5" fontWeight={600} gutterBottom>
                       Upload Excel File
                     </Typography>
-                    <Typography variant="body1" color="text.secondary" paragraph>
-                      Upload an Excel file with multiple initiatives to create them all at once. Perfect for bulk uploads.
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      paragraph
+                    >
+                      Spreadsheet import is not available in this version. Use
+                      the manual form to create an initiative.
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
-                      Supports .xlsx and .xls formats
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontStyle: "italic" }}
+                    >
+                      Manual creation is available below.
                     </Typography>
                   </CardContent>
                   <CardActions sx={{ justifyContent: "center", pb: 3 }}>
@@ -80,7 +97,7 @@ export default function CreateInitiativeLanding() {
                       variant="contained"
                       size="large"
                       startIcon={<UploadFileIcon />}
-                      onClick={() => router.push("/create-initiative/upload")}
+                      disabled
                       sx={{ minWidth: 200 }}
                     >
                       Upload Excel
@@ -114,10 +131,19 @@ export default function CreateInitiativeLanding() {
                     <Typography variant="h5" fontWeight={600} gutterBottom>
                       Create Manually
                     </Typography>
-                    <Typography variant="body1" color="text.secondary" paragraph>
-                      Fill out a detailed form to create a single initiative. You can specify all the details and requirements.
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      paragraph
+                    >
+                      Fill out a detailed form to create a single initiative.
+                      You can specify all the details and requirements.
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontStyle: "italic" }}
+                    >
                       Step-by-step form with all fields
                     </Typography>
                   </CardContent>

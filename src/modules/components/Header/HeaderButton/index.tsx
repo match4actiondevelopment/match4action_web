@@ -11,9 +11,7 @@ import ListItemText from "@mui/material/ListItemText";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useContext, useMemo, useState } from "react";
 
@@ -23,14 +21,14 @@ export interface HeaderButtonInterface {
 
 export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
   const pathname = usePathname();
-  const { user, isLogged, setUser } = useContext(UserContext) ?? {};
+  const { user, isLogged, isLoading, setUser } = useContext(UserContext) ?? {};
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const menuOpen = Boolean(anchorEl);
 
   const doNotShowLoginButton = [
-    "forgot-password",
-    "login",
-    "register",
+    "/forgot-password",
+    "/login",
+    "/register",
   ].includes(pathname as string);
 
   const handleLogout = async () => {
@@ -47,6 +45,8 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
   };
 
   const handleCloseMenu = () => setAnchorEl(null);
+
+  if (isLoading) return <Box width="4rem" />;
 
   if (!doNotShowLoginButton && !accessToken && !isLogged) {
     return (
@@ -84,8 +84,16 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
   if (accessToken || isLogged) {
     return (
       <>
-        <IconButton onClick={handleOpenMenu} sx={{ p: 0 }} aria-label="user menu">
-          <Avatar alt={userAlt} src={userImage} sx={{ width: 36, height: 36 }} />
+        <IconButton
+          onClick={handleOpenMenu}
+          sx={{ p: 0 }}
+          aria-label="user menu"
+        >
+          <Avatar
+            alt={userAlt}
+            src={userImage}
+            sx={{ width: 36, height: 36 }}
+          />
         </IconButton>
         <Menu
           anchorEl={anchorEl}
@@ -95,7 +103,10 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
           transformOrigin={{ vertical: "top", horizontal: "right" }}
           PaperProps={{ sx: { bgcolor: "#FFD15C" } }}
         >
-          <NextLink href="/profile" style={{ textDecoration: "none", color: "inherit" }}>
+          <NextLink
+            href="/profile"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
             <MenuItem onClick={handleCloseMenu}>
               <ListItemIcon>
                 <PersonOutlineIcon sx={{ fill: "#2C3235" }} />
@@ -103,30 +114,39 @@ export const HeaderButton = ({ accessToken }: HeaderButtonInterface) => {
               <ListItemText primary="My profile" />
             </MenuItem>
           </NextLink>
-          <NextLink href="/favourite" style={{ textDecoration: "none", color: "inherit" }}>
-            <MenuItem onClick={handleCloseMenu}>
-              <ListItemIcon>
-                <FavoriteBorderIcon sx={{ fill: "#2C3235" }} />
-              </ListItemIcon>
-              <ListItemText primary="Favorite initiatives" />
+
+          {(user?.role === "organization" || user?.role === "admin") && (
+            <>
+              <NextLink
+                href="/profile#owned-initiatives"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <MenuItem onClick={handleCloseMenu}>
+                  <ListItemIcon>
+                    <AddCircleOutlineIcon sx={{ fill: "#2C3235" }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Owned initiatives" />
+                </MenuItem>
+              </NextLink>
+              <MenuItem
+                component={NextLink}
+                href="/reports"
+                onClick={handleCloseMenu}
+              >
+                Application reports
+              </MenuItem>
+            </>
+          )}
+          {user?.role === "admin" && (
+            <MenuItem
+              component={NextLink}
+              href="/admin"
+              onClick={handleCloseMenu}
+            >
+              Administration
             </MenuItem>
-          </NextLink>
-          <NextLink href="/owned-initiatives" style={{ textDecoration: "none", color: "inherit" }}>
-            <MenuItem onClick={handleCloseMenu}>
-              <ListItemIcon>
-                <AddCircleOutlineIcon sx={{ fill: "#2C3235" }} />
-              </ListItemIcon>
-              <ListItemText primary="Owned initiatives" />
-            </MenuItem>
-          </NextLink>
-          <NextLink href="/contacted-inititiatives" style={{ textDecoration: "none", color: "inherit" }}>
-            <MenuItem onClick={handleCloseMenu}>
-              <ListItemIcon>
-                <BookmarkBorderIcon sx={{ fill: "#2C3235" }} />
-              </ListItemIcon>
-              <ListItemText primary="Contacted initiatives" />
-            </MenuItem>
-          </NextLink>
+          )}
+
           <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <ExitToAppIcon sx={{ fill: "#2C3235" }} />

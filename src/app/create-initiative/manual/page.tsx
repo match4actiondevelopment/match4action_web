@@ -138,8 +138,8 @@ export default function CreateInitiative() {
 
   // Ensure menu renders properly - fix for dropdown clipping
   useEffect(() => {
-    const style = document.createElement('style');
-    style.id = 'menu-overflow-fix';
+    const style = document.createElement("style");
+    style.id = "menu-overflow-fix";
     style.textContent = `
       /* Ensure menu container doesn't clip */
       body {
@@ -166,23 +166,25 @@ export default function CreateInitiative() {
         overflow: visible !important;
       }
     `;
-    if (!document.getElementById('menu-overflow-fix')) {
+    if (!document.getElementById("menu-overflow-fix")) {
       document.head.appendChild(style);
     }
 
     // Also add observer to fix menu when it appears
     const observer = new MutationObserver(() => {
-      const menus = document.querySelectorAll('.MuiPaper-root.MuiMenu-paper');
+      const menus = document.querySelectorAll(".MuiPaper-root.MuiMenu-paper");
       menus.forEach((menu) => {
         const menuEl = menu as HTMLElement;
-        menuEl.style.overflow = 'visible';
-        menuEl.style.maxWidth = 'calc(100vw - 32px)';
-        menuEl.style.position = 'fixed';
+        menuEl.style.overflow = "visible";
+        menuEl.style.maxWidth = "calc(100vw - 32px)";
+        menuEl.style.position = "fixed";
 
         // Also fix parent presentation div
-        const presentation = menuEl.closest('div[role="presentation"]') as HTMLElement;
+        const presentation = menuEl.closest(
+          'div[role="presentation"]'
+        ) as HTMLElement;
         if (presentation) {
-          presentation.style.overflow = 'visible';
+          presentation.style.overflow = "visible";
         }
       });
     });
@@ -190,14 +192,13 @@ export default function CreateInitiative() {
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      const existingStyle = document.getElementById('menu-overflow-fix');
+      const existingStyle = document.getElementById("menu-overflow-fix");
       if (existingStyle) {
         document.head.removeChild(existingStyle);
       }
       observer.disconnect();
     };
   }, []);
-
 
   const handleInputChange = (field: string, value: any) => {
     if (field.includes(".")) {
@@ -208,9 +209,10 @@ export default function CreateInitiative() {
         const parentValue = prev[parentKey];
 
         // Ensure parentValue is treated as an object if we're spreading it
-        const safeParentValue = typeof parentValue === 'object' && parentValue !== null
-          ? parentValue
-          : {};
+        const safeParentValue =
+          typeof parentValue === "object" && parentValue !== null
+            ? parentValue
+            : {};
 
         return {
           ...prev,
@@ -228,7 +230,10 @@ export default function CreateInitiative() {
     }
   };
 
-  const handleArrayChange = (field: keyof InitiativeFormData, value: string) => {
+  const handleArrayChange = (
+    field: keyof InitiativeFormData,
+    value: string
+  ) => {
     const currentArray = formData[field] as string[];
     if (currentArray.includes(value)) {
       setFormData((prev) => ({
@@ -250,7 +255,9 @@ export default function CreateInitiative() {
 
     try {
       // Convert time strings to Date objects
-      const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
+      const startDateTime = new Date(
+        `${formData.startDate}T${formData.startTime}`
+      );
       const endDateTime = new Date(`${formData.endDate}T${formData.endTime}`);
 
       // Prepare the data to send
@@ -264,12 +271,15 @@ export default function CreateInitiative() {
       if (formData.isRemote) {
         submitData.location = {
           country: "Remote",
-          city: "Remote"
+          city: "Remote",
         };
         submitData.postalCode = "Remote";
       }
 
-      const response = await fetch("http://localhost:3003/initiatives", {
+      const apiBase = process.env.NEXT_PUBLIC_API_PATH;
+      if (!apiBase)
+        throw new Error("The API URL is not configured for this deployment.");
+      const response = await fetch(`${apiBase}/initiatives`, {
         method: "POST",
         credentials: "include", // This will send cookies automatically
         headers: {
@@ -285,7 +295,7 @@ export default function CreateInitiative() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/initiatives");
+        router.push("/profile#owned-initiatives");
       }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -324,35 +334,40 @@ export default function CreateInitiative() {
         background: "linear-gradient(to bottom right, #EEF2FF, #FFFFFF)",
         py: 4,
         px: 2,
-        width: '100%',
+        width: "100%",
       }}
     >
       <Box
         maxWidth="800px"
         mx="auto"
         sx={{
-          width: '100%',
-          position: 'relative',
-          overflow: 'visible',
+          width: "100%",
+          position: "relative",
+          overflow: "visible",
         }}
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          style={{ width: '100%', overflow: 'visible', position: 'relative' }}
+          style={{ width: "100%", overflow: "visible", position: "relative" }}
         >
           <Paper
             elevation={3}
             sx={{
               p: { xs: 2, sm: 4 },
-              width: '100%',
-              maxWidth: '100%',
-              position: 'relative',
-              overflow: 'visible',
+              width: "100%",
+              maxWidth: "100%",
+              position: "relative",
+              overflow: "visible",
             }}
           >
-            <Typography variant="h4" fontWeight={700} color="primary" gutterBottom>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              color="primary"
+              gutterBottom
+            >
               Create New Initiative
             </Typography>
             <Typography color="text.secondary" mb={4}>
@@ -365,14 +380,17 @@ export default function CreateInitiative() {
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit} style={{ width: '100%', overflow: 'visible' }}>
+            <form
+              onSubmit={handleSubmit}
+              style={{ width: "100%", overflow: "visible" }}
+            >
               <Grid
                 container
                 spacing={{ xs: 2, sm: 3 }}
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   margin: 0,
-                  overflow: 'visible',
+                  overflow: "visible",
                 }}
               >
                 {/* Basic Information */}
@@ -382,9 +400,9 @@ export default function CreateInitiative() {
                     fontWeight={600}
                     gutterBottom
                     sx={{
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      width: '100%'
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      width: "100%",
                     }}
                   >
                     Basic Information
@@ -396,7 +414,9 @@ export default function CreateInitiative() {
                     fullWidth
                     label="Initiative Name"
                     value={formData.initiativeName}
-                    onChange={(e) => handleInputChange("initiativeName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("initiativeName", e.target.value)
+                    }
                     required
                   />
                 </Grid>
@@ -406,7 +426,9 @@ export default function CreateInitiative() {
                     fullWidth
                     label="Website (Optional)"
                     value={formData.website}
-                    onChange={(e) => handleInputChange("website", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("website", e.target.value)
+                    }
                   />
                 </Grid>
 
@@ -417,7 +439,9 @@ export default function CreateInitiative() {
                     rows={4}
                     label="Description"
                     value={formData.description}
-                    onChange={(e) => handleInputChange("description", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
                     required
                   />
                 </Grid>
@@ -430,9 +454,9 @@ export default function CreateInitiative() {
                     gutterBottom
                     sx={{
                       mt: 2,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      width: '100%'
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      width: "100%",
                     }}
                   >
                     Event Details
@@ -440,26 +464,39 @@ export default function CreateInitiative() {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <Box ref={eventFrameSelectRef} sx={{ width: '100%', minWidth: 0 }}>
+                  <Box
+                    ref={eventFrameSelectRef}
+                    sx={{ width: "100%", minWidth: 0 }}
+                  >
                     <FormControl fullWidth required>
-                      <InputLabel id="event-frame-label">Event Frame</InputLabel>
+                      <InputLabel id="event-frame-label">
+                        Event Frame
+                      </InputLabel>
                       <Select
                         labelId="event-frame-label"
                         value={formData.eventItemFrame}
-                        onChange={(e) => handleInputChange("eventItemFrame", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("eventItemFrame", e.target.value)
+                        }
                         onOpen={(e) => {
                           // Ensure menu width matches select and doesn't get clipped
                           const selectElement = e.target as HTMLElement;
                           const updateMenu = () => {
-                            const menu = document.querySelector('.MuiPaper-root.MuiMenu-paper') as HTMLElement;
+                            const menu = document.querySelector(
+                              ".MuiPaper-root.MuiMenu-paper"
+                            ) as HTMLElement;
                             if (menu && selectElement) {
-                              const selectRect = selectElement.getBoundingClientRect();
+                              const selectRect =
+                                selectElement.getBoundingClientRect();
                               const selectWidth = selectRect.width;
                               menu.style.width = `${selectWidth}px`;
                               menu.style.minWidth = `${selectWidth}px`;
-                              menu.style.maxWidth = `${Math.min(selectWidth, window.innerWidth - 32)}px`;
-                              menu.style.overflow = 'visible';
-                              menu.style.position = 'fixed';
+                              menu.style.maxWidth = `${Math.min(
+                                selectWidth,
+                                window.innerWidth - 32
+                              )}px`;
+                              menu.style.overflow = "visible";
+                              menu.style.position = "fixed";
                             }
                           };
                           setTimeout(updateMenu, 0);
@@ -473,12 +510,12 @@ export default function CreateInitiative() {
                             },
                           },
                           anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'left',
+                            vertical: "bottom",
+                            horizontal: "left",
                           },
                           transformOrigin: {
-                            vertical: 'top',
-                            horizontal: 'left',
+                            vertical: "top",
+                            horizontal: "left",
                           },
                           disableScrollLock: true,
                         }}
@@ -494,27 +531,38 @@ export default function CreateInitiative() {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <Box ref={eventTypeSelectRef} sx={{ width: '100%', minWidth: 0 }}>
+                  <Box
+                    ref={eventTypeSelectRef}
+                    sx={{ width: "100%", minWidth: 0 }}
+                  >
                     <FormControl fullWidth required>
                       <InputLabel id="event-type-label">Event Type</InputLabel>
                       <Select
                         labelId="event-type-label"
                         value={formData.eventItemType}
-                        onChange={(e) => handleInputChange("eventItemType", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("eventItemType", e.target.value)
+                        }
                         onOpen={(e) => {
                           // Ensure menu width matches select and doesn't get clipped
                           const selectElement = e.target as HTMLElement;
                           const updateMenu = () => {
-                            const menus = document.querySelectorAll('.MuiPaper-root.MuiMenu-paper');
+                            const menus = document.querySelectorAll(
+                              ".MuiPaper-root.MuiMenu-paper"
+                            );
                             const menu = Array.from(menus).pop() as HTMLElement;
                             if (menu && selectElement) {
-                              const selectRect = selectElement.getBoundingClientRect();
+                              const selectRect =
+                                selectElement.getBoundingClientRect();
                               const selectWidth = selectRect.width;
                               menu.style.width = `${selectWidth}px`;
                               menu.style.minWidth = `${selectWidth}px`;
-                              menu.style.maxWidth = `${Math.min(selectWidth, window.innerWidth - 32)}px`;
-                              menu.style.overflow = 'visible';
-                              menu.style.position = 'fixed';
+                              menu.style.maxWidth = `${Math.min(
+                                selectWidth,
+                                window.innerWidth - 32
+                              )}px`;
+                              menu.style.overflow = "visible";
+                              menu.style.position = "fixed";
                             }
                           };
                           setTimeout(updateMenu, 0);
@@ -528,12 +576,12 @@ export default function CreateInitiative() {
                             },
                           },
                           anchorOrigin: {
-                            vertical: 'bottom',
-                            horizontal: 'left',
+                            vertical: "bottom",
+                            horizontal: "left",
                           },
                           transformOrigin: {
-                            vertical: 'top',
-                            horizontal: 'left',
+                            vertical: "top",
+                            horizontal: "left",
                           },
                           disableScrollLock: true,
                         }}
@@ -548,55 +596,83 @@ export default function CreateInitiative() {
                   </Box>
                 </Grid>
 
-                <Grid item xs={12} md={6} sx={{ width: '100%', maxWidth: '100%' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  sx={{ width: "100%", maxWidth: "100%" }}
+                >
                   <TextField
                     fullWidth
                     type="date"
                     label="Start Date"
                     value={formData.startDate}
-                    onChange={(e) => handleInputChange("startDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("startDate", e.target.value)
+                    }
                     InputLabelProps={{ shrink: true }}
                     required
-                    sx={{ width: '100%', maxWidth: '100%' }}
+                    sx={{ width: "100%", maxWidth: "100%" }}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} sx={{ width: '100%', maxWidth: '100%' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  sx={{ width: "100%", maxWidth: "100%" }}
+                >
                   <TextField
                     fullWidth
                     type="date"
                     label="End Date"
                     value={formData.endDate}
-                    onChange={(e) => handleInputChange("endDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("endDate", e.target.value)
+                    }
                     InputLabelProps={{ shrink: true }}
                     required
-                    sx={{ width: '100%', maxWidth: '100%' }}
+                    sx={{ width: "100%", maxWidth: "100%" }}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} sx={{ width: '100%', maxWidth: '100%' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  sx={{ width: "100%", maxWidth: "100%" }}
+                >
                   <TextField
                     fullWidth
                     type="time"
                     label="Start Time"
                     value={formData.startTime}
-                    onChange={(e) => handleInputChange("startTime", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("startTime", e.target.value)
+                    }
                     InputLabelProps={{ shrink: true }}
                     required
-                    sx={{ width: '100%', maxWidth: '100%' }}
+                    sx={{ width: "100%", maxWidth: "100%" }}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6} sx={{ width: '100%', maxWidth: '100%' }}>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  sx={{ width: "100%", maxWidth: "100%" }}
+                >
                   <TextField
                     fullWidth
                     type="time"
                     label="End Time"
                     value={formData.endTime}
-                    onChange={(e) => handleInputChange("endTime", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("endTime", e.target.value)
+                    }
                     InputLabelProps={{ shrink: true }}
                     required
-                    sx={{ width: '100%', maxWidth: '100%' }}
+                    sx={{ width: "100%", maxWidth: "100%" }}
                   />
                 </Grid>
 
@@ -608,9 +684,9 @@ export default function CreateInitiative() {
                     gutterBottom
                     sx={{
                       mt: 2,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      width: '100%'
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      width: "100%",
                     }}
                   >
                     Location
@@ -622,7 +698,9 @@ export default function CreateInitiative() {
                     control={
                       <Checkbox
                         checked={formData.isRemote}
-                        onChange={(e) => handleInputChange("isRemote", e.target.checked)}
+                        onChange={(e) =>
+                          handleInputChange("isRemote", e.target.checked)
+                        }
                         color="primary"
                       />
                     }
@@ -637,7 +715,9 @@ export default function CreateInitiative() {
                         fullWidth
                         label="Country"
                         value={formData.location.country}
-                        onChange={(e) => handleInputChange("location.country", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("location.country", e.target.value)
+                        }
                         required
                       />
                     </Grid>
@@ -647,7 +727,9 @@ export default function CreateInitiative() {
                         fullWidth
                         label="City"
                         value={formData.location.city}
-                        onChange={(e) => handleInputChange("location.city", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("location.city", e.target.value)
+                        }
                         required
                       />
                     </Grid>
@@ -657,7 +739,9 @@ export default function CreateInitiative() {
                         fullWidth
                         label="Postal Code"
                         value={formData.postalCode}
-                        onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("postalCode", e.target.value)
+                        }
                       />
                     </Grid>
                   </>
@@ -671,14 +755,18 @@ export default function CreateInitiative() {
                     gutterBottom
                     sx={{
                       mt: 2,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      width: '100%'
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      width: "100%",
                     }}
                   >
                     What Moves This Initiative?
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
                     Select all that apply
                   </Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -687,8 +775,14 @@ export default function CreateInitiative() {
                         key={option}
                         label={option}
                         clickable
-                        color={formData.whatMovesThisInitiative.includes(option) ? "primary" : "default"}
-                        onClick={() => handleArrayChange("whatMovesThisInitiative", option)}
+                        color={
+                          formData.whatMovesThisInitiative.includes(option)
+                            ? "primary"
+                            : "default"
+                        }
+                        onClick={() =>
+                          handleArrayChange("whatMovesThisInitiative", option)
+                        }
                       />
                     ))}
                   </Box>
@@ -702,14 +796,18 @@ export default function CreateInitiative() {
                     gutterBottom
                     sx={{
                       mt: 2,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      width: '100%'
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      width: "100%",
                     }}
                   >
                     Areas Covered
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
                     Select all that apply
                   </Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -718,8 +816,19 @@ export default function CreateInitiative() {
                         key={option}
                         label={option}
                         clickable
-                        color={formData.whichAreasAreCoveredByThisInitiative.includes(option) ? "primary" : "default"}
-                        onClick={() => handleArrayChange("whichAreasAreCoveredByThisInitiative", option)}
+                        color={
+                          formData.whichAreasAreCoveredByThisInitiative.includes(
+                            option
+                          )
+                            ? "primary"
+                            : "default"
+                        }
+                        onClick={() =>
+                          handleArrayChange(
+                            "whichAreasAreCoveredByThisInitiative",
+                            option
+                          )
+                        }
                       />
                     ))}
                   </Box>
@@ -733,14 +842,18 @@ export default function CreateInitiative() {
                     gutterBottom
                     sx={{
                       mt: 2,
-                      wordBreak: 'break-word',
-                      overflowWrap: 'break-word',
-                      width: '100%'
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                      width: "100%",
                     }}
                   >
                     Services Needed
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
                     Select all that apply
                   </Typography>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -749,8 +862,14 @@ export default function CreateInitiative() {
                         key={option}
                         label={option}
                         clickable
-                        color={formData.servicesNeeded.includes(option) ? "primary" : "default"}
-                        onClick={() => handleArrayChange("servicesNeeded", option)}
+                        color={
+                          formData.servicesNeeded.includes(option)
+                            ? "primary"
+                            : "default"
+                        }
+                        onClick={() =>
+                          handleArrayChange("servicesNeeded", option)
+                        }
                       />
                     ))}
                   </Box>
@@ -773,11 +892,17 @@ export default function CreateInitiative() {
                         loading ||
                         !formData.initiativeName ||
                         !formData.description ||
-                        (!formData.isRemote && (!formData.location.country || !formData.location.city))
+                        (!formData.isRemote &&
+                          (!formData.location.country ||
+                            !formData.location.city))
                       }
                       sx={{ minWidth: 120 }}
                     >
-                      {loading ? <CircularProgress size={20} /> : "Create Initiative"}
+                      {loading ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        "Create Initiative"
+                      )}
                     </Button>
                   </Box>
                 </Grid>

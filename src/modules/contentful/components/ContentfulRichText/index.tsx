@@ -1,7 +1,10 @@
+"use client";
+import { useContext } from "react";
+import { UserContext } from "@/modules/context/user-context";
 import { lato, sourceSerifPro } from "@/modules/styles/fonts";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS, INLINES, MARKS } from "@contentful/rich-text-types";
-import { SxProps, Theme } from '@mui/material/styles';
+import { SxProps, Theme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -19,6 +22,30 @@ export const ContentfulRichText = ({
   data,
   textAlignment,
 }: ContentfulRichTextPRos) => {
+  const { user } = useContext(UserContext) ?? {};
+  const organisationView =
+    user?.role === "organization" || user?.role === "admin";
+  const accountLink = (raw: string, label: string) => {
+    let href =
+      raw?.startsWith("/") || /^https?:/.test(raw || "")
+        ? raw
+        : `/${raw || ""}`;
+    if (href === "/opportunities" || href === "/volunteer-now")
+      href = "/initiatives";
+    if (
+      organisationView &&
+      ["/test", "/ikigai-demo", "/recommended-initiatives"].includes(href)
+    ) {
+      return { href: "/create-initiative", label: "Create initiative" };
+    }
+    return {
+      href,
+      label:
+        organisationView && href === "/initiatives"
+          ? "Browse opportunities"
+          : label,
+    };
+  };
   const renderOptions = {
     renderNode: {
       [BLOCKS.HEADING_1]: (node: any, children: any) => {
@@ -118,33 +145,33 @@ export const ContentfulRichText = ({
           </Typography>
         );
       },
-    [BLOCKS.PARAGRAPH]: (node: any, children: any) => {
-      if (!node?.content?.length) return <br />;
+      [BLOCKS.PARAGRAPH]: (node: any, children: any) => {
+        if (!node?.content?.length) return <br />;
 
-      // Flatten all text in the paragraph
-      const paragraphText = node.content
-        .map((c: any) => c.value || '')
-        .join('');
+        // Flatten all text in the paragraph
+        const paragraphText = node.content
+          .map((c: any) => c.value || "")
+          .join("");
 
-      const isSpecial = paragraphText.includes(
-        'By taking our test, you will be guided'
-      );
+        const isSpecial = paragraphText.includes(
+          "By taking our test, you will be guided"
+        );
 
-      const commonStyles: SxProps<Theme> = {
-        fontSize: { xs: '1rem', sm: '1.125rem' },
-        lineHeight: { xs: '1.25rem', sm: '1.5rem' },
-        color: 'text.primary',
-        textAlign: { xs: 'center', sm: 'left' },
-        maxWidth: isSpecial ? { xs: '100%', sm: '700px' } : '100%',
-        marginBottom: '1rem'
-      };
+        const commonStyles: SxProps<Theme> = {
+          fontSize: { xs: "1rem", sm: "1.125rem" },
+          lineHeight: { xs: "1.25rem", sm: "1.5rem" },
+          color: "text.primary",
+          textAlign: { xs: "center", sm: "left" },
+          maxWidth: isSpecial ? { xs: "100%", sm: "700px" } : "100%",
+          marginBottom: "1rem",
+        };
 
-      return (
-        <Typography className={lato.className} sx={commonStyles}>
-          {children}
-        </Typography>
-      );
-    },
+        return (
+          <Typography className={lato.className} sx={commonStyles}>
+            {children}
+          </Typography>
+        );
+      },
 
       [BLOCKS.UL_LIST]: (node: any, children: any) => {
         return (
@@ -200,7 +227,6 @@ export const ContentfulRichText = ({
               display="flex"
               width="100%"
               justifyContent={justifyContent}
-
             >
               <Box
                 position="relative"
@@ -235,7 +261,7 @@ export const ContentfulRichText = ({
         let url = node?.data?.target?.fields?.linkToEntry
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
-        
+
         // Redirect /opportunities to /initiatives to fix 404 error
         if (url === "/opportunities") {
           url = "/initiatives";
@@ -244,7 +270,10 @@ export const ContentfulRichText = ({
         const variant = node?.data?.target?.fields?.variant;
 
         return (
-          <NextLink href={url} style={{ textDecoration: "none" }}>
+          <NextLink
+            href={accountLink(url, node?.data?.target?.fields?.label).href}
+            style={{ textDecoration: "none" }}
+          >
             {variant === "Link" && (
               <Typography
                 fontWeight={700}
@@ -263,7 +292,7 @@ export const ContentfulRichText = ({
                   },
                 })}
               >
-                {node?.data?.target?.fields?.label}
+                {accountLink(url, node?.data?.target?.fields?.label).label}
               </Typography>
             )}
             {variant === "Button - Solid" && (
@@ -315,7 +344,7 @@ export const ContentfulRichText = ({
                   },
                 })}
               >
-                {node?.data?.target?.fields?.label}
+                {accountLink(url, node?.data?.target?.fields?.label).label}
               </Box>
             )}
             {variant === "Button - Outline" && (
@@ -372,7 +401,7 @@ export const ContentfulRichText = ({
                   },
                 })}
               >
-                {node?.data?.target?.fields?.label}
+                {accountLink(url, node?.data?.target?.fields?.label).label}
               </Box>
             )}
           </NextLink>
@@ -382,20 +411,24 @@ export const ContentfulRichText = ({
         let url = node?.data?.target?.fields?.linkToEntry
           ? node?.data?.target?.fields?.linkToEntry?.fields?.slug
           : node?.data?.target?.fields?.url;
-        
+
         // Redirect /opportunities to /initiatives to fix 404 error
         if (url === "/opportunities") {
           url = "/initiatives";
         }
 
         return (
-          <NextLink href={url}>{node?.data?.target?.fields?.label}</NextLink>
+          <NextLink
+            href={accountLink(url, node?.data?.target?.fields?.label).href}
+          >
+            {accountLink(url, node?.data?.target?.fields?.label).label}
+          </NextLink>
         );
       },
       [INLINES.HYPERLINK]: (node: any, children: any) => {
         return (
           <NextLink href={node?.data?.uri} target="_blank">
-            {node?.content[0]?.value} oi
+            {node?.content[0]?.value}
           </NextLink>
         );
       },

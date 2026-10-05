@@ -28,10 +28,7 @@ export const fetchProfile = async (id?: string | null) => {
   }
 };
 
-export const updateUserProfile = async ({
-  body,
-  id,
-}: UpdateProfilePayload) => {
+export const updateUserProfile = async ({ body, id }: UpdateProfilePayload) => {
   try {
     const { data } = await http.patch<
       RequestInterface<UpdatedProfileInterface>
@@ -129,9 +126,7 @@ export const register = async (payload: {
   }
 };
 
-export const updateImage = async (
-  formData: FormData
-): Promise<string> => {
+export const updateImage = async (formData: FormData): Promise<string> => {
   try {
     const { data } = await http.post<RequestInterface<string>>(
       "/upload",
@@ -152,13 +147,11 @@ export const updateImage = async (
   }
 };
 
-export const fetchGoals = async (): Promise<
-  string | GoalsInterface[]
-> => {
+export const fetchGoals = async (): Promise<string | GoalsInterface[]> => {
   try {
-    const { data } = await http.get<
-      RequestInterface<GoalsInterface[]>
-    >("/goals");
+    const { data } = await http.get<RequestInterface<GoalsInterface[]>>(
+      "/goals"
+    );
 
     if (data?.success) {
       return data.data;
@@ -172,12 +165,14 @@ export const fetchGoals = async (): Promise<
 
 export const createInitiative = async (formData: FormData) => {
   try {
-    const { data } = await http.post<
-      RequestInterface<InitiativeInterface>
-    >("/initiatives", formData, {
-      headers: { "Content-Type": undefined },
-      withCredentials: true,
-    });
+    const { data } = await http.post<RequestInterface<InitiativeInterface>>(
+      "/initiatives",
+      formData,
+      {
+        headers: { "Content-Type": undefined },
+        withCredentials: true,
+      }
+    );
 
     if (data?.success) {
       return data.data;
@@ -189,14 +184,12 @@ export const createInitiative = async (formData: FormData) => {
   }
 };
 
-export const fetchInitiatives = async (
-  filters?: {
-    country?: string;
-    city?: string;
-    location?: string;
-    search?: string;
-  }
-): Promise<string | InitiativeInterface[]> => {
+export const fetchInitiatives = async (filters?: {
+  country?: string;
+  city?: string;
+  location?: string;
+  search?: string;
+}): Promise<string | InitiativeInterface[]> => {
   try {
     const queryParams = new URLSearchParams();
 
@@ -219,9 +212,9 @@ export const fetchInitiatives = async (
     const queryString = queryParams.toString();
     const url = `/initiatives${queryString ? `?${queryString}` : ""}`;
 
-    const { data } = await http.get<
-      RequestInterface<InitiativeInterface[]>
-    >(url);
+    const { data } = await http.get<RequestInterface<InitiativeInterface[]>>(
+      url
+    );
 
     if (data?.success) {
       return data.data;
@@ -229,7 +222,7 @@ export const fetchInitiatives = async (
 
     throw new Error("Error!");
   } catch (error) {
-    return (error as Error).message;
+    throw error;
   }
 };
 
@@ -237,9 +230,9 @@ export const fetchInitiative = async (
   id?: string
 ): Promise<InitiativeInterface> => {
   try {
-    const { data } = await http.get<
-      RequestInterface<InitiativeInterface>
-    >(`/initiatives/${id}`);
+    const { data } = await http.get<RequestInterface<InitiativeInterface>>(
+      `/initiatives/${id}`
+    );
 
     if (data?.success) {
       return data.data;
@@ -247,7 +240,7 @@ export const fetchInitiative = async (
 
     throw new Error("Error!");
   } catch (error: any) {
-    return error;
+    throw error;
   }
 };
 
@@ -257,9 +250,13 @@ export const applyToInitiative = async (
   try {
     const { data } = await http.patch<
       RequestInterface<InitiativeApplicationResponse>
-    >(`/initiatives/apply/${id}`, { applicationSource: applicationEntrySource() }, {
-      withCredentials: true,
-    });
+    >(
+      `/initiatives/apply/${id}`,
+      { applicationSource: applicationEntrySource() },
+      {
+        withCredentials: true,
+      }
+    );
 
     if (data?.success) {
       return data.data;
@@ -284,11 +281,12 @@ export const applyToInitiative = async (
 export const fetchMyApplications = async (): Promise<
   VolunteerApplication[]
 > => {
-  const { data } = await http.get<
-    RequestInterface<VolunteerApplication[]>
-  >("/initiatives/applications/me", {
-    withCredentials: true,
-  });
+  const { data } = await http.get<RequestInterface<VolunteerApplication[]>>(
+    "/initiatives/applications/me",
+    {
+      withCredentials: true,
+    }
+  );
 
   if (!data?.success || !Array.isArray(data.data)) {
     throw new Error("Could not load your applications.");
@@ -320,11 +318,16 @@ export const logout = async () => {
 function applicationEntrySource(): string {
   if (typeof window === "undefined") return "unknown";
   try {
+    const source = new URLSearchParams(window.location.search).get("from");
+    if (source === "recommendations" || source === "initiatives") return source;
     const previous = new URL(document.referrer);
     if (previous.origin === window.location.origin) {
-      if (previous.pathname === "/recommended-initiatives") return "recommendations";
+      if (previous.pathname === "/recommended-initiatives")
+        return "recommendations";
       if (previous.pathname === "/initiatives") return "initiatives";
     }
   } catch {}
-  return /^\/initiatives\/[^/]+$/.test(window.location.pathname) ? "role_details" : "unknown";
+  return /^\/initiatives\/[^/]+$/.test(window.location.pathname)
+    ? "role_details"
+    : "unknown";
 }

@@ -1,5 +1,9 @@
 "use client";
 
+import PasswordField from "@/modules/components/PasswordField";
+import { useContext, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { UserContext } from "../context/user-context";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -35,6 +39,7 @@ const schema = yup
   .required();
 
 export default function Register() {
+  const { isLogged, isLoading, user } = useContext(UserContext) ?? {};
   const {
     handleSubmit,
     control,
@@ -51,12 +56,20 @@ export default function Register() {
     },
   });
 
+  const router = useRouter();
+  useEffect(() => {
+    if (!isLoading && isLogged)
+      router.replace(
+        user?.roleSelectionPending ? "/role-selection" : "/profile"
+      );
+  }, [isLoading, isLogged, user?.roleSelectionPending, router]);
+
   const onSubmit = async (data: IFormInputs) => {
     try {
       const res = await register({
         ...data,
         provider: {
-          id: data?.providerName || 'credentials', // Add the missing id field
+          id: data?.providerName || "credentials", // Add the missing id field
           name: data?.providerName,
         },
       });
@@ -65,12 +78,18 @@ export default function Register() {
         window.location.href = `${window.location.origin}/role-selection`;
       } else {
         // Handle registration failure
-        alert(res?.message || 'Registration failed. Please try again.');
+        alert(res?.message || "Registration failed. Please try again.");
       }
     } catch (error: any) {
-      alert(error?.response?.data?.message || 'Registration failed. Please try again.');
+      alert(
+        error?.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
     }
   };
+
+  if (isLoading || isLogged)
+    return <Typography sx={{ p: 4 }}>Checking account…</Typography>;
 
   return (
     <Box
@@ -168,10 +187,9 @@ export default function Register() {
             name="password"
             control={control}
             render={({ field }) => (
-              <TextField
+              <PasswordField
                 {...field}
                 label="Password"
-                type="password"
                 fullWidth
                 InputLabelProps={{ required: true }}
                 size="small"

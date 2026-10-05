@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserContext } from "../../modules/context/user-context";
 import { http } from "../../modules/config/http";
@@ -23,7 +23,8 @@ interface Question {
 }
 
 export default function IkigaiQuiz() {
-  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [saveError, setSaveError] = useState("");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +38,8 @@ export default function IkigaiQuiz() {
   const isLogged = userContext?.isLogged ?? false;
 
   useEffect(() => {
-    http.get("/ikigai-questions")
+    http
+      .get("/ikigai-questions")
       .then((res) => {
         setQuestions(res.data);
         setLoading(false);
@@ -57,15 +59,18 @@ export default function IkigaiQuiz() {
   };
 
   const saveResults = async () => {
-    if (!isLogged) return;
+    if (!isLogged || isSaving || resultsSaved) return;
+    setSaveError("");
     try {
       setIsSaving(true);
       // Prepare answers for the API
-      const answersArray = Object.entries(answers).map(([questionId, option]) => ({
-        questionId,
-        optionValue: option.value,
-        category: option.category,
-      }));
+      const answersArray = Object.entries(answers).map(
+        ([questionId, option]) => ({
+          questionId,
+          optionValue: option.value,
+          category: option.category,
+        })
+      );
 
       const { data } = await http.post(
         "/ikigai-responses",
@@ -78,10 +83,15 @@ export default function IkigaiQuiz() {
         throw new Error(data?.message || "Failed to save Ikigai results");
       } else {
         setResultsSaved(true);
-        router.replace("/recommended-initiatives");
+        void queryClient.invalidateQueries([
+          "ikigai-result",
+          userContext?.user?._id,
+        ]);
       }
     } catch (error) {
-      console.error("Error saving Ikigai results:", error);
+      setSaveError(
+        "Your result could not be saved. Your answers are still here; please retry."
+      );
     } finally {
       setIsSaving(false);
     }
@@ -178,23 +188,43 @@ export default function IkigaiQuiz() {
               <Typography variant="h3" fontWeight={700} color="primary" mb={1}>
                 Your Ikigai Results
               </Typography>
-              <Typography color="text.secondary" sx={{ maxWidth: 680, mx: "auto" }}>
-                These results reflect the four areas that guide your purpose and impact. Use them to discover initiatives that align with your strengths.
+              <Typography
+                color="text.secondary"
+                sx={{ maxWidth: 680, mx: "auto" }}
+              >
+                These results reflect the four areas that guide your purpose and
+                impact. Use them to discover initiatives that align with your
+                strengths.
               </Typography>
             </Box>
 
             <Box mb={4}>
               {!isLogged ? (
                 <>
-                  <Alert severity="warning" sx={{ mb: 3, borderRadius: "18px", fontWeight: 500 }}>
-                    💾 Save your Ikigai results and unlock tailored initiative recommendations by logging in or registering.
+                  <Alert
+                    severity="warning"
+                    sx={{ mb: 3, borderRadius: "18px", fontWeight: 500 }}
+                  >
+                    💾 Save your Ikigai results and unlock tailored initiative
+                    recommendations by logging in or registering.
                   </Alert>
-                  <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center">
+                  <Box
+                    display="flex"
+                    flexWrap="wrap"
+                    gap={2}
+                    justifyContent="center"
+                  >
                     <Button
                       component="a"
                       href="/login"
                       variant="outlined"
-                      sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 700, textTransform: "none" }}
+                      sx={{
+                        px: 4,
+                        py: 1.5,
+                        borderRadius: "999px",
+                        fontWeight: 700,
+                        textTransform: "none",
+                      }}
                     >
                       Log In
                     </Button>
@@ -218,37 +248,41 @@ export default function IkigaiQuiz() {
                   </Box>
                 </>
               ) : resultsSaved ? (
-                <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center">
-                  <Alert severity="success" sx={{ width: "100%", borderRadius: "18px", fontWeight: 500 }}>
-                    ✅ Your results have been saved successfully.
-                  </Alert>
-                  <Button
-                    component="a"
-                    href="/recommended-initiatives"
-                    variant="contained"
-                    size="large"
+                <Box
+                  display="flex"
+                  flexWrap="wrap"
+                  gap={2}
+                  justifyContent="center"
+                >
+                  <Alert
+                    severity="success"
                     sx={{
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: "999px",
-                      fontWeight: 700,
-                      textTransform: "none",
-                      boxShadow: 3,
-                      backgroundColor: "#4F46E5",
-                      color: "#FFFFFF",
-                      ":hover": { backgroundColor: "#4338CA" },
+                      width: "100%",
+                      borderRadius: "18px",
+                      fontWeight: 500,
                     }}
                   >
-                    View Recommended Initiatives
-                  </Button>
+                    ✅ Your results have been saved successfully.
+                  </Alert>
                 </Box>
               ) : isSaving ? (
-                <Alert severity="info" sx={{ borderRadius: "18px", fontWeight: 500 }}>
+                <Alert
+                  severity="info"
+                  sx={{ borderRadius: "18px", fontWeight: 500 }}
+                >
                   Saving your results...
                 </Alert>
               ) : (
-                <Alert severity="error" sx={{ borderRadius: "18px", fontWeight: 500 }}>
-                  Failed to save results. Please try again.
+                <Alert
+                  severity="error"
+                  action={
+                    <Button disabled={isSaving} onClick={saveResults}>
+                      Retry save
+                    </Button>
+                  }
+                  sx={{ borderRadius: "18px", fontWeight: 500 }}
+                >
+                  {saveError || "Results have not been saved yet."}
                 </Alert>
               )}
             </Box>
@@ -325,16 +359,29 @@ export default function IkigaiQuiz() {
               ))}
             </Box>
 
-            <Box display="flex" flexWrap="wrap" gap={2} justifyContent="center" mt={5}>
+            <Box
+              display="flex"
+              flexWrap="wrap"
+              gap={2}
+              justifyContent="center"
+              mt={5}
+            >
               <Button
                 component="a"
                 href="/ikigai-demo"
+                disabled={isSaving}
                 variant="outlined"
-                sx={{ px: 4, py: 1.5, borderRadius: "999px", fontWeight: 700, textTransform: "none" }}
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: "999px",
+                  fontWeight: 700,
+                  textTransform: "none",
+                }}
               >
                 Retake the Quiz
               </Button>
-              {isLogged && (
+              {isLogged && resultsSaved && (
                 <Button
                   component="a"
                   href="/recommended-initiatives"
@@ -350,7 +397,7 @@ export default function IkigaiQuiz() {
                     ":hover": { backgroundColor: "#4338CA" },
                   }}
                 >
-                  Recommended Initiatives
+                  View matched opportunities
                 </Button>
               )}
             </Box>
@@ -439,7 +486,9 @@ export default function IkigaiQuiz() {
                   >
                     <Button
                       fullWidth
-                      variant={selected?.text === opt.text ? "contained" : "outlined"}
+                      variant={
+                        selected?.text === opt.text ? "contained" : "outlined"
+                      }
                       onClick={() => handleAnswer(currentQuestion._id, opt)}
                       sx={{
                         py: 2,
@@ -455,10 +504,10 @@ export default function IkigaiQuiz() {
                         justifyContent: "center",
                         ...(selected?.text === opt.text
                           ? {
-                            backgroundColor: "#4F46E5",
-                            color: "white",
-                            ":hover": { backgroundColor: "#4338CA" },
-                          }
+                              backgroundColor: "#4F46E5",
+                              color: "white",
+                              ":hover": { backgroundColor: "#4338CA" },
+                            }
                           : {}),
                       }}
                     >
@@ -486,7 +535,8 @@ export default function IkigaiQuiz() {
               boxShadow: 3,
               backgroundColor: currentIndex === 0 ? "#D1D5DB" : "#E5E7EB",
               color: currentIndex === 0 ? "#9CA3AF" : "#374151",
-              ":hover": currentIndex === 0 ? {} : { backgroundColor: "#D1D5DB" },
+              ":hover":
+                currentIndex === 0 ? {} : { backgroundColor: "#D1D5DB" },
             }}
           >
             Back

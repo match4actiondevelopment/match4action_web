@@ -30,6 +30,11 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import NextLink from "next/link";
 import { UserContext } from "@/modules/context/user-context";
+import {
+  detailHref,
+  rememberListPosition,
+  useRestoreListPosition,
+} from "@/modules/utils/listNavigation";
 import { http } from "@/modules/config/http";
 
 interface RecommendedInitiative {
@@ -63,8 +68,14 @@ interface RecommendedInitiative {
 
 export default function RecommendedInitiatives() {
   const router = useRouter();
-  const { isLogged } = useContext(UserContext) ?? {};
-  const [recommendations, setRecommendations] = useState<RecommendedInitiative[]>([]);
+  const {
+    isLogged,
+    user,
+    isLoading: sessionLoading,
+  } = useContext(UserContext) ?? {};
+  const [recommendations, setRecommendations] = useState<
+    RecommendedInitiative[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,11 +84,12 @@ export default function RecommendedInitiatives() {
   const handleInitiativeClick = (initiativeId: string) => {
     if (!isLogged) {
       // Redirect to login page if not authenticated
-      window.location.href = '/login';
+      window.location.href = "/login";
       return;
     }
     // If authenticated, navigate to the initiative detail page
-    window.location.href = `/initiatives/${initiativeId}`;
+    rememberListPosition();
+    window.location.href = detailHref(initiativeId);
   };
 
   const fetchRecommendations = async (isRefresh = false) => {
@@ -94,13 +106,16 @@ export default function RecommendedInitiatives() {
       });
 
       if (!response.data?.success) {
-        throw new Error(response.data?.message || "Failed to fetch recommendations");
+        throw new Error(
+          response.data?.message || "Failed to fetch recommendations"
+        );
       }
 
       setRecommendations(response.data?.data || []);
       setLastUpdated(new Date());
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || "An error occurred";
+      const errorMessage =
+        err.response?.data?.message || err.message || "An error occurred";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -109,8 +124,16 @@ export default function RecommendedInitiatives() {
   };
 
   useEffect(() => {
-    fetchRecommendations();
-  }, []);
+    if (sessionLoading) return;
+    if (isLogged && user?.role === "volunteer") void fetchRecommendations();
+    else {
+      setRecommendations([]);
+      setLoading(false);
+    }
+  }, [sessionLoading, isLogged, user?._id, user?.role]);
+  useRestoreListPosition(
+    !sessionLoading && !loading && recommendations.length > 0
+  );
 
   const handleRefresh = () => {
     fetchRecommendations(true);
@@ -138,7 +161,23 @@ export default function RecommendedInitiatives() {
     return "Weak Match";
   };
 
-  if (loading) {
+  if (!sessionLoading && (!isLogged || user?.role !== "volunteer"))
+    return (
+      <Box sx={{ p: 4 }}>
+        <Alert severity="info">
+          {!isLogged
+            ? "Log in as a volunteer to see your matches."
+            : "Personalised matches are for volunteer accounts."}
+        </Alert>
+        <Button
+          component={NextLink}
+          href={!isLogged ? "/login" : "/initiatives"}
+        >
+          {!isLogged ? "Log in" : "Browse opportunities"}
+        </Button>
+      </Box>
+    );
+  if (loading || sessionLoading) {
     return (
       <Box
         minHeight="100vh"
@@ -152,7 +191,7 @@ export default function RecommendedInitiatives() {
         <Box textAlign="center">
           <CircularProgress size={60} />
           <Typography variant="h6" sx={{ mt: 2 }}>
-            Finding your perfect matches...
+            Finding matched opportunities...
           </Typography>
         </Box>
       </Box>
@@ -176,7 +215,12 @@ export default function RecommendedInitiatives() {
           transition={{ duration: 0.6 }}
         >
           <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
               <Box display="flex" alignItems="center" gap={2}>
                 <PsychologyIcon sx={{ fontSize: 40, color: "primary.main" }} />
                 <Box>
@@ -184,7 +228,8 @@ export default function RecommendedInitiatives() {
                     These options can help you explore
                   </Typography>
                   <Typography color="text.secondary">
-                    Personalized recommendations based on your Ikigai test results
+                    Personalized recommendations based on your Ikigai test
+                    results
                   </Typography>
                 </Box>
               </Box>
@@ -209,12 +254,16 @@ export default function RecommendedInitiatives() {
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
+                <Button onClick={handleRefresh} disabled={refreshing}>
+                  Retry
+                </Button>
               </Alert>
             )}
 
             {recommendations.length === 0 && !error && (
               <Alert severity="info">
-                No recommendations available. Please take the Ikigai test first to get personalized recommendations.
+                No active matches are available for your current result. You can
+                browse opportunities or take the test.
                 <Button
                   component={NextLink}
                   href="/ikigai-demo"
@@ -259,7 +308,9 @@ export default function RecommendedInitiatives() {
                       }}
                     >
                       <Chip
-                        label={`${initiative.matchingScore.toFixed(1)}%`}
+                        label={`Match score: ${initiative.matchingScore.toFixed(
+                          1
+                        )}/10`}
                         sx={{
                           bgcolor: getScoreColor(initiative.matchingScore),
                           color: "white",
@@ -277,8 +328,16 @@ export default function RecommendedInitiatives() {
 
                       {/* Match Quality */}
                       <Box display="flex" alignItems="center" gap={1} mb={2}>
-                        <TrendingUpIcon sx={{ fontSize: 16, color: getScoreColor(initiative.matchingScore) }} />
-                        <Typography variant="body2" color={getScoreColor(initiative.matchingScore)}>
+                        <TrendingUpIcon
+                          sx={{
+                            fontSize: 16,
+                            color: getScoreColor(initiative.matchingScore),
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          color={getScoreColor(initiative.matchingScore)}
+                        >
                           {getScoreLabel(initiative.matchingScore)}
                         </Typography>
                       </Box>
@@ -300,19 +359,37 @@ export default function RecommendedInitiatives() {
 
                       {/* Location */}
                       <Box display="flex" alignItems="center" gap={1} mb={2}>
-                        <LocationIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                        <LocationIcon
+                          sx={{ fontSize: 16, color: "text.secondary" }}
+                        />
                         <Typography variant="body2" color="text.secondary">
-                          {initiative.location.city}, {initiative.location.country}
+                          {[
+                            initiative.location?.city,
+                            initiative.location?.country,
+                          ]
+                            .filter(Boolean)
+                            .join(", ") || "Location not provided"}
                         </Typography>
                       </Box>
 
-                      {/* Event Details */}
-                      <Box display="flex" alignItems="center" gap={1} mb={2}>
-                        <CalendarIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {initiative.eventItemFrame} • {initiative.eventItemType}
-                        </Typography>
-                      </Box>
+                      {[
+                        initiative.eventItemFrame,
+                        initiative.eventItemType,
+                      ].some(Boolean) && (
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                          <CalendarIcon
+                            sx={{ fontSize: 16, color: "text.secondary" }}
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            {[
+                              initiative.eventItemFrame,
+                              initiative.eventItemType,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </Typography>
+                        </Box>
+                      )}
 
                       {/* Matching Reasons */}
                       <Box mb={2}>
@@ -326,7 +403,9 @@ export default function RecommendedInitiatives() {
 
                         {(initiative.matchingReasons?.length
                           ? initiative.matchingReasons.slice(0, 2)
-                          : ["This opportunity may align with your Ikigai profile."]
+                          : [
+                              "This opportunity may align with your Ikigai profile.",
+                            ]
                         ).map((reason, index) => (
                           <Typography
                             key={index}
@@ -341,22 +420,32 @@ export default function RecommendedInitiatives() {
 
                       {/* Tags */}
                       <Box mb={2}>
-                        <Typography variant="body2" fontWeight={600} gutterBottom>
+                        <Typography
+                          variant="body2"
+                          fontWeight={600}
+                          gutterBottom
+                        >
                           Key Areas:
                         </Typography>
                         <Box display="flex" flexWrap="wrap" gap={0.5}>
-                          {initiative.whatMovesThisInitiative.slice(0, 3).map((tag, idx) => (
+                          {(initiative.whatMovesThisInitiative || [])
+                            .slice(0, 3)
+                            .map((tag, idx) => (
+                              <Chip
+                                key={idx}
+                                label={tag}
+                                size="small"
+                                variant="outlined"
+                                sx={{ fontSize: "0.7rem", height: 24 }}
+                              />
+                            ))}
+                          {(initiative.whatMovesThisInitiative || []).length >
+                            3 && (
                             <Chip
-                              key={idx}
-                              label={tag}
-                              size="small"
-                              variant="outlined"
-                              sx={{ fontSize: "0.7rem", height: 24 }}
-                            />
-                          ))}
-                          {initiative.whatMovesThisInitiative.length > 3 && (
-                            <Chip
-                              label={`+${initiative.whatMovesThisInitiative.length - 3}`}
+                              label={`+${
+                                (initiative.whatMovesThisInitiative || [])
+                                  .length - 3
+                              }`}
                               size="small"
                               variant="outlined"
                               sx={{ fontSize: "0.7rem", height: 24 }}
@@ -367,7 +456,9 @@ export default function RecommendedInitiatives() {
 
                       {/* Organization */}
                       <Box display="flex" alignItems="center" gap={1}>
-                        <PeopleIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                        <PeopleIcon
+                          sx={{ fontSize: 16, color: "text.secondary" }}
+                        />
                         <Typography variant="body2" color="text.secondary">
                           by {initiative.userId?.name || "Unknown Organization"}
                         </Typography>
@@ -392,39 +483,16 @@ export default function RecommendedInitiatives() {
             ))}
           </Grid>
         </AnimatePresence>
-
-        {/* Empty State */}
-        {recommendations.length === 0 && !loading && !error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Paper elevation={3} sx={{ p: 6, textAlign: "center" }}>
-              <PsychologyIcon sx={{ fontSize: 80, color: "text.secondary", mb: 2 }} />
-              <Typography variant="h5" gutterBottom>
-                No Recommendations Yet
-              </Typography>
-              <Typography color="text.secondary" mb={3}>
-                Take our Ikigai test to discover initiatives that match your passions and goals.
-              </Typography>
-              <Button
-                component={NextLink}
-                href="/ikigai-demo"
-                variant="contained"
-                size="large"
-              >
-                Take Ikigai Test
-              </Button>
-            </Paper>
-          </motion.div>
-        )}
       </Box>
 
       <style jsx>{`
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
         .animate-spin {
           animation: spin 1s linear infinite;

@@ -1,19 +1,27 @@
-import { UserContext } from '@/modules/context/user-context';
-import { UserRole } from '@/modules/types/types';
-import { logout } from '@/modules/services';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Dispatch, SetStateAction, useCallback, useContext, useMemo, useState, useEffect } from 'react';
-import { Item } from './Item';
+import { UserContext } from "@/modules/context/user-context";
+import { UserRole } from "@/modules/types/types";
+import { logout } from "@/modules/services";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import NextLink from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+} from "react";
+import { Item } from "./Item";
 import Modal from "../Modal";
 import Portal from "@/HOC/modal-portal";
 
@@ -31,15 +39,18 @@ type TemporaryDrawerProps = {
 
 const notAuthenticatedUserMenuList: DrawerItem[] = [
   {
-    name: 'Volunteer now',
-    url: '/volunteer-now',
+    name: "Volunteer now",
+    url: "/initiatives",
   },
-  { name: 'Blog', url: '/blog' },
-  { name: 'About us', url: '/about-us' },
-  { name: 'Get in touch', url: '/contact-us' },
+  { name: "Blog", url: "/blog" },
+  { name: "About us", url: "/about-us" },
+  { name: "Get in touch", url: "/contact-us" },
 ];
 
-export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) => {
+export const TemporaryDrawer = ({
+  open,
+  toggleDrawer,
+}: TemporaryDrawerProps) => {
   const router = useRouter();
   const { isLogged, user } = useContext(UserContext) ?? {};
   const { setUser } = useContext(UserContext) ?? {};
@@ -48,11 +59,11 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
   const handleLogout = useCallback(async () => {
     const response = await logout();
     if (response) {
-      localStorage.removeItem('match4action@tokens');
-      localStorage.removeItem('match4action@user');
+      localStorage.removeItem("match4action@tokens");
+      localStorage.removeItem("match4action@user");
       setUser && setUser(null);
       toggleDrawer(false);
-      router.push('/');
+      router.push("/");
     }
   }, [router, setUser, toggleDrawer]);
 
@@ -62,87 +73,53 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
 
   const authenticatedUserMenuList: DrawerItem[] = useMemo(
     () => [
+      { name: "My profile", url: "/profile", icon: <PersonOutlineIcon /> },
       {
-        name: 'My profile',
-        url: '/profile',
-        icon: (
-          <PersonOutlineIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
+        name:
+          user?.role === UserRole.volunteer
+            ? "Volunteer now"
+            : "Browse opportunities",
+        url: "/initiatives",
       },
-      ...((user?.role === UserRole.admin || user?.role === UserRole.organization) ? [{
-        name: 'Create initiative',
-        url: '/create-initiative',
-        icon: (
-          <CreateNewFolderOutlinedIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
-      }] : []),
+      ...(user?.role === UserRole.volunteer
+        ? [
+            { name: "Take test", url: "/test" },
+            {
+              name: "Recommended for you",
+              url: "/recommended-initiatives",
+              icon: <PsychologyIcon />,
+            },
+          ]
+        : []),
+      ...([UserRole.organization, UserRole.admin].includes(
+        user?.role as UserRole
+      )
+        ? [
+            {
+              name: "Create initiative",
+              url: "/create-initiative",
+              icon: <CreateNewFolderOutlinedIcon />,
+            },
+            {
+              name: "Owned initiatives",
+              url: "/profile#owned-initiatives",
+              icon: <AddCircleOutlineIcon />,
+            },
+            { name: "Application reports", url: "/reports" },
+          ]
+        : []),
+      ...(user?.role === UserRole.admin
+        ? [{ name: "Administration", url: "/admin" }]
+        : []),
       {
-        name: 'Recommended for you',
-        url: '/recommended-initiatives',
-        icon: (
-          <PsychologyIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
-      },
-      {
-        name: 'Favourite initiatives',
-        url: '/favourite',
-        icon: (
-          <FavoriteBorderIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
-      },
-      {
-        name: 'Owned initiatives',
-        url: '/owned-initiatives',
-        icon: (
-          <AddCircleOutlineIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
-      },
-      {
-        name: 'Contacted inititiatives',
-        url: '/contacted-inititiatives',
-        icon: (
-          <BookmarkBorderIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
-      },
-      {
-        name: 'Log out',
-        url: '/',
-        icon: (
-          <ExitToAppIcon
-            sx={{
-              fill: '#2C3235',
-            }}
-          />
-        ),
+        name: "Log out",
+        url: "/",
         action: setOpenModal,
+        icon: <ExitToAppIcon />,
       },
-      { name: 'Blog', url: '/blog' },
-      { name: 'About us', url: '/about-us' },
-      { name: 'Get in touch', url: '/contact-us' },
+      { name: "Blog", url: "/blog" },
+      { name: "About us", url: "/about-us" },
+      { name: "Get in touch", url: "/contact-us" },
     ],
     [setOpenModal, user?.role]
   );
@@ -162,11 +139,13 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
   }, []);
 
   const drawer = useMemo(() => {
-    const list = isLogged ? authenticatedUserMenuList : notAuthenticatedUserMenuList;
-    const mappedList = list.map(item => 
-      item.name === 'Blog' ? { ...item, url: blogUrl } : item
+    const list = isLogged
+      ? authenticatedUserMenuList
+      : notAuthenticatedUserMenuList;
+    const mappedList = list.map((item) =>
+      item.name === "Blog" ? { ...item, url: blogUrl } : item
     );
-    const bg = isLogged ? '#FFD15C' : '#FFFFFF';
+    const bg = isLogged ? "#FFD15C" : "#FFFFFF";
     return {
       list: mappedList,
       bg,
@@ -174,13 +153,13 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
   }, [isLogged, authenticatedUserMenuList, blogUrl]);
 
   return (
-    <Drawer open={open} anchor={'left'} onClose={() => toggleDrawer(false)}>
+    <Drawer open={open} anchor={"left"} onClose={() => toggleDrawer(false)}>
       <Box
         style={{ width: 305 }}
         onClick={() => toggleDrawer(false)}
         sx={{
-          paddingTop: '2.5rem',
-          height: '100%',
+          paddingTop: "2.5rem",
+          height: "100%",
           background: drawer.bg,
         }}
       >
@@ -189,7 +168,14 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
             {item?.action ? (
               <Item data={item} />
             ) : (
-              <NextLink href={item.url} target={item.name === "Blog" ? "_blank" : "_self"} style={{ textDecoration: 'none', fontSize: '0.875rem !important' }}>
+              <NextLink
+                href={item.url}
+                target={item.name === "Blog" ? "_blank" : "_self"}
+                style={{
+                  textDecoration: "none",
+                  fontSize: "0.875rem !important",
+                }}
+              >
                 <Item data={item} />
               </NextLink>
             )}
@@ -197,18 +183,23 @@ export const TemporaryDrawer = ({ open, toggleDrawer }: TemporaryDrawerProps) =>
         ))}
       </Box>
 
-      {openModal ?
+      {openModal ? (
         <Portal>
           <Modal
             modalTitle="Are you sure you want to log out?"
             firstButtonTitle="Yes"
             lastButtonTitle="Cancel"
-            firstButtonFunction={() => { handleLogout() }}
-            lastButtonFunction={() => { setIsOpen(!openModal) }}
+            firstButtonFunction={() => {
+              handleLogout();
+            }}
+            lastButtonFunction={() => {
+              setIsOpen(!openModal);
+            }}
           />
-        </Portal> :
+        </Portal>
+      ) : (
         <></>
-      }
+      )}
     </Drawer>
   );
 };

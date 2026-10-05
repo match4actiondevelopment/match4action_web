@@ -1,5 +1,8 @@
 "use client";
 
+import OwnedInitiatives from "@/modules/components/OwnedInitiatives";
+import SavedIkigaiResults from "@/modules/components/SavedIkigaiResults";
+import SafeImage from "@/modules/components/SafeImage";
 import AppliedVolunteerPositions from "@/modules/components/AppliedVolunteerPositions";
 import { UserContext } from "@/modules/context/user-context";
 import { useGetProfile } from "@/modules/hooks/useGetProfile";
@@ -18,10 +21,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import NextImage from "next/image";
 import NextLink from "next/link";
@@ -33,18 +33,12 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  Controller,
-  useForm,
-} from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import "react-quill/dist/quill.snow.css";
 import * as yup from "yup";
 import { updateImage } from "../services";
 import { saveAccountProfile } from "../services/account";
-import {
-  lato,
-  sourceSerifPro,
-} from "../styles/fonts";
+import { lato, sourceSerifPro } from "../styles/fonts";
 import { ProfileFormInterface } from "../types/types";
 import { formatEntryDate } from "../utils";
 
@@ -54,35 +48,21 @@ const schema = yup
   })
   .required();
 
-export default function Profile({
-  userId,
-}: {
-  userId?: string;
-}) {
+export default function Profile({ userId }: { userId?: string }) {
   const context = useContext(UserContext);
-  const accountId =
-    context?.user?._id || userId;
+  const accountId = context?.user?._id || userId;
 
   const queryClient = useQueryClient();
-  const inputRef =
-    useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [editing, setEditing] = useState(false);
-  const [fileList, setFileList] =
-    useState<FileList | null>(null);
+  const [fileList, setFileList] = useState<FileList | null>(null);
   const [bio, setBio] = useState("");
   const [error, setError] = useState("");
 
-  const {
-    data: profile,
-    isLoading,
-  } = useGetProfile(accountId);
+  const { data: profile, isLoading } = useGetProfile(accountId);
 
-  const {
-    handleSubmit,
-    control,
-    reset,
-  } = useForm<ProfileFormInterface>({
+  const { handleSubmit, control, reset } = useForm<ProfileFormInterface>({
     resolver: yupResolver(schema),
     defaultValues: {
       name: "",
@@ -103,10 +83,7 @@ export default function Profile({
   );
 
   useEffect(() => {
-    if (
-      !profile ||
-      typeof profile !== "object"
-    ) {
+    if (!profile || typeof profile !== "object") {
       return;
     }
 
@@ -115,9 +92,7 @@ export default function Profile({
     reset({
       name: profile.name,
       birthDate: profile.birthDate
-        ? formatEntryDate(
-            profile.birthDate.toString()
-          )
+        ? formatEntryDate(profile.birthDate.toString())
         : "",
       location: {
         city: profile.location?.city || "",
@@ -127,26 +102,16 @@ export default function Profile({
   }, [profile, reset]);
 
   const update = useMutation({
-    mutationFn: (
-      body: ProfileFormInterface
-    ) => {
+    mutationFn: (body: ProfileFormInterface) => {
       if (!accountId) {
-        throw new Error(
-          "Please log in again."
-        );
+        throw new Error("Please log in again.");
       }
 
-      return saveAccountProfile(
-        accountId,
-        body
-      );
+      return saveAccountProfile(accountId, body);
     },
 
     onSuccess(user) {
-      queryClient.setQueryData(
-        ["profile", user._id],
-        user
-      );
+      queryClient.setQueryData(["profile", user._id], user);
 
       context?.setUser(user);
       setEditing(false);
@@ -164,17 +129,14 @@ export default function Profile({
   });
 
   const upload = useMutation({
-    mutationFn: (data: FormData) =>
-      updateImage(data),
+    mutationFn: (data: FormData) => updateImage(data),
 
     onSuccess(image) {
       update.mutate({ image });
     },
 
     onError() {
-      setError(
-        "Could not upload your image."
-      );
+      setError("Could not upload your image.");
     },
   });
 
@@ -192,33 +154,22 @@ export default function Profile({
     );
   }
 
-  if (
-    !profile ||
-    typeof profile !== "object"
-  ) {
+  if (!profile || typeof profile !== "object") {
     return (
       <Alert severity="error">
-        Could not load your profile. Please
-        reload the page.
+        Could not load your profile. Please reload the page.
       </Alert>
     );
   }
 
-  const uploading =
-    upload.isLoading ||
-    (update.isLoading && !!fileList);
+  const uploading = upload.isLoading || (update.isLoading && !!fileList);
 
-  const busy =
-    upload.isLoading || update.isLoading;
+  const busy = upload.isLoading || update.isLoading;
 
   const roleLabel =
-    profile.role === "organization"
-      ? "Organisation"
-      : profile.role;
+    profile.role === "organization" ? "Organisation" : profile.role;
 
-  function handleFileChange(
-    event: ChangeEvent<HTMLInputElement>
-  ) {
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     setFileList(event.target.files);
   }
 
@@ -262,10 +213,7 @@ export default function Profile({
       </Typography>
 
       {error && (
-        <Alert
-          severity="error"
-          sx={{ mb: 2 }}
-        >
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
@@ -279,40 +227,22 @@ export default function Profile({
       >
         <Box sx={{ position: "relative" }}>
           {uploading ? (
-            <Skeleton
-              variant="circular"
-              width={76}
-              height={76}
-            />
+            <Skeleton variant="circular" width={76} height={76} />
           ) : (
-            <NextImage
-              src={
-                profile.image ||
-                "/default-user.svg"
-              }
-              alt={
-                profile.name || "Profile"
-              }
-              width={76}
-              height={76}
-              style={{
-                borderRadius: "50%",
-              }}
+            <SafeImage
+              src={profile.image}
+              alt={profile.name || "Profile"}
+              style={{ width: 76, height: 76, borderRadius: "50%" }}
             />
           )}
 
           <Button
             aria-label={
-              fileList?.length
-                ? "Save profile image"
-                : "Change profile image"
+              fileList?.length ? "Save profile image" : "Change profile image"
             }
             disabled={busy}
             onClick={
-              fileList?.length
-                ? uploadImage
-                : () =>
-                    inputRef.current?.click()
+              fileList?.length ? uploadImage : () => inputRef.current?.click()
             }
             sx={{
               position: "absolute",
@@ -322,13 +252,9 @@ export default function Profile({
             }}
           >
             {fileList?.length ? (
-              <SaveIcon
-                sx={{ color: "#FFD15C" }}
-              />
+              <SaveIcon sx={{ color: "#FFD15C" }} />
             ) : (
-              <EditIcon
-                sx={{ color: "#FFD15C" }}
-              />
+              <EditIcon sx={{ color: "#FFD15C" }} />
             )}
           </Button>
 
@@ -362,23 +288,15 @@ export default function Profile({
 
             <Button
               disabled={busy}
-              onClick={handleSubmit(
-                (data) => {
-                  setError("");
-                  update.mutate({
-                    ...data,
-                    bio,
-                  });
-                }
-              )}
+              onClick={handleSubmit((data) => {
+                setError("");
+                update.mutate({
+                  ...data,
+                  bio,
+                });
+              })}
             >
-              {update.isLoading ? (
-                <CircularProgress
-                  size={14}
-                />
-              ) : (
-                "Save"
-              )}
+              {update.isLoading ? <CircularProgress size={14} /> : "Save"}
             </Button>
           </>
         ) : (
@@ -389,9 +307,7 @@ export default function Profile({
               setError("");
             }}
           >
-            <EditIcon
-              sx={{ color: "#FFD15C" }}
-            />
+            <EditIcon sx={{ color: "#FFD15C" }} />
           </Button>
         )}
       </Box>
@@ -402,21 +318,14 @@ export default function Profile({
             <Controller
               name="name"
               control={control}
-              render={({
-                field,
-                fieldState,
-              }) => (
+              render={({ field, fieldState }) => (
                 <TextField
                   {...field}
                   size="small"
                   fullWidth
                   label="Full Name"
-                  error={
-                    !!fieldState.error
-                  }
-                  helperText={
-                    fieldState.error?.message
-                  }
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
                 />
               )}
             />
@@ -446,12 +355,7 @@ export default function Profile({
               name="location.city"
               control={control}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  size="small"
-                  fullWidth
-                  label="City"
-                />
+                <TextField {...field} size="small" fullWidth label="City" />
               )}
             />
           </Grid>
@@ -461,12 +365,7 @@ export default function Profile({
               name="location.country"
               control={control}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  size="small"
-                  fullWidth
-                  label="Country"
-                />
+                <TextField {...field} size="small" fullWidth label="Country" />
               )}
             />
           </Grid>
@@ -486,11 +385,7 @@ export default function Profile({
         </Grid>
       ) : (
         <Box className={lato.className}>
-          <Typography
-            sx={{ lineHeight: "40px" }}
-          >
-            {profile.name}
-          </Typography>
+          <Typography sx={{ lineHeight: "40px" }}>{profile.name}</Typography>
 
           {profile.birthDate && (
             <Typography
@@ -498,32 +393,27 @@ export default function Profile({
                 lineHeight: "40px",
               }}
             >
-              {formatEntryDate(
-                profile.birthDate.toString()
-              )}
+              {formatEntryDate(profile.birthDate.toString())}
             </Typography>
           )}
 
-          {profile.location?.city &&
-            profile.location?.country && (
-              <Typography
+          {profile.location?.city && profile.location?.country && (
+            <Typography
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                lineHeight: "40px",
+              }}
+            >
+              <RoomIcon
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  lineHeight: "40px",
+                  color: "#7F8390",
+                  mr: 0.5,
                 }}
-              >
-                <RoomIcon
-                  sx={{
-                    color: "#7F8390",
-                    mr: 0.5,
-                  }}
-                />
-
-                {profile.location.city} (
-                {profile.location.country})
-              </Typography>
-            )}
+              />
+              {profile.location.city} ({profile.location.country})
+            </Typography>
+          )}
 
           <Typography
             sx={{
@@ -536,7 +426,8 @@ export default function Profile({
         </Box>
       )}
 
-      {!editing && profile.roleSelectionPending !== true &&
+      {!editing &&
+        profile.roleSelectionPending !== true &&
         (profile.role === "organization" || profile.role === "admin") && (
           <Button component={NextLink} href="/reports" sx={{ mt: 1 }}>
             Application reports
@@ -568,29 +459,20 @@ export default function Profile({
         />
       )}
 
-      <AppliedVolunteerPositions
-        userId={accountId}
-      />
-
-      <Divider sx={{ mt: 4 }} />
-
-      <Typography
-        className={sourceSerifPro.className}
-        fontWeight={600}
-        sx={{ mt: 4, mb: 2 }}
-      >
-        My Test Results
-      </Typography>
-
-      <Divider sx={{ mt: 4 }} />
-
-      <Typography
-        className={sourceSerifPro.className}
-        fontWeight={600}
-        sx={{ mt: 4, mb: 2 }}
-      >
-        Owned Initiatives
-      </Typography>
+      {profile.role === "volunteer" && accountId && (
+        <>
+          <AppliedVolunteerPositions userId={accountId} />
+          <Divider sx={{ mt: 4 }} />
+          <SavedIkigaiResults userId={accountId} />
+        </>
+      )}
+      {(profile.role === "organization" || profile.role === "admin") &&
+        accountId && <OwnedInitiatives userId={accountId} />}
+      {profile.role === "admin" && (
+        <Button component={NextLink} href="/admin">
+          Administration
+        </Button>
+      )}
     </Box>
   );
 }

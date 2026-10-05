@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   myApplicationsKey,
   useGetMyApplications,
@@ -23,52 +23,67 @@ import {
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import NextImage from "next/image";
-import { useRouter } from "next/navigation";
+import SafeImage from "@/modules/components/SafeImage";
+import NextLink from "next/link";
+import { http } from "@/modules/config/http";
+import { sourcePath } from "@/modules/utils/listNavigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useContext, useState } from "react";
 
-export default function VolunteerPost({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function VolunteerPost({ params }: { params: { id: string } }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const userContext = useContext(UserContext);
-  const { data, isLoading } = useGetInitiative(params.id);
+  const roleQuery = useGetInitiative(params.id);
+  const { data, isLoading } = roleQuery;
+  const search = useSearchParams();
+  const backPath = sourcePath(search?.get("from") || null);
+  const volunteer = userContext?.user?.role === UserRole.volunteer;
+  const matches = useQuery(
+    ["role-match", userContext?.user?._id, params.id],
+    async () => {
+      const response = await http.get("/matching/recommendations", {
+        withCredentials: true,
+      });
+      if (!response.data?.success)
+        throw new Error("Could not load match explanation.");
+      return (
+        response.data.data.find(
+          (item: { _id: string }) => item._id === params.id
+        ) || null
+      );
+    },
+    { enabled: !!userContext?.isLogged && volunteer }
+  );
 
   const userId = userContext?.user?._id;
-  const applicationQuery = useGetMyApplications(userId);
+  const applicationQuery = useGetMyApplications(volunteer ? userId : undefined);
 
   const [submittedKey, setSubmittedKey] = useState("");
   const [isApplying, setIsApplying] = useState(false);
   const [applyError, setApplyError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [notificationStatus, setNotificationStatus] =
-    useState("pending");
+  const [notificationStatus, setNotificationStatus] = useState("pending");
 
   const currentKey = `${userId}:${params.id}`;
 
   const alreadyApplied =
     submittedKey === currentKey ||
     !!applicationQuery.data?.some(
-      (application) =>
-        application.initiativeId === params.id
+      (application) => application.initiativeId === params.id
     );
 
   const checkingApplication =
-    !!userId && applicationQuery.isLoading;
+    volunteer && !!userId && applicationQuery.isLoading;
 
   const applicationCheckFailed =
-    !!userId && applicationQuery.isError;
+    volunteer && !!userId && applicationQuery.isError;
 
   const isUnavailable =
-    data?.status === "inactive" ||
-    data?.status === "closed";
+    data?.status === "inactive" || data?.status === "closed";
 
   const isNonVolunteer =
-    userContext?.isLogged &&
-    userContext.user?.role !== UserRole.volunteer;
+    userContext?.isLogged && userContext.user?.role !== UserRole.volunteer;
 
   const handleApply = async () => {
     setApplyError("");
@@ -79,46 +94,32 @@ export default function VolunteerPost({
     }
 
     if (userContext.user?.role !== UserRole.volunteer) {
-      setApplyError(
-        "Only volunteer accounts can apply to opportunities."
-      );
+      setApplyError("Only volunteer accounts can apply to opportunities.");
       return;
     }
 
-    if (
-      alreadyApplied ||
-      checkingApplication ||
-      applicationCheckFailed
-    ) {
+    if (alreadyApplied || checkingApplication || applicationCheckFailed) {
       return;
     }
 
     if (isUnavailable) {
-      setApplyError(
-        "This opportunity is not accepting applications."
-      );
+      setApplyError("This opportunity is not accepting applications.");
       return;
     }
 
     try {
       setIsApplying(true);
 
-      const result = (await applyToInitiative(
-        params.id
-      )) as {
+      const result = (await applyToInitiative(params.id)) as {
         applied: boolean;
         notificationStatus?: string;
       };
 
-      setNotificationStatus(
-        result.notificationStatus || "pending"
-      );
+      setNotificationStatus(result.notificationStatus || "pending");
 
       setSubmittedKey(currentKey);
 
-      void queryClient.invalidateQueries(
-        myApplicationsKey(userId)
-      );
+      void queryClient.invalidateQueries(myApplicationsKey(userId));
 
       setShowSuccess(true);
     } catch (error) {
@@ -127,9 +128,7 @@ export default function VolunteerPost({
       };
 
       if (failure.status === 409) {
-        void queryClient.invalidateQueries(
-          myApplicationsKey(userId)
-        );
+        void queryClient.invalidateQueries(myApplicationsKey(userId));
       }
 
       setApplyError(failure.message);
@@ -138,427 +137,199 @@ export default function VolunteerPost({
     }
   };
 
+  if (isLoading)
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <CircularProgress aria-label="Loading opportunity" />
+      </Box>
+    );
+  if (roleQuery.isError || !data?._id)
+    return (
+      <Box sx={{ p: 4 }}>
+        <Button component={NextLink} href={backPath}>
+          Back to opportunities
+        </Button>
+        <Alert
+          severity="error"
+          action={<Button onClick={() => roleQuery.refetch()}>Retry</Button>}
+        >
+          This opportunity could not be loaded. It may no longer be available.
+        </Alert>
+      </Box>
+    );
+  const ownerName =
+    typeof data.userId === "object" ? data.userId?.name : undefined;
+  const eventDetails = [
+    data.eventItemFrame || data.eventTimeFrame,
+    data.eventItemType || data.eventType,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const posted =
+    data.createdAt && Number.isFinite(Date.parse(data.createdAt))
+      ? formatEntryDate(data.createdAt)
+      : null;
   return (
     <Box
       component="main"
-      marginTop="1.5rem"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      padding="0 1rem"
-      height="100%"
-      position="relative"
+      sx={{ maxWidth: 780, mx: "auto", p: { xs: 2, sm: 4 } }}
     >
-      <Box
-        sx={(theme) => ({
-          width: "100%",
-          [theme.breakpoints.down("sm")]: {},
-          [theme.breakpoints.up("sm")]: {
-            maxWidth: "600px",
-          },
-        })}
-      >
-        {data?.image?.map((image, index) => (
-          <Box
-            key={image}
-            sx={{
-              width: "100%",
-              height: "240px",
-              position: "relative",
-            }}
-          >
-            <NextImage
-              alt={`${data?.initiativeName} ${index} image`}
-              src={image}
-              fill
-            />
-          </Box>
-        ))}
-      </Box>
-
-      <Typography
-        className={lato.className}
-        fontWeight="700"
-        sx={(theme) => ({
-          width: "100%",
-          textAlign: "right",
-          letterSpacing: "-0.015em",
-          color: theme.palette.text.primary,
-          lineHeight: "14px",
-          fontWeight: 300,
-          marginTop: "0.5rem",
-          [theme.breakpoints.down("sm")]: {
-            fontSize: ".75rem",
-          },
-          [theme.breakpoints.up("sm")]: {
-            fontSize: ".75rem",
-            maxWidth: "600px",
-          },
-        })}
-      >
-        Date Posted: {formatEntryDate(data?.createdAt)}
+      <Button component={NextLink} href={backPath} sx={{ mb: 2 }}>
+        {backPath.startsWith("/recommended")
+          ? "Back to recommendations"
+          : backPath.startsWith("/profile")
+          ? "Back to owned initiatives"
+          : "Back to opportunities"}
+      </Button>
+      {data.image?.filter(Boolean).map((image, index) => (
+        <Box key={`${image}-${index}`} sx={{ height: 240, mb: 2 }}>
+          <SafeImage src={image} alt={data.initiativeName} />
+        </Box>
+      ))}
+      <Typography variant="h4" component="h1" gutterBottom>
+        {data.initiativeName}
       </Typography>
-
-      <Typography
-        className={lato.className}
-        fontWeight="700"
-        sx={(theme) => ({
-          width: "100%",
-          textAlign: "left",
-          color: theme.palette.text.primary,
-          marginTop: "2rem",
-          lineHeight: "24px",
-          [theme.breakpoints.down("sm")]: {
-            fontSize: "1.5rem",
-          },
-          [theme.breakpoints.up("sm")]: {
-            fontSize: "1.5rem",
-            maxWidth: "600px",
-          },
-        })}
-      >
-        {data?.initiativeName}
+      <Typography sx={{ mb: 1 }}>
+        Organisation: {ownerName || "Organisation information unavailable"}
       </Typography>
-
-      <Typography
-        className={lato.className}
-        sx={(theme) => ({
-          width: "100%",
-          textAlign: "left",
-          color: theme.palette.text.primary,
-          lineHeight: "20px",
-          marginTop: ".2rem",
-          [theme.breakpoints.down("sm")]: {
-            fontSize: "1rem",
-          },
-          [theme.breakpoints.up("sm")]: {
-            fontSize: "1rem",
-            maxWidth: "600px",
-          },
-        })}
-      >
-        {data?.servicesNeeded?.map(
-          (service, index) =>
-            `${service}${
-              data.servicesNeeded.length - 1 === index
-                ? ""
-                : ", "
-            }`
-        )}
+      {posted && (
+        <Typography variant="body2" color="text.secondary">
+          Date posted: {posted}
+        </Typography>
+      )}
+      <Typography sx={{ mt: 2 }}>{data.servicesNeeded?.join(", ")}</Typography>
+      <Typography>
+        Location:{" "}
+        {[data.location?.city, data.location?.country]
+          .filter(Boolean)
+          .join(", ") || "Not provided"}
       </Typography>
-
-      <Typography
-        className={lato.className}
-        sx={(theme) => ({
-          width: "100%",
-          textAlign: "left",
-          color: theme.palette.text.primary,
-          lineHeight: "14px",
-          marginTop: ".5rem",
-          [theme.breakpoints.down("sm")]: {
-            fontSize: "0.875rem",
-          },
-          [theme.breakpoints.up("sm")]: {
-            fontSize: "0.875rem",
-            maxWidth: "600px",
-          },
-        })}
-      >
-        {`Location: ${data?.location?.city} ${
-          data?.location?.country
-            ? `, ${data.location.country}`
-            : null
-        }`}
-      </Typography>
-
-      <Typography
-        className={lato.className}
-        sx={(theme) => ({
-          width: "100%",
-          textAlign: "left",
-          marginTop: "1rem",
-          color: theme.palette.text.primary,
-          [theme.breakpoints.down("sm")]: {},
-          [theme.breakpoints.up("sm")]: {
-            maxWidth: "600px",
-          },
-        })}
-      >
-        {data?.description}
-      </Typography>
-
-      <Typography
-        className={lato.className}
-        sx={(theme) => ({
-          width: "100%",
-          textAlign: "center",
-          marginTop: "2rem",
-          marginBottom: "1rem",
-          color: theme.palette.text.primary,
-          [theme.breakpoints.down("sm")]: {},
-          [theme.breakpoints.up("sm")]: {
-            maxWidth: "600px",
-          },
-        })}
-      >
-        Global Goals attended by this cause
-      </Typography>
-
-      <Grid
-        container
-        spacing={{ xs: 2, md: 2 }}
-        sx={{ maxWidth: "600px" }}
-      >
-        {data?.goals &&
-          data.goals.length > 0 &&
-          data.goals.map((item) => {
-            const goal = item as Goal;
-
-            return (
-              <Grid item xs={4} sm={2} key={goal?._id}>
-                <Button
-                  sx={{
-                    background: "#ececec",
-                    width: "100%",
-                    cursor: "pointer",
-                    height: "151px",
-                    fontSize: "0.5rem",
-                    borderRadius: "none",
-                  }}
-                >
-                  {goal?.image ? (
-                    <NextImage
-                      alt={goal.name}
-                      src={goal.image}
-                      fill
-                    />
-                  ) : (
-                    goal?.name
-                  )}
-                </Button>
-              </Grid>
-            );
+      {eventDetails && <Typography sx={{ mt: 1 }}>{eventDetails}</Typography>}
+      {data.startDate && Number.isFinite(Date.parse(data.startDate)) && (
+        <Typography>Starts: {formatEntryDate(data.startDate)}</Typography>
+      )}
+      {data.endDate && Number.isFinite(Date.parse(data.endDate)) && (
+        <Typography>Ends: {formatEntryDate(data.endDate)}</Typography>
+      )}
+      {data.startTime && Number.isFinite(Date.parse(data.startTime)) && (
+        <Typography>
+          Start time:{" "}
+          {new Date(data.startTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
           })}
-      </Grid>
-
-      <Grid
-        container
-        spacing={{ xs: 2, md: 2 }}
-        sx={(theme) => ({
-          [theme.breakpoints.down("sm")]: {
-            position: "fixed",
-            bottom: "1rem",
-            padding: "0 1rem",
-          },
-          [theme.breakpoints.up("sm")]: {
-            maxWidth: "600px",
-            marginTop: "1rem",
-          },
-        })}
-      >
-        <Grid item xs={12}>
-          <Typography
-            className={lato.className}
-            variant="body2"
-            color="text.secondary"
-          >
-            Applying shares your name and email with this
-            organisation.
+        </Typography>
+      )}
+      {data.endTime && Number.isFinite(Date.parse(data.endTime)) && (
+        <Typography>
+          End time:{" "}
+          {new Date(data.endTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
+          })}
+        </Typography>
+      )}
+      <Typography sx={{ my: 3, whiteSpace: "pre-line" }}>
+        {data.description}
+      </Typography>
+      {data.website && /^https?:\/\//i.test(data.website) && (
+        <Button
+          component="a"
+          href={data.website}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Organisation website
+        </Button>
+      )}
+      {volunteer && matches.data && (
+        <Box sx={{ my: 3 }}>
+          <Typography variant="h6">Why this matches you</Typography>
+          {(matches.data.matchingReasons?.length
+            ? matches.data.matchingReasons
+            : ["This opportunity may align with your Ikigai profile."]
+          ).map((reason: string) => (
+            <Typography key={reason}>{reason}</Typography>
+          ))}
+        </Box>
+      )}
+      {!!data.goals?.length && (
+        <Box sx={{ my: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Global Goals supported by this cause
           </Typography>
-        </Grid>
-
-        {alreadyApplied && (
-          <Grid item xs={12}>
-            <Alert severity="info">
-              You have already applied to this opportunity.
-            </Alert>
-          </Grid>
-        )}
-
-        {applicationCheckFailed && (
-          <Grid item xs={12}>
-            <Alert
-              severity="error"
-              action={
-                <Button
-                  onClick={() =>
-                    applicationQuery.refetch()
-                  }
-                >
-                  Retry
-                </Button>
-              }
-            >
-              Could not check your application status.
-              Please retry before applying.
-            </Alert>
-          </Grid>
-        )}
-
-        {applyError && (
-          <Grid item xs={12}>
-            <Alert severity="error">
-              {applyError}
-            </Alert>
-          </Grid>
-        )}
-
-        {isNonVolunteer && (
-          <Grid item xs={12}>
-            <Alert severity="info">
-              Only volunteer accounts can apply to
-              opportunities.
-            </Alert>
-          </Grid>
-        )}
-
-        <Grid item xs={6} sm={6}>
-          <Button
-            onClick={handleApply}
-            disabled={
-              isLoading ||
-              isApplying ||
-              isUnavailable ||
-              isNonVolunteer ||
-              alreadyApplied ||
-              checkingApplication ||
-              applicationCheckFailed
-            }
-            className={lato.className}
-            sx={(theme) => ({
-              [theme.breakpoints.down("sm")]: {
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "39px",
-                background: "#FFD15C",
-                color: theme.palette.text.primary,
-                fontWeight: 600,
-                fontSize: "1rem",
-                ":focus": { background: "#FFD15C" },
-                ":active": { background: "#FFD15C" },
-                ":hover": { background: "#FFD15C" },
-                ":disabled": {
-                  background: "#D3D3D3",
-                  color: theme.palette.text.secondary,
-                  boxShadow: "none",
-                },
-                textTransform: "capitalize",
-                textDecoration: "none",
-                minWidth: "100%",
-                borderRadius: "5px",
-                marginBottom: "1rem",
-                cursor: "pointer",
-              },
-              [theme.breakpoints.up("sm")]: {
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "14px 28px",
-                height: "56px",
-                background: "#FFD15C",
-                color: theme.palette.text.primary,
-                boxShadow:
-                  "0px 10px 20px rgba(0, 0, 0, 0.15)",
-                fontWeight: 600,
-                fontSize: "1rem",
-                ":focus": { background: "#FFD15C" },
-                ":active": { background: "#FFD15C" },
-                ":hover": { background: "#FFD15C" },
-                ":disabled": {
-                  background: "#D3D3D3",
-                  color: theme.palette.text.secondary,
-                  boxShadow: "none",
-                },
-                textTransform: "capitalize",
-                textDecoration: "none",
-                borderRadius: "5px",
-                marginBottom: "1rem",
-                cursor: "pointer",
-                width: "100%",
-              },
-            })}
-          >
-            {isApplying ? (
-              <CircularProgress
-                size={20}
-                color="inherit"
-              />
-            ) : alreadyApplied ? (
-              "Already applied"
-            ) : checkingApplication ? (
-              "Checking application…"
-            ) : isUnavailable ? (
-              "Applications closed"
-            ) : (
-              "Apply"
+          <Box display="flex" gap={2} flexWrap="wrap">
+            {data.goals.map(
+              (item) =>
+                typeof item === "object" &&
+                item && (
+                  <Box key={item._id} sx={{ width: 100, height: 120 }}>
+                    <SafeImage src={item.image} alt={item.name} />
+                  </Box>
+                )
             )}
-          </Button>
-        </Grid>
-
-        <Grid item xs={6} sm={6}>
-          <Button
-            className={lato.className}
-            sx={(theme) => ({
-              [theme.breakpoints.down("sm")]: {
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "40px",
-                background: "#ffffff",
-                color: theme.palette.text.primary,
-                fontWeight: 600,
-                fontSize: "1rem",
-                border: "3px solid #FFD15C",
-                ":focus": {
-                  background: "#ffffff",
-                  border: "3px solid #FFD15C",
-                },
-                ":active": {
-                  background: "#ffffff",
-                  border: "3px solid #FFD15C",
-                },
-                textTransform: "capitalize",
-                textDecoration: "none",
-                minWidth: "100%",
-                borderRadius: "5px",
-                marginBottom: "1.5rem",
-                cursor: "pointer",
-              },
-              [theme.breakpoints.up("sm")]: {
-                padding: "12px 28px",
-                background: "#ffffff",
-                color: theme.palette.text.primary,
-                boxShadow:
-                  "0px 10px 20px rgba(0, 0, 0, 0.15)",
-                fontWeight: 600,
-                fontSize: "1rem",
-                border: "3px solid #FFD15C",
-                ":focus": {
-                  background: "#ffffff",
-                  border: "3px solid #FFD15C",
-                },
-                ":active": {
-                  background: "#ffffff",
-                  border: "3px solid #FFD15C",
-                },
-                ":hover": { background: "#ffffff" },
-                textTransform: "capitalize",
-                textDecoration: "none",
-                borderRadius: "5px",
-                marginBottom: "1rem",
-                cursor: "pointer",
-                width: "100%",
-                marginRight: "0",
-              },
-            })}
+          </Box>
+        </Box>
+      )}
+      <Box sx={{ my: 3, display: "grid", gap: 2 }}>
+        {!isNonVolunteer && (
+          <Typography variant="body2">
+            Applying shares your name and email with this organisation.
+          </Typography>
+        )}
+        {alreadyApplied && (
+          <Alert severity="info">
+            You have already applied to this opportunity.
+          </Alert>
+        )}
+        {isNonVolunteer && (
+          <Alert severity="info">
+            Only volunteer accounts can apply to opportunities.
+          </Alert>
+        )}
+        {isUnavailable && (
+          <Alert severity="info">
+            This opportunity is not accepting applications.
+          </Alert>
+        )}
+        {applicationCheckFailed && (
+          <Alert
+            severity="error"
+            action={
+              <Button onClick={() => applicationQuery.refetch()}>Retry</Button>
+            }
           >
-            Save
-          </Button>
-        </Grid>
-      </Grid>
-
+            Could not check your application status. Please retry before
+            applying.
+          </Alert>
+        )}
+        {applyError && <Alert severity="error">{applyError}</Alert>}
+        <Button
+          variant="contained"
+          onClick={handleApply}
+          disabled={
+            userContext?.isLoading ||
+            isApplying ||
+            isUnavailable ||
+            !!isNonVolunteer ||
+            alreadyApplied ||
+            checkingApplication ||
+            applicationCheckFailed
+          }
+        >
+          {isApplying
+            ? "Submitting…"
+            : alreadyApplied
+            ? "Already applied"
+            : checkingApplication
+            ? "Checking application…"
+            : isUnavailable
+            ? "Applications closed"
+            : "Apply"}
+        </Button>
+      </Box>
       <Dialog
         open={showSuccess}
         onClose={() => setShowSuccess(false)}
@@ -573,8 +344,8 @@ export default function VolunteerPost({
           </Alert>
 
           <Typography>
-            This role has been saved to your profile under
-            Applied volunteer positions.
+            This role has been saved to your profile under Applied volunteer
+            positions.
           </Typography>
 
           <Typography sx={{ mt: 2 }}>
@@ -590,21 +361,13 @@ export default function VolunteerPost({
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button
-            onClick={() =>
-              router.push("/recommended-initiatives")
-            }
-          >
+          <Button onClick={() => router.push("/recommended-initiatives")}>
             Back to recommendations
           </Button>
 
           <Button
             variant="contained"
-            onClick={() =>
-              router.push(
-                "/profile#applied-volunteer-positions"
-              )
-            }
+            onClick={() => router.push("/profile#applied-volunteer-positions")}
             sx={{
               background: "#FFD15C",
               color: "text.primary",

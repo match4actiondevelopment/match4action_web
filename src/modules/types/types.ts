@@ -84,7 +84,9 @@ export interface Provider {
 }
 
 export interface InitiativeInterface {
-  userId: string;
+  userId: string | { _id: string; name?: string } | null;
+  eventItemFrame?: string;
+  eventItemType?: string;
   status?: "active" | "inactive" | "closed";
   eventTimeFrame?: string;
   eventType?: string;

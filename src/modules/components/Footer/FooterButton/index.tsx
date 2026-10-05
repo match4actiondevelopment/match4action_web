@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { UserContext } from "@/modules/context/user-context";
 import { logout } from "@/modules/services";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -13,11 +15,11 @@ export interface FooterButtonInterface {
 }
 
 export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
+  const { isLogged, isLoading } = useContext(UserContext) ?? {};
   const pathname = usePathname();
-  const doNotShowLoginButton = [
-    "login",
-    "register",
-  ].includes(pathname as string);
+  const doNotShowLoginButton = ["/login", "/register"].includes(
+    pathname as string
+  );
   const isMobile = useMediaQuery(theme.breakpoints.down(1129), {
     noSsr: true,
   });
@@ -26,6 +28,8 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
     await logout();
     window.location.href = window.location.origin;
   };
+
+  if (isLoading || isLogged || accessToken || doNotShowLoginButton) return null;
 
   return (
     <>
@@ -38,7 +42,7 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
           alignItems: "center",
           justifyContent: "center",
           background: "transparent",
-          boxShadow: "none"
+          boxShadow: "none",
         }}
       >
         {!doNotShowLoginButton && !accessToken ? (
@@ -92,7 +96,8 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
                   alt="arrow right"
                   src="/arrow_right_black.svg"
                   width={18}
-                  height={16} />
+                  height={16}
+                />
               )}
             </Button>
           </NextLink>
@@ -148,7 +153,8 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
                 alt="logout"
                 src="/logout-white.svg"
                 width={18}
-                height={16} />
+                height={16}
+              />
             )}
           </Button>
         ) : (
@@ -207,7 +213,8 @@ export const FooterButton = ({ accessToken }: FooterButtonInterface) => {
                   alt="arrow right"
                   src="/arrow_right_white.svg"
                   width={18}
-                  height={16} />
+                  height={16}
+                />
               </>
             )}
           </Button>
